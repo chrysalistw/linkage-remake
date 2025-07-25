@@ -1,0 +1,174 @@
+[gd_scene load_steps=2 format=3 uid="uid://cqm2sxhj3jfmd"]
+
+[ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
+
+[node name="PlayScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_r8xdl")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.2, 0.2, 0.2, 1)
+
+[node name="Dashboard" type="Panel" parent="."]
+modulate = Color(0.8, 0.8, 0.8, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 1.0
+anchor_bottom = 0.208
+offset_bottom = -3.0
+grow_horizontal = 2
+
+[node name="MovesLabel" type="Label" parent="Dashboard"]
+layout_mode = 1
+anchors_preset = -1
+anchor_right = 0.75
+anchor_bottom = 0.5
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -10.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 25
+text = "MOVES LEFT: 50"
+vertical_alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="Dashboard"]
+layout_mode = 1
+anchors_preset = -1
+anchor_top = 0.5
+anchor_right = 0.75
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 10.0
+offset_right = -20.0
+offset_bottom = -20.0
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 25
+text = "SCORE: 0"
+vertical_alignment = 1
+
+[node name="ControlButtons" type="Control" parent="Dashboard"]
+layout_mode = 1
+anchor_left = 0.75
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="RewardButton" type="Button" parent="Dashboard/ControlButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.05
+anchor_top = 0.2
+anchor_right = 0.35
+anchor_bottom = 0.8
+text = "💰"
+flat = true
+
+[node name="ResetButton" type="Button" parent="Dashboard/ControlButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.35
+anchor_top = 0.2
+anchor_right = 0.65
+anchor_bottom = 0.8
+text = "🔄"
+flat = true
+
+[node name="HomeButton" type="Button" parent="Dashboard/ControlButtons"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.65
+anchor_top = 0.2
+anchor_right = 0.95
+anchor_bottom = 0.8
+text = "🏠"
+flat = true
+
+[node name="GameArea" type="Control" parent="."]
+layout_mode = 1
+anchor_top = 0.208
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 20.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = -20.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GameBoard" type="Panel" parent="GameArea"]
+modulate = Color(0.3, 0.3, 0.3, 1)
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -240.0
+offset_top = -320.0
+offset_right = 240.0
+offset_bottom = 320.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="PlaceholderLabel" type="Label" parent="GameArea/GameBoard"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.7, 1)
+text = "6x8 GAME BOARD
+(Placeholder)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GameLostDialog" type="AcceptDialog" parent="."]
+title = "Game Over"
+initial_position = 2
+size = Vector2i(400, 200)
+
+[node name="VBox" type="VBoxContainer" parent="GameLostDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -49.0
+
+[node name="MessageLabel" type="Label" parent="GameLostDialog/VBox"]
+layout_mode = 2
+text = "No More Moves!"
+horizontal_alignment = 1
+
+[node name="ButtonContainer" type="HBoxContainer" parent="GameLostDialog/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="RestartButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
+layout_mode = 2
+text = "RESTART"
+
+[node name="FineButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
+layout_mode = 2
+text = "FINE"
+
+[connection signal="pressed" from="Dashboard/ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]
+[connection signal="pressed" from="Dashboard/ControlButtons/ResetButton" to="." method="_on_reset_button_pressed"]
+[connection signal="pressed" from="Dashboard/ControlButtons/HomeButton" to="." method="_on_home_button_pressed"]
+[connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/RestartButton" to="." method="_on_restart_button_pressed"]
+[connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/FineButton" to="." method="_on_fine_button_pressed"]

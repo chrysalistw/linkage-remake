@@ -1,0 +1,274 @@
+# LINKAGE GAME - INTERACTION SYSTEM  
+# Pseudocode representation of mainGameNode.js and playDragHandler.js
+
+## MAIN GAME NODE (BOARD RENDERER AND CONTROLLER)
+MAIN_GAME_NODE:
+  offset: {x, y}           // Screen position offset
+  host: SCREEN_REFERENCE   // Parent screen reference
+  game: GAME_REFERENCE     // Game state reference
+  
+  METHODS:
+    draw(ctx, time)         // Render game board
+    setHost(host)           // Set parent screen
+    setData(game)           // Set game reference
+    place(x, y)             // Position on screen
+    listen()                // Enable input
+    kill()                  // Disable input
+
+## BOARD RENDERING ALGORITHM
+PROCEDURE DrawGameBoard(ctx, time):
+  playScreen = this.host
+  drag_state = playDragHandler.getDragState()
+  tile_size = game.tileSize
+  
+  // Render each tile with potential displacement
+  FOR y = 0 to game.height-1:
+    FOR x = 0 to game.width-1:
+      // Calculate temporary position (accounts for dragging)
+      temp_pos = CalculateTemporaryPosition(x, y, drag_state)
+      screen_x = temp_pos.x * tile_size + this.offset.x
+      screen_y = temp_pos.y * tile_size + this.offset.y
+      
+      // Apply drag displacement
+      SWITCH drag_state.state:
+        CASE "horizontal":
+          IF y == drag_state.from.row:
+            screen_x += drag_state.displace.x
+        CASE "vertical":
+          IF x == drag_state.from.col:
+            screen_y += drag_state.displace.y
+        CASE undefined:
+          IF drag_state.from EXISTS:
+            IF drag_state.dir.x == 0 AND x == drag_state.from.col:
+              screen_y += drag_state.displace.y
+            IF drag_state.dir.y == 0 AND y == drag_state.from.row:
+              screen_x += drag_state.displace.x
+      
+      // Choose sprite based on game state
+      sprite_name = DETERMINE_SPRITE(x, y)
+      
+      // Draw tile
+      game.board[y][x].draw(ctx, sprite_name, screen_x, screen_y, tile_size, time)
+    END_FOR
+  END_FOR
+  
+  // Draw drag indicator
+  IF game.dragging AND drag_state.from EXISTS:
+    DRAW_RED_BORDER(game.board[drag_state.from.row][drag_state.from.col].bound)
+  
+  // Draw drag line
+  IF drag_state.displace EXISTS AND drag_state.start EXISTS:
+    DRAW_DRAG_LINE(drag_state.start, drag_state.displace)
+
+FUNCTION DetermineSprite(x, y):
+  IF game.links[y][x] AND game.removing:
+    RETURN settings.removing_sprite  // Fade animation
+  ELSE:
+    RETURN settings.sprite           // Normal sprite
+
+## TEMPORARY POSITION CALCULATION (FOR DRAG PREVIEW)
+FUNCTION CalculateTemporaryPosition(x, y, drag_state):
+  temp_x = x
+  temp_y = y
+  
+  // Handle vertical drag preview
+  IF drag_state.to EXISTS AND drag_state.state == "vertical":
+    IF drag_state.from.col == x:
+      temp_y += drag_state.to.row - drag_state.from.row
+      temp_y = (temp_y + game.height) % game.height  // Wrap around
+  
+  // Handle horizontal drag preview  
+  IF drag_state.to EXISTS AND drag_state.state == "horizontal":
+    IF drag_state.from.row == y:
+      temp_x += drag_state.to.col - drag_state.from.col
+      temp_x = (temp_x + game.width) % game.width    // Wrap around
+  
+  RETURN [temp_x, temp_y]
+
+## PLAY DRAG HANDLER (INPUT PROCESSING)
+PLAY_DRAG_HANDLER:
+  from: {row, col}         // Drag start tile
+  to: {row, col}           // Current drag target tile
+  state: STRING            // "horizontal", "vertical", or undefined
+  displace: {x, y}         // Visual displacement amount
+  dir: {x, y}              // Movement direction
+  start: {x, y}            // Initial mouse/touch position
+  target: CANVAS_ELEMENT   // Canvas for input events
+  dragEvent: DRAG_EVENT    // Low-level drag handler
+  game: GAME_REFERENCE     // Game state reference
+  host: SCREEN_REFERENCE   // Parent screen reference
+
+## MOUSE/TOUCH EVENT HANDLERS
+PROCEDURE OnMouseDown(event):
+  IF game.removing:  // Ignore input during tile removal animation
+    RETURN
+  
+  // Convert to canvas coordinates
+  x = event.offsetX * devicePixelRatio
+  y = event.offsetY * devicePixelRatio
+  
+  // Record drag start
+  this.start = {x, y}
+  game.dragging = true
+  
+  // Determine which tile was clicked
+  this.from = GetTileAtPosition(canvas, x, y)
+  this.to = this.from
+
+PROCEDURE OnMouseMove(event):
+  IF this.from NOT EXISTS:
+    RETURN
+  
+  x = event.offsetX * devicePixelRatio
+  y = event.offsetY * devicePixelRatio
+  
+  // Update target tile
+  previous_to = this.to
+  this.to = GetTileAtPosition(canvas, x, y)
+  
+  // Play sound on tile change
+  IF previous_to != this.to AND both_exist:
+    game.sound.click1.cloneNode().play()
+  
+  // Determine drag state (horizontal vs vertical)
+  IF this.to EXISTS AND this.to.equals(this.from):
+    this.state = undefined
+  ELSE:
+    UPDATE_DRAG_STATE(this.from, this.to)
+  
+  // Calculate movement direction and displacement
+  movement_x = event.movementX
+  movement_y = event.movementY
+  
+  direction = CALCULATE_MOVEMENT_DIRECTION(movement_x, movement_y)
+  this.dir = direction
+  
+  // Calculate visual displacement for smooth dragging
+  tile_width = game.tileSize
+  start_pos = this.start
+  distance_squared = (x - start_pos.x)² + (y - start_pos.y)²
+  distance = sqrt(distance_squared) % tile_width / tile_width
+  
+  this.displace = {
+    x: distance * direction.x * tile_width / 10,
+    y: distance * direction.y * tile_width / 10
+  }
+
+PROCEDURE OnMouseUp(event):
+  drag_state = {
+    state: this.state,
+    from: this.from, 
+    to: this.to
+  }
+  
+  IF this.from EXISTS AND this.to EXISTS:
+    // Apply the drag operation to game board
+    ApplyDragToBoard(drag_state)
+    
+    // Check if tiles actually moved
+    tiles_moved = NOT (this.from.row == this.to.row AND this.from.col == this.to.col)
+    IF tiles_moved:
+      game.movesLeft -= 1
+    
+    // Check for game over
+    IF game.movesLeft <= 0:
+      game.gameLost()
+      this.host.showLostDialog()
+  
+  // Reset drag state
+  this.from = undefined
+  this.to = undefined
+  this.state = undefined
+  this.displace = {x: 0, y: 0}
+  game.dragging = false
+  
+  // Process any new connections
+  game.links = DetectLinks(game.board)
+  game.removeLinks()
+
+## DRAG STATE DETERMINATION
+PROCEDURE UpdateDragState(from, to):
+  IF this.state == undefined:
+    IF to.col == from.col AND to.row != from.row:
+      this.state = "vertical"
+    ELSE IF to.col != from.col AND to.row == from.row:
+      this.state = "horizontal"  
+    ELSE IF to.col != from.col AND to.row != from.row:
+      this.state = "horizontal"  // Default to horizontal for diagonal
+
+FUNCTION CalculateMovementDirection(movement_x, movement_y):
+  direction = {x: 0, y: 0}
+  
+  IF abs(movement_x) > abs(movement_y):
+    direction.x = sign(movement_x)
+  ELSE:
+    direction.y = sign(movement_y)
+  
+  IF direction.x == 0 AND direction.y == 0:
+    direction = this.dir  // Keep previous direction
+  
+  RETURN direction
+
+## BOARD MANIPULATION
+PROCEDURE ApplyDragToBoard(drag_state):
+  SWITCH drag_state.state:
+    CASE undefined:
+      RETURN  // No actual drag occurred
+      
+    CASE "vertical":
+      col = drag_state.from.col
+      row_shift = drag_state.to.row - drag_state.from.row
+      
+      // Extract column as array
+      column_array = EXTRACT_COLUMN(game.board, col)
+      
+      // Rotate column by shift amount
+      rotated_column = RotateArray(column_array, row_shift)
+      
+      // Update board and tile positions
+      FOR i = 0 to rotated_column.length-1:
+        game.board[i][col] = rotated_column[i]
+        game.board[i][col].y = i
+        game.board[i][col].moveTo(game.board[i][col].x, i)
+      
+    CASE "horizontal":
+      row = drag_state.from.row
+      col_shift = drag_state.to.col - drag_state.from.col
+      
+      // Rotate entire row by shift amount
+      game.board[row] = RotateArray(game.board[row], col_shift)
+      
+      // Update tile positions
+      FOR i = 0 to game.board[row].length-1:
+        game.board[row][i].x = i
+        game.board[row][i].moveTo(i, game.board[row][i].y)
+
+## TILE POSITION DETECTION
+FUNCTION GetTileAtPosition(canvas, x, y):
+  ctx = canvas.getContext("2d")
+  board = game.board
+  
+  // Check each tile's boundary
+  FOR row = 0 to board.length-1:
+    FOR col = 0 to board[row].length-1:
+      IF ctx.isPointInPath(board[row][col].bound, x, y):
+        RETURN {row, col}
+  
+  RETURN undefined
+
+## UTILITY FUNCTIONS
+FUNCTION RotateArray(array, shift_amount):
+  array_copy = COPY(array)
+  shift_amount = shift_amount % array_copy.length
+  IF shift_amount < 0:
+    shift_amount += array_copy.length
+  
+  RETURN array_copy.concat(array_copy.splice(0, array_copy.length - shift_amount))
+
+FUNCTION ExtractColumn(board, col_index):
+  column = EMPTY_ARRAY
+  FOR row in board:
+    column.ADD(row[col_index])
+  RETURN column
+
+EXPORT: mainGameNode, playDragHandler

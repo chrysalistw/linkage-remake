@@ -1,0 +1,91 @@
+[gd_scene load_steps=2 format=3 uid="uid://08qo8iiaa474"]
+
+[ext_resource type="Script" uid="uid://b73y8w2dda2h" path="res://TitleScreen.gd" id="1_5sxkl"]
+
+[node name="TitleScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_5sxkl")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleShadow" type="Label" parent="TitleContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.167
+anchor_right = 0.9
+anchor_bottom = 0.267
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 5.0
+offset_bottom = 5.0
+theme_override_colors/font_color = Color(0, 0.553, 0.325, 1)
+theme_override_font_sizes/font_size = 50
+text = "LINKAGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="MainTitle" type="Label" parent="TitleContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.167
+anchor_right = 0.9
+anchor_bottom = 0.267
+theme_override_colors/font_color = Color(0, 1, 0.443, 1)
+theme_override_font_sizes/font_size = 50
+text = "LINKAGE"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ButtonContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="StartButton" type="Button" parent="ButtonContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.4
+anchor_right = 0.75
+anchor_bottom = 0.5
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "START"
+
+[node name="AboutButton" type="Button" parent="ButtonContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.6
+anchor_right = 0.75
+anchor_bottom = 0.7
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 32
+text = "ABOUT"
+
+[connection signal="pressed" from="ButtonContainer/StartButton" to="." method="_on_start_button_pressed"]
+[connection signal="pressed" from="ButtonContainer/AboutButton" to="." method="_on_about_button_pressed"]

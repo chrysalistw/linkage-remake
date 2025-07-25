@@ -1,0 +1,64 @@
+extends Control
+
+@onready var star_button = $ContentContainer/StarContainer/StarButton
+@onready var tutorial_dialog = $TutorialDialog
+@onready var highscore_label = $ContentContainer/HighscoreLabel
+
+var is_star_rotating: bool = false
+var rotation_start_time: float = 0.0
+var rotation_duration: float = 3.0
+
+func _ready():
+	_setup_screen()
+	_load_highscore()
+
+func _setup_screen():
+	# Set up responsive title sizing based on screen dimensions
+	var title_shadow = $TitleContainer/TitleShadow
+	var about_title = $TitleContainer/AboutTitle
+	
+	# Calculate font size based on viewport dimensions
+	var viewport_size = get_viewport().get_visible_rect().size
+	var font_size = min(viewport_size.x * 0.06, 40)  # Max 40px, scaled by width
+	
+	title_shadow.add_theme_font_size_override("font_size", font_size)
+	about_title.add_theme_font_size_override("font_size", font_size)
+	
+	# Update shadow offset based on viewport size
+	var shadow_offset = min(viewport_size.x * 0.01, 5)
+	title_shadow.position.x = shadow_offset
+	title_shadow.position.y = shadow_offset
+
+func _load_highscore():
+	# Placeholder for highscore loading
+	# In the original pseudocode this would be Android.getHighscore()
+	var highscore = 0  # Placeholder value
+	highscore_label.text = "Highscore: " + str(highscore)
+
+func _process(delta):
+	if is_star_rotating:
+		var elapsed_time = Time.get_ticks_msec() - rotation_start_time
+		if elapsed_time >= rotation_duration:
+			is_star_rotating = false
+			star_button.rotation = 0.0
+		else:
+			# Rotate the star during the animation
+			var progress = elapsed_time / rotation_duration
+			star_button.rotation = progress * 2.0 * PI
+
+func _on_tutorial_button_pressed():
+	tutorial_dialog.popup_centered()
+
+func _on_star_button_pressed():
+	# Start star rotation animation (3 seconds as per pseudocode)
+	if not is_star_rotating:
+		is_star_rotating = true
+		rotation_start_time = Time.get_ticks_msec()
+
+func _on_home_button_pressed():
+	# Navigate back to title screen without dialog (show_dialog=false in pseudocode)
+	get_tree().change_scene_to_file("res://TitleScreen.tscn")
+
+func _on_ok_button_pressed():
+	# Close tutorial dialog
+	tutorial_dialog.hide()

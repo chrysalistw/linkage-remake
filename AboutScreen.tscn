@@ -1,0 +1,177 @@
+[gd_scene load_steps=2 format=3 uid="uid://fjmmo2urqtof"]
+
+[ext_resource type="Script" uid="uid://bwwko3xg7prty" path="res://AboutScreen.gd" id="1_3vyws"]
+
+[node name="AboutScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("1_3vyws")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TitleShadow" type="Label" parent="TitleContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.2
+offset_left = 5.0
+offset_top = 5.0
+offset_right = 5.0
+offset_bottom = 5.0
+theme_override_colors/font_color = Color(0, 0.553, 0.325, 1)
+theme_override_font_sizes/font_size = 40
+text = "ABOUT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="AboutTitle" type="Label" parent="TitleContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.1
+anchor_right = 0.9
+anchor_bottom = 0.2
+theme_override_colors/font_color = Color(0, 1, 0.443, 1)
+theme_override_font_sizes/font_size = 40
+text = "ABOUT"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="ContentContainer" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="TutorialButton" type="Button" parent="ContentContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.25
+anchor_top = 0.3
+anchor_right = 0.75
+anchor_bottom = 0.4
+theme_override_colors/font_color = Color(0, 0, 0, 1)
+theme_override_font_sizes/font_size = 24
+text = "TUTORIAL"
+
+[node name="HighscoreLabel" type="Label" parent="ContentContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.1
+anchor_top = 0.5
+anchor_right = 0.9
+anchor_bottom = 0.55
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 20
+text = "Highscore: 0"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="StarContainer" type="Control" parent="ContentContainer"]
+layout_mode = 1
+anchor_left = 0.1
+anchor_top = 0.6
+anchor_right = 0.5
+anchor_bottom = 0.8
+
+[node name="StarButton" type="Button" parent="ContentContainer/StarContainer"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -60.0
+offset_right = 60.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0, 1, 0.443, 1)
+theme_override_font_sizes/font_size = 48
+text = "★"
+flat = true
+
+[node name="AuthorLabel" type="Label" parent="ContentContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.5
+anchor_top = 0.6
+anchor_right = 0.9
+anchor_bottom = 0.8
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 18
+text = "chrysalis.tw"
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="HomeButton" type="Button" parent="ContentContainer"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.85
+anchor_top = 0.05
+anchor_right = 0.95
+anchor_bottom = 0.15
+text = "🏠"
+flat = true
+
+[node name="TutorialDialog" type="AcceptDialog" parent="."]
+title = "Tutorial"
+initial_position = 2
+size = Vector2i(500, 400)
+
+[node name="VBox" type="VBoxContainer" parent="TutorialDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = -8.0
+offset_bottom = -49.0
+
+[node name="TutorialText" type="RichTextLabel" parent="TutorialDialog/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+bbcode_enabled = true
+text = "[b]How to Play:[/b]
+
+Move tiles and connect them
+(can either be end with little
+squares or in a loop)
+
+If there's no tiles you're looking
+for, you can watch reward ads to
+lose 10 moves left then
+replace half of tiles randomly."
+fit_content = true
+
+[node name="OKButton" type="Button" parent="TutorialDialog/VBox"]
+layout_mode = 2
+text = "OK"
+
+[connection signal="pressed" from="ContentContainer/TutorialButton" to="." method="_on_tutorial_button_pressed"]
+[connection signal="pressed" from="ContentContainer/StarContainer/StarButton" to="." method="_on_star_button_pressed"]
+[connection signal="pressed" from="ContentContainer/HomeButton" to="." method="_on_home_button_pressed"]
+[connection signal="pressed" from="TutorialDialog/VBox/OKButton" to="." method="_on_ok_button_pressed"]

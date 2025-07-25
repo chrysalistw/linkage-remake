@@ -1,0 +1,80 @@
+# LINKAGE GAME - MAIN ENTRY POINT
+# Pseudocode representation of index.html and main.js
+
+## HTML STRUCTURE
+DOCUMENT_STRUCTURE:
+  - Title: "LINKAGE"
+  - Viewport: width=device-width, user-scalable=no
+  - Body: margin=0, overflow=hidden
+  - Canvas: full screen
+  - Script: load main.pseudo as module
+
+## MAIN INITIALIZATION PROCESS
+PROCEDURE InitializeGame():
+  // Canvas setup
+  canvas = getCanvasElement()
+  canvas.style.width = window.innerWidth + "px"
+  canvas.style.height = window.innerHeight + "px"
+  canvas.width = floor(window.innerWidth * devicePixelRatio)
+  canvas.height = floor(window.innerHeight * devicePixelRatio)
+  
+  // Create rendering context
+  ctx = canvas.getContext("2d")
+  renderer = new Renderer(ctx)
+  
+  // Default loading screen animation
+  renderer.default = LOADING_ANIMATION_FUNCTION
+  
+  // Start renderer
+  renderer.start()
+  
+  // Load all game modules and assets concurrently
+  PARALLEL_LOAD:
+    - import titleScreen module
+    - import playScreen module  
+    - import aboutScreen module
+    - load Ubuntu font from "./Ubuntu-Regular.ttf"
+    - wait 1500ms minimum loading time
+  
+  // Initialize screens after loading
+  WHEN all_loaded:
+    document.fonts.add(font)
+    titleScreen.apply(renderer)
+    playScreen.apply(renderer)
+    aboutScreen.apply(renderer)
+    
+    // Start with title screen
+    titleScreen.run()
+
+## LOADING SCREEN ANIMATION
+FUNCTION LoadingAnimation(ctx, time):
+  centerX = canvas.width / 2
+  centerY = canvas.height / 2 - canvas.width / 10
+  radius = min(canvas.width, canvas.height) / 4
+  theta = 3/5 * PI
+  rotation = (time / 2000) % (2 * PI)
+  
+  // Draw rotating star shape
+  ctx.fillStyle = "#EEFFFF"
+  ctx.strokeStyle = "#22CCCC"
+  ctx.lineWidth = radius / 10
+  
+  BEGIN_SHAPE()
+  MOVE_TO(centerX + radius * cos(rotation), centerY + radius * sin(rotation))
+  FOR i = 0 to 11:
+    LINE_TO(
+      centerX + radius * cos(i * theta + rotation),
+      centerY + radius * sin(i * theta + rotation)
+    )
+  END_FOR
+  STROKE_AND_FILL()
+  
+  // Draw "LOADING" text
+  ctx.fillStyle = "black"
+  ctx.font = "50px sans-serif"
+  ctx.textAlign = "center"
+  DRAW_TEXT("LOADING", canvas.width/2, centerY + 1.5 * radius)
+
+## PROGRAM ENTRY POINT
+START_PROGRAM:
+  InitializeGame()

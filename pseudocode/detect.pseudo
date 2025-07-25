@@ -1,0 +1,164 @@
+# LINKAGE GAME - PIPE CONNECTION DETECTION
+# Pseudocode representation of detect.js
+
+## PIPE CONNECTION MAPPING
+LINK_DIRECTIONS:
+  up: {
+    getTarget: (x,y) -> [x, y-1]
+    lookFor: [0, 1, 4, 7]  // Pipe types that connect upward
+  }
+  down: {
+    getTarget: (x,y) -> [x, y+1] 
+    lookFor: [1, 2, 5, 8]  // Pipe types that connect downward
+  }
+  right: {
+    getTarget: (x,y) -> [x+1, y]
+    lookFor: [6, 7, 8, 9]  // Pipe types that connect rightward
+  }
+  left: {
+    getTarget: (x,y) -> [x-1, y]
+    lookFor: [3, 4, 5, 6]  // Pipe types that connect leftward
+  }
+
+## MAIN DETECTION ALGORITHM
+FUNCTION DetectLinks(board):
+  // Create analysis copy of board
+  analysis_board = CREATE_ANALYSIS_COPY(board)
+  detected_links = EMPTY_LIST
+  current_link = EMPTY_LIST
+  
+  // Check every tile as potential starting point
+  FOR y = 0 to board.height-1:
+    FOR x = 0 to board.width-1:
+      TrackConnection(x, y)
+      current_link = EMPTY_LIST  // Reset for next potential link
+    END_FOR
+  END_FOR
+  
+  // Return boolean map of connected tiles
+  RETURN CONVERT_TO_BOOLEAN_MAP(analysis_board)
+
+## ANALYSIS BOARD STRUCTURE
+FUNCTION CreateAnalysisCopy(board):
+  analysis_board = EMPTY_2D_ARRAY
+  FOR each tile in board:
+    analysis_board[tile.y][tile.x] = {
+      face: tile.face,
+      in_link: true    // Assume connected until proven otherwise
+    }
+  END_FOR
+  RETURN analysis_board
+
+## CONNECTION TRACKING ALGORITHM
+PROCEDURE TrackConnection(x, y):
+  current_link.ADD([x, y])
+  
+  pipe_type = analysis_board[y][x].face
+  
+  SWITCH pipe_type:
+    CASE 0:  // Vertical end (down only)
+      LookIntoDirections(x, y, ["down"])
+    CASE 1:  // Vertical straight
+      LookIntoDirections(x, y, ["up", "down"])
+    CASE 2:  // Vertical end (up only)  
+      LookIntoDirections(x, y, ["up"])
+    CASE 3:  // Horizontal end (right only)
+      LookIntoDirections(x, y, ["right"])
+    CASE 4:  // Corner (right-down)
+      LookIntoDirections(x, y, ["right", "down"])
+    CASE 5:  // Corner (right-up)
+      LookIntoDirections(x, y, ["right", "up"])
+    CASE 6:  // Horizontal straight
+      LookIntoDirections(x, y, ["right", "left"])
+    CASE 7:  // Corner (left-down)
+      LookIntoDirections(x, y, ["left", "down"])
+    CASE 8:  // Corner (left-up)
+      LookIntoDirections(x, y, ["left", "up"])
+    CASE 9:  // Horizontal end (left only)
+      LookIntoDirections(x, y, ["left"])
+    DEFAULT:
+      // Invalid pipe type - mark entire current link as disconnected
+      FOR each [link_x, link_y] in current_link:
+        analysis_board[link_y][link_x].in_link = false
+      current_link = EMPTY_LIST
+
+## DIRECTIONAL CONNECTION CHECKING
+PROCEDURE LookIntoDirections(origin_x, origin_y, directions):
+  FOR each direction in directions:
+    target_coords = LINK_DIRECTIONS[direction].getTarget(origin_x, origin_y)
+    target_x = target_coords[0]
+    target_y = target_coords[1]
+    
+    valid_connections = LINK_DIRECTIONS[direction].lookFor
+    
+    IF NOT TryLink(target_x, target_y, valid_connections):
+      // Connection failed - mark entire current link as disconnected
+      FOR each [link_x, link_y] in current_link:
+        analysis_board[link_y][link_x].in_link = false
+    ELSE IF IsAlreadyInCurrentLink(target_x, target_y):
+      // Already visited in this link - valid loop connection
+      CONTINUE
+    ELSE:
+      // Valid connection - recursively track from target
+      TrackConnection(target_x, target_y)
+
+## CONNECTION VALIDATION
+FUNCTION TryLink(x, y, valid_pipe_types):
+  // Check bounds
+  IF y < 0 OR y >= analysis_board.height:
+    RETURN false
+  IF x < 0 OR x >= analysis_board[y].length:
+    RETURN false
+  
+  target_pipe_type = analysis_board[y][x].face
+  RETURN valid_pipe_types.CONTAINS(target_pipe_type)
+
+FUNCTION IsAlreadyInCurrentLink(x, y):
+  FOR each [link_x, link_y] in current_link:
+    IF link_x == x AND link_y == y:
+      RETURN true
+  RETURN false
+
+## LINK REMOVAL AND SCORING
+ASYNC_PROCEDURE RemoveLinks(withoutPause = false):
+  // Check if any links exist
+  has_links = false
+  FOR each row in game.links:
+    IF row.CONTAINS(true):
+      has_links = true
+      BREAK
+  
+  IF NOT has_links:
+    RETURN  // No links to remove
+  
+  game.removing = true
+  
+  IF NOT withoutPause:
+    WAIT(500ms)  // Animation delay
+  
+  // Replace all linked tiles and calculate score
+  score_increase = 0
+  FOR y = 0 to game.links.height-1:
+    FOR x = 0 to game.links.width-1:
+      IF game.links[y][x] == true:
+        // Replace with random new tile
+        game.board[y][x].face = RANDOM_INTEGER(0, 9)
+        IF NOT withoutPause:
+          score_increase += 1
+      END_IF
+    END_FOR
+  END_FOR
+  
+  // Update game state
+  game.score += score_increase
+  game.movesLeft += FLOOR(score_increase / 3)  // Bonus moves
+  game.removing = false
+  
+  // Recursive detection and removal
+  IF NOT withoutPause:
+    WAIT(300ms)  // Animation delay
+  
+  game.links = DetectLinks(game.board)
+  RemoveLinks(withoutPause)  // Recursive call for chain reactions
+
+EXPORT: DetectLinks, RemoveLinks

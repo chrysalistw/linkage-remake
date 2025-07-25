@@ -1,0 +1,154 @@
+# LINKAGE GAME - CORE GAME LOGIC
+# Pseudocode representation of game.js
+
+## GAME STATE DATA STRUCTURE
+GAME_STATE:
+  sprite: undefined                 // Current sprite theme
+  width: undefined                  // Board width (6)
+  height: undefined                 // Board height (8)  
+  board: 2D_ARRAY_OF_TILES         // Game board tiles
+  tileSize: undefined              // Pixel size of each tile
+  dragging: boolean = false        // Currently dragging tiles
+  movesLeft: integer = 100         // Remaining moves
+  lost: boolean = false            // Game over state
+  score: integer = 0               // Current score
+  rewardEarned: boolean = false    // Ad reward available
+  removing: boolean = false        // Animation state
+  links: 2D_ARRAY_OF_BOOLEAN      // Connected tile map
+  sound: AUDIO_OBJECT             // Sound effects
+
+## GAME SETTINGS
+SETTINGS:
+  sprite: "green"                  // Default tile sprite
+  removing_sprite: "green_fade"    // Fade animation sprite
+
+## CORE GAME FUNCTIONS
+
+PROCEDURE SetBoard(width, height):
+  game.width = width
+  game.height = height
+
+PROCEDURE InitializeGame():
+  game.movesLeft = 100
+  game.score = 0
+  game.lost = false
+  
+  // Create random board
+  game.board = CREATE_EMPTY_2D_ARRAY(game.height, game.width)
+  FOR y = 0 to game.height-1:
+    FOR x = 0 to game.width-1:
+      face = RANDOM_INTEGER(0, 9)  // 10 different pipe types
+      game.board[y][x] = NEW_TILE(x, y, game.tileSize, face)
+    END_FOR
+  END_FOR
+  
+  // Remove initial matches without pause
+  withoutPause = true
+  game.links = DetectLinks(game.board)
+  RemoveLinks(withoutPause)
+
+PROCEDURE GameLost():
+  game.lost = true
+  // Report high score to Android platform
+  IF Android_interface_available:
+    Android.setHighscore(game.score)
+
+ASYNC_PROCEDURE RestartGame():
+  WAIT(200ms)
+  playScreen_reference = GetPlayScreenControls()
+  mainGameNode = playScreen_reference.mainGameNode
+  InitializeGame()
+  mainGameNode.place(mainGameNode.offset.x, mainGameNode.offset.y)
+
+// Reward system - randomizes half the tiles
+PROCEDURE DeusExMachina():
+  FOR each row in game.board:
+    FOR each tile in row:
+      IF RANDOM() > 0.5:
+        tile.face = RANDOM_INTEGER(0, 9)
+    END_FOR
+  END_FOR
+  
+  // Process new connections immediately
+  withoutPause = true
+  game.links = DetectLinks(game.board)
+  RemoveLinks(withoutPause)
+
+## ANDROID INTEGRATION CALLBACKS
+// Exposed to Android WebView
+WINDOW_CALLBACKS:
+  window.restart = RestartGame
+  
+  window.rewardEarned = FUNCTION():
+    game.rewardEarned = true
+  
+  window.reward = ASYNC_FUNCTION():
+    IF game.rewardEarned:
+      WAIT(200ms)
+      DeusExMachina()
+      game.movesLeft -= 10  // Cost of using reward
+      game.rewardEarned = false
+
+## ASSET LOADING AND SPRITE SETUP
+ASYNC_PROCEDURE LoadGameAssets():
+  PARALLEL_LOAD:
+    - greenSprite from "imgs/tile_spr/linkage_test_green2.png"
+    - green_fade from "imgs/tile_spr/green_fade.png"  
+    - click1_sound from "sounds/trim_click_1.mp3"
+  
+  WHEN assets_loaded:
+    // Create sprite objects
+    tileWidth = game.tileWidth
+    sprites = Tile.prototype.sprites
+    
+    // Static sprite (10 frames: 3x3 grid plus extra)
+    sprites.green = NEW_SPRITE(
+      greenSprite, 
+      tileWidth,
+      frame_mapping: [64*floor(i/3), 64*(i%3), 64, 64]
+    )
+    
+    // Animated fade sprite (10 tiles, 5 frames each)
+    sprites.green_fade = NEW_ANIMATION_SPRITE(
+      green_fade,
+      tileWidth,
+      5 frames,
+      10 tiles,
+      frame_mapping: [64*frame, 64*tile_reorder[i], 64, 64]
+      tile_reorder: [0,4,1,2,6,7,5,8,9,3]
+    )
+    
+    // Sound effects
+    game.sound = {
+      "click1": click1_sound
+    }
+
+## TILE DATA STRUCTURE
+TILE_OBJECT:
+  x: integer           // Grid position X
+  y: integer           // Grid position Y  
+  width: integer       // Pixel width
+  face: integer        // Pipe type (0-9)
+  offset: {x, y}       // Screen offset
+  bound: PATH2D        // Hit detection boundary
+  
+  METHODS:
+    place(offsetX, offsetY)     // Set screen position
+    getBound(x, y)              // Calculate hit boundary
+    moveTo(x, y)                // Update grid position
+    draw(ctx, sprite, x, y, w, time)  // Render tile
+
+## PIPE TYPES (0-9)
+PIPE_CONFIGURATIONS:
+  0: Vertical end (top open)
+  1: Vertical straight (top-bottom)
+  2: Vertical end (bottom open)  
+  3: Horizontal end (right open)
+  4: Corner (right-bottom)
+  5: Corner (right-top)
+  6: Horizontal straight (left-right)
+  7: Corner (left-bottom)
+  8: Corner (left-top)
+  9: Horizontal end (left open)
+
+EXPORT: game, settings

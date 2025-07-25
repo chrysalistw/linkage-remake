@@ -1,0 +1,265 @@
+# LINKAGE GAME - SCREEN MANAGEMENT SYSTEM
+# Pseudocode representation of titleScreen.js, playScreen.js, aboutScreen.js
+
+## ABSTRACT SCREEN CLASS
+ABSTRACT_SCREEN:
+  width: integer
+  height: integer  
+  renderer: RENDERER_REFERENCE
+  nodes: DICTIONARY_OF_UI_ELEMENTS
+  controls: DICTIONARY_OF_INTERACTIVE_ELEMENTS
+  
+  METHODS:
+    start()           // Initialize screen elements
+    run()             // Begin screen execution
+    kill()            // Clean up and destroy screen
+    addNode(name, element)     // Add UI element
+    removeNode(name)           // Remove UI element
+    addControl(name, control)  // Add interactive control
+
+## TITLE SCREEN
+TITLE_SCREEN EXTENDS ABSTRACT_SCREEN:
+  
+  PROCEDURE start():
+    this.width = renderer.width
+    this.height = renderer.height
+    
+    // Main title with shadow effect
+    main_title = NEW_TEXT_VIEW("LINKAGE")
+    main_title.color("#00ff71").font("ubuntu").bold().size(50).center()
+    main_title.box(0.1*width, height/6, 0.8*width, height/10).fit()
+    
+    title_shadow = NEW_TEXT_VIEW("LINKAGE") 
+    title_shadow.color("#008d53").font("ubuntu").bold().size(50).center()
+    shadow_offset = min(0.01*width, 5*devicePixelRatio)
+    title_shadow.box(0.1*width + shadow_offset, height/6 + shadow_offset, 0.8*width, height/10).fit()
+    
+    // Start button
+    start_button = NEW_BUTTON_VIEW(
+      drawer: RoundedButtonDrawer("START"),
+      size: {width: width/2, height: height/10},
+      action: ASYNC_FUNCTION():
+        this.kill()
+        IMPORT_AND_RUN("playScreen")
+    )
+    start_button.place(width/4, height*2/5)
+    
+    // About button  
+    about_button = NEW_BUTTON_VIEW(
+      drawer: RoundedButtonDrawer("ABOUT"),
+      size: {width: width/2, height: height/10},
+      action: ASYNC_FUNCTION():
+        this.kill()
+        IMPORT_AND_RUN("aboutScreen")
+    )
+    about_button.place(width/4, height*3/5)
+    
+    // Add all elements to screen
+    this.addNode("shadow", title_shadow)
+    this.addNode("title", main_title)
+    this.addNode("startButton", start_button)
+    this.addNode("aboutButton", about_button)
+
+## PLAY SCREEN (MAIN GAME)
+PLAY_SCREEN EXTENDS ABSTRACT_SCREEN:
+  
+  ASYNC_PROCEDURE start():
+    this.width = renderer.width
+    this.height = renderer.height
+    ad_padding = 50 * devicePixelRatio
+    
+    // Initialize game
+    IMPORT game_module
+    game.setBoard(6, 8)  // 6x8 tile grid
+    game.tileSize = 0.8 * min(width/game.width, ((1-1/12-1/8)*height - ad_padding)/game.height)
+    game.init()
+    
+    // Main game board
+    IMPORT mainGameNode
+    mainGameNode.setData(game)
+    board_width = game.tileSize * game.width
+    board_height = game.tileSize * game.height
+    
+    mainGameNode.place(
+      (width - board_width) / 2,
+      ((1+1/8+1/12)*height - board_height - ad_padding) / 2
+    )
+    this.addNode("mainGameNode", mainGameNode)
+    
+    // Dashboard (score/moves display)
+    dashboard = NEW_MONITOR_NODE(
+      data: {game, renderer},
+      drawer: DashboardDrawFunction
+    )
+    this.addNode("dashboard", dashboard)
+    
+    // Control buttons
+    button_size = height / 12
+    
+    home_button = CREATE_HOME_BUTTON(button_size)
+    home_button.place(width - button_size, height/8)
+    this.addNode("homeButton", home_button)
+    
+    reset_button = CREATE_RESET_BUTTON(button_size)  
+    reset_button.place(width - height/6, height/8)
+    this.addNode("resetButton", reset_button)
+    
+    reward_button = CREATE_REWARD_BUTTON(button_size)
+    reward_button.place(width - height/4, height/8)
+    this.addNode("rewardButton", reward_button)
+  
+  // Game over dialog
+  PROCEDURE showLostDialog():
+    // Disable all controls
+    this.controls["homeButton"].disable()
+    this.controls["rewardButton"].disable() 
+    this.controls["resetButton"].disable()
+    this.controls["playdraghandler"].remove()
+    
+    dialog_width = width * 0.7
+    dialog_height = width * 0.5
+    
+    game_lost_dialog = NEW_DIALOG_NODE()
+    game_lost_dialog.box(
+      (width - dialog_width) / 2,
+      (height - dialog_height) / 2,
+      dialog_width, dialog_height
+    )
+    
+    // "No More Moves!" text
+    game_lost_dialog.addText(
+      NEW_TEXT_VIEW("No More Moves!").center().fit()
+    )
+    
+    // Restart button
+    game_lost_dialog.addButton(
+      NEW_BUTTON_VIEW(
+        drawer: RedButtonDrawer("restart"),
+        action: FUNCTION():
+          this.host.controls["homeButton"].resume()
+          this.host.controls["rewardButton"].resume()
+          this.host.controls["resetButton"].resume()
+          this.host.controls["playdraghandler"].listen()
+          game.restart()
+          this.host.removeNode("gameLostDialog")
+      )
+    )
+    
+    // Fine/cancel button
+    game_lost_dialog.addButton(
+      NEW_BUTTON_VIEW(
+        drawer: GrayButtonDrawer("fine"),
+        action: FUNCTION():
+          this.host.controls["homeButton"].resume()
+          this.host.controls["resetButton"].resume()
+          this.host.removeNode("gameLostDialog")
+      )
+    )
+    
+    this.addNode("gameLostDialog", game_lost_dialog)
+
+## DASHBOARD RENDERING
+FUNCTION DashboardDrawer(ctx, time):
+  width = renderer.width
+  height = renderer.height
+  offset = height / 8 / 10
+  
+  // Background
+  ctx.fillStyle = "#CCC"
+  FILL_RECT(0, 0, width, height/8 + height/12)
+  
+  // Moves left display
+  moves_text = NEW_TEXT_VIEW("MOVES LEFT: " + game.movesLeft)
+  moves_text.color("black").size(25).font("ubuntu")
+  moves_text.box(offset, offset, width - 2*offset, height/16 - 2*offset).fit()
+  moves_text.draw(ctx)
+  
+  // Score display  
+  score_text = NEW_TEXT_VIEW("SCORE: " + game.score)
+  score_text.color("black").size(25).font("ubuntu")
+  score_text.box(offset, height/16 + offset, width - 2*offset, height/16 - 2*offset).fitHeight()
+  score_text.draw(ctx)
+  
+  // Border lines
+  ctx.strokeStyle = "black"
+  ctx.lineWidth = 2 * devicePixelRatio
+  DRAW_DASHBOARD_BORDERS()
+
+## ABOUT SCREEN
+ABOUT_SCREEN EXTENDS ABSTRACT_SCREEN:
+  
+  ASYNC_PROCEDURE start():
+    this.width = renderer.width
+    this.height = renderer.height - 50 * devicePixelRatio
+    padding = 0.1 * width
+    
+    // Title with shadow
+    about_title = NEW_TEXT_VIEW("ABOUT")
+    about_title.color("#00ff71").font("ubuntu").bold().center().fit()
+    
+    about_shadow = NEW_TEXT_VIEW("ABOUT")
+    about_shadow.color("#008d53").font("ubuntu").bold().center().fit()
+    
+    this.addNode("shadow", about_shadow)
+    this.addNode("title", about_title)
+    
+    // Tutorial button
+    tutorial_button = NEW_BUTTON_VIEW(
+      drawer: RoundedButtonDrawer("TUTORIAL"),
+      action: FUNCTION():
+        this.host.addNode("tutDialog", tutorial_dialog)
+    )
+    this.addNode("tutorButton", tutorial_button)
+    
+    // High score display
+    highscore_text = NEW_TEXT_VIEW("Highscore: " + Android.getHighscore())
+    this.addNode("highscore", highscore_text)
+    
+    // Animated star
+    star_button = NEW_BUTTON_VIEW(
+      drawer: AnimatedStarDrawer,
+      action: ASYNC_FUNCTION():
+        this.rotating = true
+        WAIT(3000ms)
+        this.rotating = false
+    )
+    this.addNode("star", star_button)
+    
+    // Author credit
+    author_text = NEW_TEXT_VIEW("chrysalis.tw")
+    this.addNode("author", author_text)
+    
+    // Home button
+    home_button = CREATE_HOME_BUTTON(height/12, show_dialog=false)
+    this.addNode("homeButton", home_button)
+    
+    // Tutorial dialog (shown on button press)
+    tutorial_dialog = CREATE_TUTORIAL_DIALOG()
+
+## TUTORIAL DIALOG CONTENT
+TUTORIAL_TEXT:
+  - "Move tiles and connect them"
+  - "(can either be end with little"  
+  - "squares or in a loop)"
+  - " "
+  - "If there's no tiles you're looking"
+  - "for, you can watch reward ads to"
+  - "lose 10 moves left then"
+  - "replace half of tiles randomly."
+
+## UI HELPER FUNCTIONS
+FUNCTION RoundedButtonDrawer(text):
+  RETURN FUNCTION(ctx, time):
+    DRAW_ROUNDED_RECTANGLE_WITH_BORDER()
+    text_node = NEW_TEXT_VIEW(text).center().fit()
+    text_node.draw(ctx, time)
+
+FUNCTION AnimatedStarDrawer(ctx, time):
+  center_x = this.x + this.width/2
+  center_y = this.y + this.height/2
+  radius = min(this.width, this.height) / 2
+  rotation = this.rotating ? ((time - this.startTime) / 3000) * (2*PI) : 0
+  
+  DRAW_STAR_SHAPE(center_x, center_y, radius, rotation)
+
+EXPORT: titleScreen, playScreen, aboutScreen

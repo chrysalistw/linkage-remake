@@ -1,0 +1,330 @@
+# LINKAGE GAME - UI COMPONENTS AND UTILITIES
+# Pseudocode representation of generalButtons.js and lib.js
+
+## REUSABLE UI COMPONENTS
+
+## BUTTON CACHE SYSTEM
+BUTTON_CACHE:
+  home: undefined
+  reward: undefined  
+  reset: undefined
+
+## CONTROL STATE MANAGEMENT
+PROCEDURE DisableAllControls(screen):
+  screen.controls["homeButton"].disable()
+  screen.controls["rewardButton"].disable()
+  screen.controls["resetButton"].disable()
+  screen.controls["playdraghandler"].remove()
+
+PROCEDURE ResumeAllControls(screen):
+  screen.controls["homeButton"].resume()
+  screen.controls["rewardButton"].resume()
+  screen.controls["resetButton"].resume()
+  screen.controls["playdraghandler"].listen()
+
+## HOME BUTTON FACTORY
+ASYNC_FUNCTION CreateHomeButton(width = 64, show_dialog = true):
+  // Load and cache home icon
+  home_image = BUTTON_CACHE.home OR LOAD_IMAGE("imgs/home.png")
+  BUTTON_CACHE.home = home_image
+  
+  RETURN NEW_BUTTON_VIEW(
+    drawer: FUNCTION(ctx, time):
+      DRAW_IMAGE(home_image, this.offsetX, this.offsetY, this.width, this.height)
+    
+    size: {width: width, height: width}
+    
+    action: ASYNC_FUNCTION(event):
+      IF show_dialog:
+        DisableAllControls(this.host)
+        ShowHomeDialog(this.host)
+      ELSE:
+        this.host.kill()
+        IMPORT_AND_RUN("titleScreen")
+  )
+
+## HOME CONFIRMATION DIALOG
+PROCEDURE ShowHomeDialog(screen):
+  dialog_width = screen.width * 0.7
+  dialog_height = screen.width * 0.5
+  
+  home_dialog = NEW_DIALOG_NODE()
+  home_dialog.box(
+    (screen.width - dialog_width) / 2,
+    (screen.height - dialog_height) / 2,
+    dialog_width, dialog_height
+  )
+  
+  // Question text
+  home_dialog.addText(
+    NEW_TEXT_VIEW("quit game?").center().fit().color("black").font("Ubuntu")
+  )
+  
+  // Yes button (red)
+  yes_button = NEW_BUTTON_VIEW(
+    drawer: FUNCTION(ctx, time):
+      button_padding = 0.1 * this.width
+      ctx.fillStyle = "red"
+      FILL_RECT(this.x, this.y, this.width, this.height)
+      NEW_TEXT_VIEW("Yes").center().fit().color("white").font("Ubuntu")
+        .box(this.x + button_padding, this.y + button_padding, 
+             this.width - 2*button_padding, this.height - 2*button_padding)
+        .draw(ctx, time)
+    
+    size: {width: dialog_width/3, height: dialog_height/3}
+    
+    action: ASYNC_FUNCTION():
+      this.host.removeNode("homeDialog")
+      this.host.kill()
+      IMPORT_AND_RUN("titleScreen")
+  )
+  
+  // No button (gray)
+  no_button = NEW_BUTTON_VIEW(
+    drawer: FUNCTION(ctx, time):
+      NEW_TEXT_VIEW("No").center().fit().color("grey").font("Ubuntu")
+        .box(this.x, this.y, this.width, this.height).draw(ctx, time)
+    
+    size: {width: dialog_width/6, height: dialog_height/6}
+    
+    action: FUNCTION():
+      this.host.removeNode("homeDialog")
+      ResumeAllControls(this.host)
+  )
+  
+  home_dialog.addButton(yes_button)
+  home_dialog.addButton(no_button)
+  screen.addNode("homeDialog", home_dialog)
+
+## REWARD BUTTON FACTORY
+ASYNC_FUNCTION CreateRewardButton(width = 64):
+  // Load and cache reward icon
+  reward_image = BUTTON_CACHE.reward OR LOAD_IMAGE("imgs/reward.png")
+  BUTTON_CACHE.reward = reward_image
+  
+  RETURN NEW_BUTTON_VIEW(
+    drawer: FUNCTION(ctx, time):
+      DRAW_IMAGE(reward_image, this.offsetX, this.offsetY, this.width, this.height)
+    
+    size: {width: width, height: width}
+    
+    action: ASYNC_FUNCTION(event):
+      DisableAllControls(this.host)
+      ShowRewardDialog(this.host)
+  )
+
+## REWARD CONFIRMATION DIALOG
+PROCEDURE ShowRewardDialog(screen):
+  dialog_width = screen.width * 0.7
+  dialog_height = screen.width * 0.5
+  
+  reward_dialog = NEW_DIALOG_NODE()
+  reward_dialog.box(
+    (screen.width - dialog_width) / 2,
+    (screen.height - dialog_height) / 2,
+    dialog_width, dialog_height
+  )
+  
+  // Question text
+  reward_dialog.addText(
+    NEW_TEXT_VIEW("watch ad?").center().fit().color("black").font("Ubuntu")
+  )
+  
+  // Warning text
+  reward_dialog.addText(
+    NEW_TEXT_VIEW("you'll lose 10 moves for replacing tiles")
+      .center().fit().color("black").font("Ubuntu")
+  )
+  
+  // Yes button (red)
+  yes_button = NEW_BUTTON_VIEW(
+    drawer: RedButtonDrawer("Yes"),
+    size: {width: dialog_width/3, height: dialog_height/3},
+    action: FUNCTION():
+      // Trigger Android ad system
+      window.Android?.showRewardedInterstitialAd()
+      ResumeAllControls(this.host)
+      this.host.removeNode("rewardDialog")
+  )
+  
+  // No button (gray)
+  no_button = NEW_BUTTON_VIEW(
+    drawer: GrayButtonDrawer("No"),
+    size: {width: dialog_width/7, height: dialog_height/7},
+    action: FUNCTION():
+      ResumeAllControls(this.host)
+      this.host.removeNode("rewardDialog")
+  )
+  
+  reward_dialog.addButton(yes_button)
+  reward_dialog.addButton(no_button)
+  screen.addNode("rewardDialog", reward_dialog)
+
+## RESET BUTTON FACTORY
+ASYNC_FUNCTION CreateResetButton(width = 64):
+  // Load and cache reset icon
+  reset_image = BUTTON_CACHE.reset OR LOAD_IMAGE("imgs/reset.png")
+  BUTTON_CACHE.reset = reset_image
+  
+  RETURN NEW_BUTTON_VIEW(
+    drawer: FUNCTION(ctx, time):
+      DRAW_IMAGE(reset_image, this.offsetX, this.offsetY, this.width, this.height)
+    
+    size: {width: width, height: width}
+    
+    action: ASYNC_FUNCTION(event):
+      DisableAllControls(this.host)
+      ShowResetDialog(this.host)
+  )
+
+## RESET CONFIRMATION DIALOG
+PROCEDURE ShowResetDialog(screen):
+  dialog_width = screen.width * 0.7
+  dialog_height = screen.width * 0.5
+  
+  reset_dialog = NEW_DIALOG_NODE()
+  reset_dialog.box(
+    (screen.width - dialog_width) / 2,
+    (screen.height - dialog_height) / 2,
+    dialog_width, dialog_height
+  )
+  
+  // Question text
+  reset_dialog.addText(
+    NEW_TEXT_VIEW("start new game?").center().fit().color("black").font("Ubuntu")
+  )
+  
+  // Yes button (red)
+  yes_button = NEW_BUTTON_VIEW(
+    drawer: RedButtonDrawer("Yes"),
+    size: {width: dialog_width/3, height: dialog_height/3},
+    action: FUNCTION():
+      // Trigger Android ad system
+      window.Android?.showInterstitialAd()
+      ResumeAllControls(this.host)
+      this.host.removeNode("resetDialog")
+  )
+  
+  // No button (gray)  
+  no_button = NEW_BUTTON_VIEW(
+    drawer: GrayButtonDrawer("No"),
+    size: {width: dialog_width/7, height: dialog_height/7},
+    action: FUNCTION():
+      ResumeAllControls(this.host)
+      this.host.removeNode("resetDialog")
+  )
+  
+  reset_dialog.addButton(yes_button)
+  reset_dialog.addButton(no_button)
+  screen.addNode("resetDialog", reset_dialog)
+
+## COMMON BUTTON DRAWING FUNCTIONS
+FUNCTION RedButtonDrawer(text):
+  RETURN FUNCTION(ctx, time):
+    button_padding = 0.1 * this.width
+    ctx.fillStyle = "red"
+    FILL_RECT(this.x, this.y, this.width, this.height)
+    NEW_TEXT_VIEW(text).center().fit().color("white").font("Ubuntu")
+      .box(this.x + button_padding, this.y + button_padding,
+           this.width - 2*button_padding, this.height - 2*button_padding)
+      .draw(ctx, time)
+
+FUNCTION GrayButtonDrawer(text):
+  RETURN FUNCTION(ctx, time):
+    NEW_TEXT_VIEW(text).center().fit().color("gray").font("Ubuntu")
+      .box(this.x, this.y, this.width, this.height).draw(ctx, time)
+
+## UTILITY FUNCTIONS (lib.js equivalents)
+
+## ARRAY ROTATION UTILITY
+FUNCTION RotateArray(array, shift_amount):
+  array_copy = CREATE_COPY(array)
+  shift_amount = shift_amount % array_copy.length
+  
+  IF shift_amount < 0:
+    shift_amount += array_copy.length
+  
+  RETURN array_copy.concat(
+    array_copy.splice(0, array_copy.length - shift_amount)
+  )
+
+## ASYNC SLEEP UTILITY
+FUNCTION Sleep(milliseconds):
+  RETURN NEW_PROMISE(
+    resolve_function: FUNCTION(resolve):
+      SET_TIMEOUT(resolve, milliseconds)
+  )
+
+## ENGINE ABSTRACTIONS (Referenced but not implemented)
+
+## ABSTRACT RENDERER CLASS
+ABSTRACT_RENDERER:
+  canvas: CANVAS_ELEMENT
+  width: integer
+  height: integer
+  default: DRAW_FUNCTION
+  
+  METHODS:
+    start()                    // Begin render loop
+    apply(screen)              // Register screen
+    
+## ABSTRACT SPRITE CLASS  
+ABSTRACT_SPRITE:
+  image: IMAGE_ELEMENT
+  width: integer
+  frame_mapping: FUNCTION
+  
+  METHODS:
+    draw(ctx, frame, x, y, width, time)
+
+## ABSTRACT ANIMATION SPRITE CLASS
+ABSTRACT_ANIMATION_SPRITE EXTENDS ABSTRACT_SPRITE:
+  frame_count: integer
+  tile_count: integer
+  
+  METHODS:
+    draw(ctx, tile, x, y, width, time)  // Animated drawing
+
+## ABSTRACT UI ELEMENTS
+ABSTRACT_BUTTON_VIEW:
+  drawer: DRAW_FUNCTION
+  size: {width, height}
+  action: EVENT_FUNCTION
+  offsetX: integer
+  offsetY: integer
+  
+  METHODS:
+    place(x, y)               // Position button
+    disable()                 // Disable interaction
+    resume()                  // Enable interaction
+
+ABSTRACT_TEXT_VIEW:
+  text: string
+  font_family: string
+  font_size: integer
+  text_color: string
+  alignment: string
+  
+  METHODS:
+    color(color_string)       // Set text color
+    font(font_name)           // Set font family
+    size(pixel_size)          // Set font size
+    center()                  // Center alignment
+    box(x, y, width, height)  // Set text bounds
+    fit()                     // Auto-size text
+    draw(ctx, time)           // Render text
+
+ABSTRACT_DIALOG_NODE:
+  x: integer
+  y: integer  
+  width: integer
+  height: integer
+  buttons: ARRAY_OF_BUTTONS
+  texts: ARRAY_OF_TEXT_VIEWS
+  
+  METHODS:
+    box(x, y, width, height)  // Set dialog bounds
+    addButton(button)         // Add interactive button
+    addText(text_view)        // Add text element
+
+EXPORT: CreateHomeButton, CreateRewardButton, CreateResetButton, RotateArray, Sleep
