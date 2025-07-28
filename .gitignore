@@ -4,3 +4,6 @@
 
 # Original HTML5 implementation
 linkage/
+
+*.apk
+*.apk*
