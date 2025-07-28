@@ -55,19 +55,20 @@ Convert JavaScript gameboard to Godot 4 in runnable phases, ensuring each phase 
 - `GameBoard.gd` - Added drag operations and rotation methods
 - `Tile.gd` - Added drag indicator visuals
 
-## Phase 4: Connection Detection ⏳
+## Phase 4: Connection Detection ✅
 **Goal:** Detect and highlight pipe connections
 
 ### Implementation:
-- [ ] Create simplified detect.gd
-- [ ] Implement basic pipe connection rules
-- [ ] Add visual highlighting for connected tiles
-- [ ] **Runnable:** See connected pipes highlighted
+- [x] Create simplified detect.gd
+- [x] Implement basic pipe connection rules
+- [x] Add visual highlighting for connected tiles
+- [x] **Runnable:** See connected pipes highlighted
 
-### Files to Add/Modify:
+### Files Modified:
 - `gameboard/scripts/detect.gd` - Core algorithm
 - `GameBoard.gd` - Call detection after moves
 - `Tile.gd` - Add highlight state
+- Original sprite assets re-imported and integrated
 
 ## Phase 5: Tile Removal ⏳
 **Goal:** Remove connected tiles and replace
@@ -131,7 +132,7 @@ godot --path . res://PlayScreen.tscn
 ✅ **Phase 1:** Grid displays  
 ✅ **Phase 2:** Tiles respond to clicks  
 ✅ **Phase 3:** Rows/columns can be dragged  
-⏳ **Phase 4:** Connections are detected visually  
+✅ **Phase 4:** Connections are detected visually  
 ⏳ **Phase 5:** Connected tiles are removed  
 ⏳ **Phase 6:** Full game loop works  
 ⏳ **Phase 7:** Matches original experience
