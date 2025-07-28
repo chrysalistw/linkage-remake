@@ -1,7 +1,6 @@
 extends Control
 class_name GameBoard
 
-# PHASE 3: Basic Drag Mechanics
 # Gameboard with drag detection and row/column rotation
 
 @export var board_width: int = 6
@@ -51,7 +50,7 @@ func initialize_board():
 		for x in board_width:
 			create_tile(x, y)
 	
-	# Phase 4: Initial connection detection for testing
+	# Initial connection detection
 	await get_tree().create_timer(0.1).timeout  # Give tiles time to initialize
 	detect_and_highlight_connections()
 
@@ -85,15 +84,13 @@ func setup_drag_handler():
 	# Connect to DragHandler's _input processing for visual updates
 	set_process(true)
 
-# Phase 3: Handle tile clicks - start drag
+# Handle tile clicks - start drag
 func _on_tile_clicked(tile: Tile):
 	var pos = tile.get_grid_position()
-	#print("GameBoard: Starting drag from tile (", pos.x, ",", pos.y, ") with face ", tile.face)
 	drag_handler.start_drag(pos)
 
-# Phase 3: Handle drag completion - apply rotation
+# Handle drag completion - apply rotation
 func _on_drag_completed(drag_state: Dictionary):
-	#print("GameBoard: Drag completed - ", drag_state)
 	
 	# Clear drag visual indicators
 	clear_drag_indicators()
@@ -103,10 +100,10 @@ func _on_drag_completed(drag_state: Dictionary):
 	elif drag_state.state == "vertical":
 		rotate_column(drag_state.from.x, drag_state.to.y - drag_state.from.y)
 	
-	# Phase 4: Detect connections after move
+	# Detect connections after move
 	detect_and_highlight_connections()
 
-# Phase 3: Row rotation logic
+# Row rotation logic
 func rotate_row(row_index: int, shift_amount: int):
 	if row_index < 0 or row_index >= board_height:
 		return
@@ -116,7 +113,6 @@ func rotate_row(row_index: int, shift_amount: int):
 	if shift_amount == 0:
 		return
 	
-	#print("GameBoard: Rotating row ", row_index, " by ", shift_amount, " positions")
 	
 	# Get current row data
 	var old_row = []
@@ -136,7 +132,7 @@ func rotate_row(row_index: int, shift_amount: int):
 	# Rebuild tile grid to reflect new positions
 	rebuild_tile_grid()
 
-# Phase 3: Column rotation logic  
+# Column rotation logic
 func rotate_column(col_index: int, shift_amount: int):
 	if col_index < 0 or col_index >= board_width:
 		return
@@ -146,7 +142,6 @@ func rotate_column(col_index: int, shift_amount: int):
 	if shift_amount == 0:
 		return
 	
-	#print("GameBoard: Rotating column ", col_index, " by ", shift_amount, " positions")
 	
 	# Get current column data
 	var old_column = []
@@ -236,7 +231,7 @@ func get_tile_at_position(pos: Vector2i) -> Node:
 		return board[pos.y][pos.x]
 	return null
 
-# Phase 4: Connection detection and highlighting
+# Connection detection and highlighting
 func detect_and_highlight_connections():
 	# Clear previous connection highlights
 	clear_connection_highlights()
@@ -244,26 +239,21 @@ func detect_and_highlight_connections():
 	# Detect connections using LinkDetector
 	var connections = LinkDetector.detect_links(board)
 	
-	# Debug output
-	print("GameBoard: Connection detection completed")
-	var connection_count = 0
-	var connected_positions = []
+	# Apply highlights if connections found
+	var has_connections = false
 	for y in connections.size():
 		for x in connections[y].size():
 			if connections[y][x]:
-				connection_count += 1
-				connected_positions.append("(" + str(x) + "," + str(y) + ")")
+				has_connections = true
+				break
+		if has_connections:
+			break
 	
-	if connection_count > 0:
-		print("GameBoard: Total connected tiles: ", connection_count)
-		print("GameBoard: Connected positions: ", connected_positions)
+	if has_connections:
 		# Apply green highlights to connected tiles
 		highlight_connected_tiles(connections)
-		# Debug: Force a visual update
+		# Force a visual update
 		await get_tree().process_frame
-		print("GameBoard: Green highlights applied to connected tiles")
-	else:
-		print("GameBoard: No connections found")
 
 # Apply green highlights to connected tiles
 func highlight_connected_tiles(connections: Array):

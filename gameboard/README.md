@@ -1,6 +1,8 @@
-# Gameboard Mechanics
+# Gameboard Mechanics - Phase 4 Complete ✅
 
 This folder contains the core gameboard mechanics for the Linkage puzzle game, converted from the JavaScript implementation to Godot 4.
+
+**Current Status:** Phase 4 completed - connection detection working with green highlights. Ready for Phase 5 implementation.
 
 ## Structure
 
@@ -18,6 +20,21 @@ gameboard/
 └── resources/
 	└── tile_sprites/         # Placeholder for tile sprite resources
 ```
+
+## Implementation Status
+
+### Phase 4 Completed Features ✅
+- **Connection Detection**: Full algorithm implementation detecting pipe networks
+- **Visual Feedback**: Green highlights and sprite tints for connected tiles
+- **10 Pipe Types**: All pipe faces (0-9) connect properly according to rules
+- **Recursive Algorithm**: Handles complex networks and loop detection
+- **Debug Cleanup**: Production-ready code without debug noise
+
+### Ready for Phase 5
+- **Tile Removal Logic**: `remove_links()` method implemented in detect.gd
+- **GameState Integration**: Singleton ready for score/moves tracking
+- **Animation Support**: Tile.gd ready for fade animations
+- **Chain Reactions**: Algorithm supports cascading tile removal
 
 ## Key Components
 
@@ -45,9 +62,11 @@ gameboard/
 - Sound system and asset management
 - Reward system support
 
-### detect.gd
-- Port-based connection detection algorithm
-- Recursive link tracking with loop detection
+### detect.gd (LinkDetector class)
+- Complete connection detection algorithm with recursive link tracking
+- Handles all 10 pipe types with proper directional connections
+- Implements tile removal and scoring logic (remove_links method)
+- Chain reaction support for cascading tile removal
 - Automated tile removal and replacement
 - Scoring and bonus move calculation
 

@@ -75,31 +75,32 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 4: Connection Detection ⏳ NEXT
+## Phase 4: Connection Detection ✅ COMPLETED
 **Goal:** Highlight connected pipe networks
 
 ### Implementation Tasks:
-- [ ] Create simplified detect.gd
-- [ ] Implement pipe connection rules (10 types)
-- [ ] Add connection detection after each move
-- [ ] Highlight connected tiles (green background)
-- [ ] Add debug output showing detected links
+- [x] Create simplified detect.gd with LinkDetector class
+- [x] Implement pipe connection rules (10 types)
+- [x] Add connection detection after each move
+- [x] Highlight connected tiles (green background + sprite tint)
+- [x] Implement recursive connection tracking algorithm
 
-### Files to Add/Modify:
-- `detect.gd` - Basic connection algorithm
-- `GameBoard.gd` - Call detection after moves
-- `Tile.gd` - Add highlight_connected() method
+### Files Added/Modified:
+- `detect.gd` - Full LinkDetector implementation with connection algorithm
+- `GameBoard.gd` - Calls detection after moves, handles highlighting
+- `Tile.gd` - Added highlight_connected() and hide_connected_highlight() methods
 
 ### Success Criteria:
-✅ Connected pipes show green highlight  
-✅ Detection runs after each drag  
-✅ Console shows link coordinates  
+✅ Connected pipes show green highlight and sprite tint
+✅ Detection runs after each drag operation
+✅ All 10 pipe types connect correctly
+✅ Recursive algorithm handles complex pipe networks
 
-**Test:** Create pipe connections → See green highlights
+**Test:** Create pipe connections → See green highlights + sprite tints
 
 ---
 
-## Phase 5: Tile Removal ⏳
+## Phase 5: Tile Removal ⏳ NEXT
 **Goal:** Remove connected tiles and replace with new ones
 
 ### Implementation Tasks:
@@ -108,12 +109,13 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 - [ ] Add basic scoring (+1 per removed tile)
 - [ ] Add chain reaction detection
 - [ ] Update moves counter
+- [ ] Integrate with GameState singleton
 
 ### Files to Modify:
-- `detect.gd` - Add removal + replacement logic
-- `GameBoard.gd` - Handle tile animations
+- `detect.gd` - Add removal + replacement logic (remove_links method exists)
+- `GameBoard.gd` - Handle tile animations and integrate removal
 - `Tile.gd` - Add fade animation
-- `GameState.gd` - Basic score/moves tracking
+- `GameState.gd` - Basic score/moves tracking (already implemented)
 
 ### Success Criteria:
 ✅ Connected tiles fade and disappear  
@@ -251,11 +253,12 @@ print("Drag completed: ", from, " to ", to)
 
 ---
 
-## Current Status: Phase 3 Complete ✅
-**Next Action:** Review this plan → Proceed with Phase 4 implementation
+## Current Status: Phase 4 Complete ✅
+**Next Action:** Review this plan → Proceed with Phase 5 implementation
 
 ### Phase Progress:
 - ✅ **Phase 1:** Basic Grid Display - Static 6x8 tile grid with colored pipe symbols
 - ✅ **Phase 2:** Input Detection - Tiles respond to mouse clicks with visual feedback  
 - ✅ **Phase 3:** Basic Drag Mechanics - Row/column dragging with instant rotation
-- ⏳ **Phase 4:** Connection Detection - NEXT PHASE
+- ✅ **Phase 4:** Connection Detection - Pipes connect and highlight properly
+- ⏳ **Phase 5:** Tile Removal - NEXT PHASE

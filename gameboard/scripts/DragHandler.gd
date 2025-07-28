@@ -27,7 +27,6 @@ func start_drag(tile_pos: Vector2i):
 	dragging = true
 	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
-	print("DragHandler: Started drag from tile (", tile_pos.x, ",", tile_pos.y, ")")
 
 func _input(event: InputEvent):
 	if not dragging:
@@ -47,7 +46,6 @@ func handle_mouse_move(event: InputEventMouseMotion):
 	var new_to = screen_pos_to_grid_pos(event.global_position)
 	if new_to != to and is_valid_grid_pos(new_to):
 		to = new_to
-		print("DragHandler: Drag target updated to (", to.x, ",", to.y, ")")
 	
 	# Determine drag state (horizontal vs vertical)
 	update_drag_state()
@@ -85,7 +83,7 @@ func update_drag_state():
 			# For diagonal movement, default to horizontal
 			state = "horizontal"
 
-# Phase 3: Simplified - no smooth drag visuals needed
+# Simplified drag implementation - no smooth visuals needed
 
 func screen_pos_to_grid_pos(screen_pos: Vector2) -> Vector2i:
 	# Convert screen position to grid coordinates

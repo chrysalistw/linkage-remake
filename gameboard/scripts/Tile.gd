@@ -1,7 +1,6 @@
 extends Control
 class_name Tile
 
-# PHASE 3: Basic Drag Mechanics  
 # Tile with click detection, visual feedback, and drag indicators
 
 @export var grid_x: int
@@ -39,8 +38,6 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 	# Now that we have all properties, setup visual and input
 	setup_visual()
 	#setup_input()
-	
-	#print("Tile created at (", x, ",", y, ") with face ", pipe_face)
 
 func setup_visual():
 	# Load pipe sprites resource
@@ -86,25 +83,20 @@ func setup_visual():
 	# Add connection indicator first, then move sprite to front
 	add_child(connection_indicator_rect)
 	sprite.move_to_front()
-	#print("Visual setup complete for tile face ", face)
 
 func _on_gui_input(event):
-	#print("Input event received on tile (", grid_x, ",", grid_y, "): ", event)
 	if event is InputEventMouseButton:
 		var mouse_event = event as InputEventMouseButton
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			#print("Tile clicked at (", grid_x, ",", grid_y, ") with face ", face)
 			tile_clicked.emit(self)
 			show_click_feedback()
 
 func _on_mouse_entered():
 	is_hovered = true
-	#print("Mouse entered tile (", grid_x, ",", grid_y, ")")
 	show_hover_feedback()
 	
 func _on_mouse_exited():
 	is_hovered = false
-	#print("Mouse exited tile (", grid_x, ",", grid_y, ")")
 	hide_hover_feedback()
 
 func show_hover_feedback():
@@ -128,7 +120,7 @@ func show_click_feedback():
 			hide_hover_feedback()
 	)
 
-# Phase 3: Drag indicator methods
+# Drag indicator methods
 func show_drag_indicator():
 	drag_indicator_rect.color = Color.RED
 	# Create red border effect by making it slightly larger
@@ -143,19 +135,18 @@ func hide_drag_indicator():
 func get_grid_position() -> Vector2i:
 	return Vector2i(grid_x, grid_y)
 
-# Phase 4: Connection highlighting methods
+# Connection highlighting methods
 func highlight_connected():
 	# Add green tint to sprite
 	sprite.modulate = Color(0.8, 1.2, 0.8, 1.0)  # Green tint
 	connection_indicator_rect.color = Color.GREEN
 	connection_indicator_rect.color.a = 0.4  # Semi-transparent
-	print("Tile (", grid_x, ",", grid_y, ") highlighted as connected")
 
 func hide_connected_highlight():
 	sprite.modulate = Color.WHITE  # Reset to normal
 	connection_indicator_rect.color = Color.TRANSPARENT
 
-# Phase 4: Set face method for tile replacement
+# Set face method for tile replacement
 func set_face(new_face: int):
 	face = new_face
 	# Update sprite region
@@ -167,7 +158,6 @@ func update_sprite_region():
 		var atlas_texture = pipe_sprites.get_pipe_texture(face)
 		if atlas_texture:
 			sprite.texture = atlas_texture
-			#print("Tile (", grid_x, ",", grid_y, ") updated to face ", face, " (", PIPE_NAMES[face % PIPE_NAMES.size()], ")")
 		else:
 			print("Error: Failed to get pipe texture for face ", face)
 
