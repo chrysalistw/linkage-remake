@@ -9,23 +9,18 @@ class_name Tile
 @export var tile_width: int
 @export var face: int  # Pipe type (0-9)
 
-var label: Label
-var color_rect: ColorRect
+var sprite: TextureRect
 var is_hovered: bool = false
 var border_rect: ColorRect
 var drag_indicator_rect: ColorRect
+var connection_indicator_rect: ColorRect
+var pipe_sprites: PipeSprites
 
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
 
-# Pipe type names for display
+# Pipe face names for debugging
 const PIPE_NAMES = ["V↑", "V|", "V↓", "H→", "└", "┘", "H─", "┌", "┐", "H←"]
-
-# Colors for different pipe types
-const PIPE_COLORS = [
-	Color.RED, Color.BLUE, Color.GREEN, Color.YELLOW, Color.MAGENTA,
-	Color.CYAN, Color.ORANGE, Color.PINK, Color.LIGHT_BLUE, Color.LIGHT_GREEN
-]
 
 func _ready():
 	# Visual and input setup will be called from setup_phase1
@@ -48,21 +43,24 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 	#print("Tile created at (", x, ",", y, ") with face ", pipe_face)
 
 func setup_visual():
-	# Create colored background
-	color_rect = ColorRect.new()
-	color_rect.size = Vector2(tile_width, tile_width)
-	color_rect.color = PIPE_COLORS[face % PIPE_COLORS.size()]
-	color_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	add_child(color_rect)
+	# Load pipe sprites resource
+	pipe_sprites = load("res://gameboard/resources/pipe_sprites.tres")
 	
-	# Create label with pipe symbol
-	label = Label.new()
-	label.text = PIPE_NAMES[face % PIPE_NAMES.size()]
-	label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-	label.vertical_alignment = VERTICAL_ALIGNMENT_CENTER
-	label.size = Vector2(tile_width, tile_width)
-	label.add_theme_font_size_override("font_size", 16)
-	add_child(label)
+	# Validate sprite sheet
+	if pipe_sprites and not pipe_sprites.validate_sprite_sheet():
+		print("Warning: Pipe sprite sheet validation failed")
+	
+	# Create sprite display
+	sprite = TextureRect.new()
+	sprite.size = Vector2(tile_width, tile_width)
+	sprite.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+	sprite.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	sprite.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# Set up the texture for the specific face
+	update_sprite_region()
+	
+	add_child(sprite)
 	
 	# Create border for hover effect
 	border_rect = ColorRect.new()
@@ -79,25 +77,34 @@ func setup_visual():
 	drag_indicator_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(drag_indicator_rect)
 	drag_indicator_rect.move_to_front()
+	
+	# Create connection indicator (green background) - add it first so it's behind
+	connection_indicator_rect = ColorRect.new()
+	connection_indicator_rect.size = Vector2(tile_width, tile_width)
+	connection_indicator_rect.color = Color.TRANSPARENT
+	connection_indicator_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Add connection indicator first, then move sprite to front
+	add_child(connection_indicator_rect)
+	sprite.move_to_front()
 	#print("Visual setup complete for tile face ", face)
 
 func _on_gui_input(event):
-	print("Input event received on tile (", grid_x, ",", grid_y, "): ", event)
+	#print("Input event received on tile (", grid_x, ",", grid_y, "): ", event)
 	if event is InputEventMouseButton:
 		var mouse_event = event as InputEventMouseButton
 		if mouse_event.pressed and mouse_event.button_index == MOUSE_BUTTON_LEFT:
-			print("Tile clicked at (", grid_x, ",", grid_y, ") with face ", face)
+			#print("Tile clicked at (", grid_x, ",", grid_y, ") with face ", face)
 			tile_clicked.emit(self)
 			show_click_feedback()
 
 func _on_mouse_entered():
 	is_hovered = true
-	print("Mouse entered tile (", grid_x, ",", grid_y, ")")
+	#print("Mouse entered tile (", grid_x, ",", grid_y, ")")
 	show_hover_feedback()
 	
 func _on_mouse_exited():
 	is_hovered = false
-	print("Mouse exited tile (", grid_x, ",", grid_y, ")")
+	#print("Mouse exited tile (", grid_x, ",", grid_y, ")")
 	hide_hover_feedback()
 
 func show_hover_feedback():
@@ -135,3 +142,34 @@ func hide_drag_indicator():
 
 func get_grid_position() -> Vector2i:
 	return Vector2i(grid_x, grid_y)
+
+# Phase 4: Connection highlighting methods
+func highlight_connected():
+	# Add green tint to sprite
+	sprite.modulate = Color(0.8, 1.2, 0.8, 1.0)  # Green tint
+	connection_indicator_rect.color = Color.GREEN
+	connection_indicator_rect.color.a = 0.4  # Semi-transparent
+	print("Tile (", grid_x, ",", grid_y, ") highlighted as connected")
+
+func hide_connected_highlight():
+	sprite.modulate = Color.WHITE  # Reset to normal
+	connection_indicator_rect.color = Color.TRANSPARENT
+
+# Phase 4: Set face method for tile replacement
+func set_face(new_face: int):
+	face = new_face
+	# Update sprite region
+	update_sprite_region()
+
+# Update the texture region to show the correct pipe face
+func update_sprite_region():
+	if sprite and pipe_sprites:
+		var atlas_texture = pipe_sprites.get_pipe_texture(face)
+		if atlas_texture:
+			sprite.texture = atlas_texture
+			#print("Tile (", grid_x, ",", grid_y, ") updated to face ", face, " (", PIPE_NAMES[face % PIPE_NAMES.size()], ")")
+		else:
+			print("Error: Failed to get pipe texture for face ", face)
+
+func get_face() -> int:
+	return face

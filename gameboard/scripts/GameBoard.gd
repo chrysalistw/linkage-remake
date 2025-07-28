@@ -50,6 +50,10 @@ func initialize_board():
 	for y in board_height:
 		for x in board_width:
 			create_tile(x, y)
+	
+	# Phase 4: Initial connection detection for testing
+	await get_tree().create_timer(0.1).timeout  # Give tiles time to initialize
+	detect_and_highlight_connections()
 
 func create_tile(x: int, y: int):
 	var tile_instance = tile_scene.instantiate()
@@ -84,12 +88,12 @@ func setup_drag_handler():
 # Phase 3: Handle tile clicks - start drag
 func _on_tile_clicked(tile: Tile):
 	var pos = tile.get_grid_position()
-	print("GameBoard: Starting drag from tile (", pos.x, ",", pos.y, ") with face ", tile.face)
+	#print("GameBoard: Starting drag from tile (", pos.x, ",", pos.y, ") with face ", tile.face)
 	drag_handler.start_drag(pos)
 
 # Phase 3: Handle drag completion - apply rotation
 func _on_drag_completed(drag_state: Dictionary):
-	print("GameBoard: Drag completed - ", drag_state)
+	#print("GameBoard: Drag completed - ", drag_state)
 	
 	# Clear drag visual indicators
 	clear_drag_indicators()
@@ -98,6 +102,9 @@ func _on_drag_completed(drag_state: Dictionary):
 		rotate_row(drag_state.from.y, drag_state.to.x - drag_state.from.x)
 	elif drag_state.state == "vertical":
 		rotate_column(drag_state.from.x, drag_state.to.y - drag_state.from.y)
+	
+	# Phase 4: Detect connections after move
+	detect_and_highlight_connections()
 
 # Phase 3: Row rotation logic
 func rotate_row(row_index: int, shift_amount: int):
@@ -109,7 +116,7 @@ func rotate_row(row_index: int, shift_amount: int):
 	if shift_amount == 0:
 		return
 	
-	print("GameBoard: Rotating row ", row_index, " by ", shift_amount, " positions")
+	#print("GameBoard: Rotating row ", row_index, " by ", shift_amount, " positions")
 	
 	# Get current row data
 	var old_row = []
@@ -139,7 +146,7 @@ func rotate_column(col_index: int, shift_amount: int):
 	if shift_amount == 0:
 		return
 	
-	print("GameBoard: Rotating column ", col_index, " by ", shift_amount, " positions")
+	#print("GameBoard: Rotating column ", col_index, " by ", shift_amount, " positions")
 	
 	# Get current column data
 	var old_column = []
@@ -228,3 +235,49 @@ func get_tile_at_position(pos: Vector2i) -> Node:
 	if pos.x >= 0 and pos.x < board_width and pos.y >= 0 and pos.y < board_height:
 		return board[pos.y][pos.x]
 	return null
+
+# Phase 4: Connection detection and highlighting
+func detect_and_highlight_connections():
+	# Clear previous connection highlights
+	clear_connection_highlights()
+	
+	# Detect connections using LinkDetector
+	var connections = LinkDetector.detect_links(board)
+	
+	# Debug output
+	print("GameBoard: Connection detection completed")
+	var connection_count = 0
+	var connected_positions = []
+	for y in connections.size():
+		for x in connections[y].size():
+			if connections[y][x]:
+				connection_count += 1
+				connected_positions.append("(" + str(x) + "," + str(y) + ")")
+	
+	if connection_count > 0:
+		print("GameBoard: Total connected tiles: ", connection_count)
+		print("GameBoard: Connected positions: ", connected_positions)
+		# Apply green highlights to connected tiles
+		highlight_connected_tiles(connections)
+		# Debug: Force a visual update
+		await get_tree().process_frame
+		print("GameBoard: Green highlights applied to connected tiles")
+	else:
+		print("GameBoard: No connections found")
+
+# Apply green highlights to connected tiles
+func highlight_connected_tiles(connections: Array):
+	for y in connections.size():
+		for x in connections[y].size():
+			if connections[y][x]:
+				var tile = board[y][x] as Tile
+				if tile:
+					tile.highlight_connected()
+
+# Clear all connection highlights
+func clear_connection_highlights():
+	for y in board_height:
+		for x in board_width:
+			var tile = board[y][x] as Tile
+			if tile:
+				tile.hide_connected_highlight()

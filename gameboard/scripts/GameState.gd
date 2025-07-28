@@ -1,4 +1,5 @@
 extends Node
+class_name GameState
 
 # Global game state singleton for managing game data across scenes
 # Based on game.js pseudocode
@@ -23,10 +24,10 @@ var score: int = 0 :
 		emit_signal("score_changed", score)
 
 var lost: bool = false
-var reward_earned: bool = false :
+var is_reward_earned: bool = false :
 	set(value):
-		reward_earned = value
-		if reward_earned:
+		is_reward_earned = value
+		if is_reward_earned:
 			emit_signal("reward_earned")
 
 # Board configuration
@@ -62,7 +63,7 @@ func reset_game():
 	moves_left = 100
 	score = 0
 	lost = false
-	reward_earned = false
+	is_reward_earned = false
 
 func add_score(points: int):
 	score += points
@@ -78,10 +79,10 @@ func set_high_score():
 
 # Reward system - randomizes tiles (called from Android)
 func apply_reward():
-	if reward_earned:
+	if is_reward_earned:
 		# This will be handled by the GameBoard
 		moves_left -= 10  # Cost of using reward
-		reward_earned = false
+		is_reward_earned = false
 		return true
 	return false
 
@@ -114,10 +115,10 @@ func restart_game():
 	get_tree().call_group("gameboard", "initialize_board")
 
 func _on_reward_earned():
-	reward_earned = true
+	is_reward_earned = true
 
 func _on_reward_requested():
-	if reward_earned:
+	if is_reward_earned:
 		await get_tree().process_frame
 		# Signal to apply deus ex machina
 		get_tree().call_group("gameboard", "apply_deus_ex_machina")

@@ -1,0 +1,11 @@
+[gd_resource type="Resource" script_class="PipeSprites" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://gameboard/resources/PipeSprites.gd" id="1_pipe_sprites"]
+[ext_resource type="Texture2D" uid="uid://djxoft3d2j0u1" path="res://gameboard/resources/tile_sprites/linkage_test_green2.png" id="2_sprite_texture"]
+
+[resource]
+script = ExtResource("1_pipe_sprites")
+sprite_texture = ExtResource("2_sprite_texture")
+tile_size = 64
+sheet_columns = 3
+sheet_rows = 4
