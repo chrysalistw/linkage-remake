@@ -18,7 +18,6 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.2, 0.2, 0.2, 1)
 
 [node name="Dashboard" type="Panel" parent="."]
 modulate = Color(0.8, 0.8, 0.8, 1)
@@ -58,40 +57,40 @@ theme_override_font_sizes/font_size = 25
 text = "SCORE: 0"
 vertical_alignment = 1
 
-[node name="ControlButtons" type="Control" parent="Dashboard"]
+[node name="ControlButtons" type="Control" parent="."]
 layout_mode = 1
-anchor_left = 0.75
+anchor_top = 0.9
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RewardButton" type="Button" parent="Dashboard/ControlButtons"]
+[node name="RewardButton" type="Button" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.05
+anchor_left = 0.2
 anchor_top = 0.2
-anchor_right = 0.35
+anchor_right = 0.4
 anchor_bottom = 0.8
 text = "💰"
 flat = true
 
-[node name="ResetButton" type="Button" parent="Dashboard/ControlButtons"]
+[node name="ResetButton" type="Button" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.35
+anchor_left = 0.4
 anchor_top = 0.2
-anchor_right = 0.65
+anchor_right = 0.6
 anchor_bottom = 0.8
 text = "🔄"
 flat = true
 
-[node name="HomeButton" type="Button" parent="Dashboard/ControlButtons"]
+[node name="HomeButton" type="Button" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.65
+anchor_left = 0.6
 anchor_top = 0.2
-anchor_right = 0.95
+anchor_right = 0.8
 anchor_bottom = 0.8
 text = "🏠"
 flat = true
@@ -100,7 +99,7 @@ flat = true
 layout_mode = 1
 anchor_top = 0.208
 anchor_right = 1.0
-anchor_bottom = 1.0
+anchor_bottom = 0.9
 offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
@@ -167,8 +166,8 @@ text = "RESTART"
 layout_mode = 2
 text = "FINE"
 
-[connection signal="pressed" from="Dashboard/ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]
-[connection signal="pressed" from="Dashboard/ControlButtons/ResetButton" to="." method="_on_reset_button_pressed"]
-[connection signal="pressed" from="Dashboard/ControlButtons/HomeButton" to="." method="_on_home_button_pressed"]
+[connection signal="pressed" from="ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]
+[connection signal="pressed" from="ControlButtons/ResetButton" to="." method="_on_reset_button_pressed"]
+[connection signal="pressed" from="ControlButtons/HomeButton" to="." method="_on_home_button_pressed"]
 [connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/FineButton" to="." method="_on_fine_button_pressed"]
