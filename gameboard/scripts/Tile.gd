@@ -1,8 +1,8 @@
 extends Control
 class_name Tile
 
-# PHASE 2: Input Detection
-# Tile with click detection and visual feedback
+# PHASE 3: Basic Drag Mechanics  
+# Tile with click detection, visual feedback, and drag indicators
 
 @export var grid_x: int
 @export var grid_y: int
@@ -11,10 +11,9 @@ class_name Tile
 
 var label: Label
 var color_rect: ColorRect
-#var area_2d: Area2D
-#var collision_shape: CollisionShape2D
 var is_hovered: bool = false
 var border_rect: ColorRect
+var drag_indicator_rect: ColorRect
 
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
@@ -72,6 +71,14 @@ func setup_visual():
 	border_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(border_rect)
 	border_rect.move_to_front()
+	
+	# Create drag indicator (red border)
+	drag_indicator_rect = ColorRect.new()
+	drag_indicator_rect.size = Vector2(tile_width, tile_width)
+	drag_indicator_rect.color = Color.TRANSPARENT
+	drag_indicator_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(drag_indicator_rect)
+	drag_indicator_rect.move_to_front()
 	#print("Visual setup complete for tile face ", face)
 
 func _on_gui_input(event):
@@ -113,6 +120,18 @@ func show_click_feedback():
 		else:
 			hide_hover_feedback()
 	)
+
+# Phase 3: Drag indicator methods
+func show_drag_indicator():
+	drag_indicator_rect.color = Color.RED
+	# Create red border effect by making it slightly larger
+	drag_indicator_rect.position = Vector2(-3, -3)
+	drag_indicator_rect.size = Vector2(tile_width + 6, tile_width + 6)
+
+func hide_drag_indicator():
+	drag_indicator_rect.color = Color.TRANSPARENT
+	drag_indicator_rect.position = Vector2.ZERO
+	drag_indicator_rect.size = Vector2(tile_width, tile_width)
 
 func get_grid_position() -> Vector2i:
 	return Vector2i(grid_x, grid_y)

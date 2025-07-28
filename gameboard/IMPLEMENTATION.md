@@ -40,20 +40,20 @@ Convert JavaScript gameboard to Godot 4 in runnable phases, ensuring each phase 
 - `GameBoard.gd` - Handle tile clicks
 - `Tile.tscn` - Configure Area2D properly
 
-## Phase 3: Basic Drag Mechanics ⏳
+## Phase 3: Basic Drag Mechanics ✅
 **Goal:** Row/column dragging without animation
 
 ### Implementation:
-- [ ] Create simplified DragHandler.gd
-- [ ] Implement row rotation logic
-- [ ] Implement column rotation logic
-- [ ] Add basic drag visual indicator
-- [ ] **Runnable:** Can drag rows/columns instantly
+- [x] Create simplified DragHandler.gd
+- [x] Implement row rotation logic
+- [x] Implement column rotation logic
+- [x] Add basic drag visual indicator
+- [x] **Runnable:** Can drag rows/columns instantly
 
-### Files to Add/Modify:
-- `gameboard/scripts/DragHandler.gd` - Basic version
-- `GameBoard.gd` - Add drag operations
-- `Tile.gd` - Update grid positions
+### Files Modified:
+- `gameboard/scripts/DragHandler.gd` - Godot 4 compatible drag detection
+- `GameBoard.gd` - Added drag operations and rotation methods
+- `Tile.gd` - Added drag indicator visuals
 
 ## Phase 4: Connection Detection ⏳
 **Goal:** Detect and highlight pipe connections
@@ -129,8 +129,8 @@ godot --path . res://PlayScreen.tscn
 
 ## Critical Success Criteria:
 ✅ **Phase 1:** Grid displays  
-⏳ **Phase 2:** Tiles respond to clicks  
-⏳ **Phase 3:** Rows/columns can be dragged  
+✅ **Phase 2:** Tiles respond to clicks  
+✅ **Phase 3:** Rows/columns can be dragged  
 ⏳ **Phase 4:** Connections are detected visually  
 ⏳ **Phase 5:** Connected tiles are removed  
 ⏳ **Phase 6:** Full game loop works  

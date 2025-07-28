@@ -48,32 +48,34 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 3: Basic Drag Mechanics ⏳ NEXT
+## Phase 3: Basic Drag Mechanics ✅ COMPLETED
 **Goal:** Drag rows/columns without smooth animation
 
 ### Implementation Tasks:
-- [ ] Create simplified DragHandler.gd (no smooth movement)
-- [ ] Add mouse_down → detect drag start
-- [ ] Add mouse_move → determine row/column drag
-- [ ] Add mouse_up → apply rotation instantly
-- [ ] Implement array rotation for rows/columns
-- [ ] Add red border on dragged row/column
+- [x] Create simplified DragHandler.gd (no smooth movement)
+- [x] Add mouse_down → detect drag start
+- [x] Add mouse_move → determine row/column drag
+- [x] Add mouse_up → apply rotation instantly
+- [x] Implement array rotation for rows/columns
+- [x] Add red border on dragged row/column
 
-### Files to Add/Modify:
-- `DragHandler.gd` - Basic drag detection
-- `GameBoard.gd` - Add rotation methods
-- `Tile.gd` - Update grid positions
+### Files Modified:
+- `DragHandler.gd` - Basic drag detection (Godot 4 compatible)
+- `GameBoard.gd` - Added rotation methods and drag integration
+- `Tile.gd` - Added drag indicator methods
 
 ### Success Criteria:
 ✅ Click+drag rotates entire row/column  
 ✅ Tiles jump to new positions instantly  
-✅ Visual indicator shows active drag  
+✅ Visual indicator shows active drag (red borders)
+✅ All 6 rows and 8 columns respond to drag
+✅ Proper Godot 4 event handling (no HTML5 legacy code)
 
 **Test:** Drag rows/columns → Tiles rearrange immediately
 
 ---
 
-## Phase 4: Connection Detection ⏳
+## Phase 4: Connection Detection ⏳ NEXT
 **Goal:** Highlight connected pipe networks
 
 ### Implementation Tasks:
@@ -249,5 +251,11 @@ print("Drag completed: ", from, " to ", to)
 
 ---
 
-## Current Status: Phase 1 Complete ✅
-**Next Action:** Review this plan → Proceed with Phase 2 implementation
+## Current Status: Phase 3 Complete ✅
+**Next Action:** Review this plan → Proceed with Phase 4 implementation
+
+### Phase Progress:
+- ✅ **Phase 1:** Basic Grid Display - Static 6x8 tile grid with colored pipe symbols
+- ✅ **Phase 2:** Input Detection - Tiles respond to mouse clicks with visual feedback  
+- ✅ **Phase 3:** Basic Drag Mechanics - Row/column dragging with instant rotation
+- ⏳ **Phase 4:** Connection Detection - NEXT PHASE
