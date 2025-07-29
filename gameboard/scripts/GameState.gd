@@ -1,5 +1,4 @@
 extends Node
-class_name GameState
 
 # Global game state singleton for managing game data across scenes
 # Based on game.js pseudocode
@@ -42,20 +41,7 @@ var removing_sprite: String = "green_fade"
 # Audio
 var sounds: Dictionary = {}
 
-# Static instance for singleton pattern
-static var instance: GameState
-
-func _init():
-	if instance == null:
-		instance = self
-	else:
-		queue_free()
-
 func _ready():
-	# Set up as singleton
-	if instance != self:
-		return
-	
 	# Initialize default values
 	reset_game()
 
@@ -97,16 +83,6 @@ func load_sound(sound_name: String, audio_stream: AudioStream):
 	audio_player.stream = audio_stream
 	add_child(audio_player)
 	sounds[sound_name] = audio_player
-
-# Expose functions to window for Android integration
-func _notification(what):
-	if what == NOTIFICATION_READY:
-		# Expose restart function
-		if Engine.has_singleton("JavaScriptBridge"):
-			var js = Engine.get_singleton("JavaScriptBridge")
-			js.get_interface("window").restart = restart_game
-			js.get_interface("window").rewardEarned = _on_reward_earned
-			js.get_interface("window").reward = _on_reward_requested
 
 func restart_game():
 	await get_tree().process_frame  # Wait a frame

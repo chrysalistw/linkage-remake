@@ -1,8 +1,6 @@
 extends Control
 
 # Game state variables
-var moves_left: int = 50
-var score: int = 0
 var game_width: int = 6
 var game_height: int = 8
 var game_active: bool = true
@@ -16,6 +14,7 @@ var game_active: bool = true
 
 func _ready():
 	_setup_game()
+	_connect_gamestate_signals()
 	_update_ui()
 
 func _setup_game():
@@ -24,9 +23,24 @@ func _setup_game():
 	game_active = true
 	_update_ui()
 
+func _connect_gamestate_signals():
+	# Connect to GameState signals for real-time UI updates
+	GameState.moves_changed.connect(_on_moves_changed)
+	GameState.score_changed.connect(_on_score_changed)
+	GameState.game_lost.connect(_on_game_lost)
+
+func _on_moves_changed(new_moves: int):
+	moves_label.text = "MOVES LEFT: " + str(new_moves)
+	
+func _on_score_changed(new_score: int):
+	score_label.text = "SCORE: " + str(new_score)
+	
+func _on_game_lost():
+	show_lost_dialog()
+
 func _update_ui():
-	moves_label.text = "MOVES LEFT: " + str(moves_left)
-	score_label.text = "SCORE: " + str(score)
+	moves_label.text = "MOVES LEFT: " + str(GameState.moves_left)
+	score_label.text = "SCORE: " + str(GameState.score)
 
 func _disable_controls():
 	home_button.disabled = true
@@ -53,29 +67,22 @@ func _on_home_button_pressed():
 func _on_reset_button_pressed():
 	if not game_active:
 		return
-	# Reset the game
-	moves_left = 50
-	score = 0
-	_setup_game()
+	# Reset the game using GameState
+	GameState.restart_game()
 
 func _on_reward_button_pressed():
 	if not game_active:
 		return
-	# Placeholder for reward ad functionality
-	# According to pseudocode: lose 10 moves, replace half tiles randomly
-	moves_left -= 10
-	if moves_left < 0:
-		moves_left = 0
-	_update_ui()
+	# Trigger reward functionality through GameState
+	GameState._on_reward_earned()
+	GameState._on_reward_requested()
 	print("Reward ad watched - 10 moves lost, tiles replaced")
 
 func _on_restart_button_pressed():
 	# Called from game lost dialog
 	_enable_controls()
 	game_lost_dialog.hide()
-	moves_left = 50
-	score = 0
-	_setup_game()
+	GameState.restart_game()
 
 func _on_fine_button_pressed():
 	# Called from game lost dialog

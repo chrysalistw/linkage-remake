@@ -27,9 +27,8 @@ func _ready():
 	setup_drag_handler()
 	
 	# Connect to GameState signals
-	var game_state = GameState.instance
-	if game_state:
-		game_state.game_lost.connect(_on_game_over)
+	if GameState:
+		GameState.game_lost.connect(_on_game_over)
 	
 	# Initialize board
 	initialize_board()
@@ -100,8 +99,7 @@ func _on_tile_clicked(tile: Tile):
 # Handle drag completion - apply rotation
 func _on_drag_completed(drag_state: Dictionary):
 	# Check if game is over
-	var game_state = GameState.instance
-	if game_state and game_state.lost:
+	if GameState and GameState.lost:
 		return  # Don't process moves when game is over
 	
 	# Clear drag visual indicators
@@ -113,9 +111,9 @@ func _on_drag_completed(drag_state: Dictionary):
 		rotate_column(drag_state.from.x, drag_state.to.y - drag_state.from.y)
 	
 	# Use one move per drag operation
-	if game_state:
-		game_state.use_move()
-		print("Move used, moves left: ", game_state.moves_left)
+	if GameState:
+		GameState.use_move()
+		print("Move used, moves left: ", GameState.moves_left)
 	
 	# Detect connections after move
 	detect_and_highlight_connections()
@@ -322,10 +320,9 @@ func _on_tile_fade_completed(tile: Tile):
 	tile.stop_fade_animation()  # Ensure fade is stopped and sprite restored
 	
 	# Update score via GameState
-	var game_state = GameState.instance
-	if game_state:
-		game_state.add_score(1)  # +1 point per removed tile
-		print("Score increased by 1, new score: ", game_state.score)
+	if GameState:
+		GameState.add_score(1)  # +1 point per removed tile
+		print("Score increased by 1, new score: ", GameState.score)
 	
 	# Track fade completion for batch processing
 	faded_tiles_count += 1
@@ -337,11 +334,11 @@ func _on_tile_fade_completed(tile: Tile):
 		expected_fades = 0
 		
 		# Award bonus moves (1 move per 3 tiles removed)
-		if game_state:
+		if GameState:
 			var bonus_moves = tiles_removed / 3
 			if bonus_moves > 0:
-				game_state.moves_left += bonus_moves
-				print("Bonus moves awarded: ", bonus_moves, " (total moves: ", game_state.moves_left, ")")
+				GameState.moves_left += bonus_moves
+				print("Bonus moves awarded: ", bonus_moves, " (total moves: ", GameState.moves_left, ")")
 		
 		# Small delay before checking for chain reactions
 		await get_tree().create_timer(0.2).timeout

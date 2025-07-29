@@ -100,16 +100,16 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 5: Tile Removal ⏳ NEXT
+## Phase 5: Tile Removal ✅ COMPLETED
 **Goal:** Remove connected tiles and replace with new ones
 
 ### Implementation Tasks:
-- [ ] Add tile removal animation (fade out)
-- [ ] Replace removed tiles with random new faces
-- [ ] Add basic scoring (+1 per removed tile)
-- [ ] Add chain reaction detection
-- [ ] Update moves counter
-- [ ] Integrate with GameState singleton
+- [x] Add tile removal animation (fade out)
+- [x] Replace removed tiles with random new faces
+- [x] Add basic scoring (+1 per removed tile)
+- [x] Add chain reaction detection
+- [x] Update moves counter
+- [x] Integrate with GameState singleton
 
 ### Files to Modify:
 - `detect.gd` - Add removal + replacement logic (remove_links method exists)
@@ -127,7 +127,7 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 6: Game State Integration ⏳
+## Phase 6: Game State Integration ⏳ NEXT
 **Goal:** Complete game loop with moves/scoring/game over
 
 ### Implementation Tasks:
@@ -253,12 +253,13 @@ print("Drag completed: ", from, " to ", to)
 
 ---
 
-## Current Status: Phase 4 Complete ✅
-**Next Action:** Review this plan → Proceed with Phase 5 implementation
+## Current Status: Phase 5 Complete ✅
+**Next Action:** Review this plan → Proceed with Phase 6 implementation
 
 ### Phase Progress:
 - ✅ **Phase 1:** Basic Grid Display - Static 6x8 tile grid with colored pipe symbols
 - ✅ **Phase 2:** Input Detection - Tiles respond to mouse clicks with visual feedback  
 - ✅ **Phase 3:** Basic Drag Mechanics - Row/column dragging with instant rotation
 - ✅ **Phase 4:** Connection Detection - Pipes connect and highlight properly
-- ⏳ **Phase 5:** Tile Removal - NEXT PHASE
+- ✅ **Phase 5:** Tile Removal - Fade animations, scoring, chain reactions complete
+- ⏳ **Phase 6:** Game State Integration - NEXT PHASE
