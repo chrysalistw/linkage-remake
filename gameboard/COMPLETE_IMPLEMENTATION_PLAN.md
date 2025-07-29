@@ -127,16 +127,16 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 6: Game State Integration ⏳ NEXT
+## Phase 6: Game State Integration ✅ COMPLETED
 **Goal:** Complete game loop with moves/scoring/game over
 
 ### Implementation Tasks:
-- [ ] Create GameState.gd singleton
-- [ ] Add moves counter (starts at 100)
-- [ ] Add score display in PlayScreen
-- [ ] Add game over detection (moves = 0)
-- [ ] Add restart functionality
-- [ ] Connect UI buttons to game state
+- [x] Create GameState.gd singleton
+- [x] Add moves counter (starts at 100)
+- [x] Add score display in PlayScreen
+- [x] Add game over detection (moves = 0)
+- [x] Add restart functionality
+- [x] Connect UI buttons to game state
 
 ### Files to Add/Modify:
 - `GameState.gd` - Full singleton implementation
@@ -154,30 +154,36 @@ Convert JavaScript HTML5 Canvas gameboard to Godot 4 in 7 runnable phases. Each 
 
 ---
 
-## Phase 7: Polish & Features ⏳
+## Phase 7: Polish & Features ⏳ NEXT
 **Goal:** Smooth animations and full feature parity
 
 ### Implementation Tasks:
-- [ ] Add smooth drag animations (tweens)
-- [ ] Load actual sprite assets from linkage/imgs/
-- [ ] Add sound effects (click, remove, game over)
-- [ ] Implement reward system (randomize tiles)
-- [ ] Add particle effects for tile removal
-- [ ] Optimize performance for smooth 60fps
+- [ ] Add smooth drag animations with Tween nodes
+- [ ] Load actual pipe sprite assets from linkage/imgs/
+- [ ] Add sound effects (click, drag, tile removal, game over)
+- [ ] Implement reward system integration (randomize tiles via GameState)
+- [ ] Add particle effects for tile removal animations
+- [ ] Optimize performance for smooth 60fps gameplay
+- [ ] Add visual polish (better fade effects, connection highlights)
+- [ ] Implement proper tile randomization for reward system
 
-### Files to Modify:
-- All scripts - Add animations and polish
-- Load sprites from existing assets
-- Add AudioStreamPlayer nodes
+### Files to Add/Modify:
+- `GameBoard.gd` - Add Tween nodes for smooth drag animations
+- `Tile.gd` - Enhanced visual effects and sprite loading
+- `resources/` - Load proper pipe sprites from linkage/imgs/
+- `GameState.gd` - Connect reward system to tile randomization
+- `PlayScreen.gd` - Add sound effect integration
+- Add AudioStreamPlayer nodes to scenes
 
 ### Success Criteria:
-✅ Smooth drag animations  
-✅ Proper pipe sprites  
-✅ Sound effects  
-✅ Reward system works  
-✅ Matches original game feel  
+✅ Smooth drag animations with visual feedback
+✅ Proper pipe sprites from original assets
+✅ Sound effects for all game interactions
+✅ Reward system fully functional
+✅ 60fps performance maintained
+✅ Visual polish matches or exceeds original game
 
-**Test:** Full gameplay experience matches original
+**Test:** Full gameplay experience matches original with smooth animations
 
 ---
 
@@ -253,8 +259,8 @@ print("Drag completed: ", from, " to ", to)
 
 ---
 
-## Current Status: Phase 5 Complete ✅
-**Next Action:** Review this plan → Proceed with Phase 6 implementation
+## Current Status: Phase 6 Complete ✅
+**Next Action:** Review this plan → Proceed with Phase 7 implementation
 
 ### Phase Progress:
 - ✅ **Phase 1:** Basic Grid Display - Static 6x8 tile grid with colored pipe symbols
@@ -262,4 +268,5 @@ print("Drag completed: ", from, " to ", to)
 - ✅ **Phase 3:** Basic Drag Mechanics - Row/column dragging with instant rotation
 - ✅ **Phase 4:** Connection Detection - Pipes connect and highlight properly
 - ✅ **Phase 5:** Tile Removal - Fade animations, scoring, chain reactions complete
-- ⏳ **Phase 6:** Game State Integration - NEXT PHASE
+- ✅ **Phase 6:** Game State Integration - UI updates, game over detection, full game loop
+- ⏳ **Phase 7:** Polish & Features - NEXT PHASE

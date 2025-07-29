@@ -3,70 +3,82 @@
 ## Project Overview
 Converting JavaScript HTML5 Canvas Linkage game to Godot 4 in incremental phases. Each phase produces a runnable game for immediate testing.
 
-## Phase 5 Implementation Status ✅ COMPLETED
-**Goal:** Remove connected tiles with fade animations, scoring, chain reactions, and moves integration
+## Phase 6 Implementation Status ✅ COMPLETED
+**Goal:** Complete game loop with moves/scoring/game over UI integration
 
-### All 5 Tasks Completed:
-1. ✅ **Green Fade Animation Resource** - Created FadeSprites.gd + green_fade_sprites.tres using green_fade.png (5 frames)
-2. ✅ **Fade Animation in Tile.gd** - Added start_fade_animation(), fade_completed signal, timer-based frame progression
-3. ✅ **Connection Detection Integration** - Connected fade animations to connection detection in GameBoard.gd
-4. ✅ **Tile Replacement & Scoring** - Tiles replaced with random faces after fade, +1 score per tile
-5. ✅ **Chain Reactions & Moves** - Moves counting per drag, bonus moves (1 per 3 tiles), game over detection
+### All Phase 6 Tasks Completed:
+1. ✅ **GameState Autoload Configuration** - Added to project.godot as global singleton
+2. ✅ **PlayScreen UI Integration** - Connected to GameState signals for real-time updates
+3. ✅ **Real-time Score/Moves Display** - UI updates instantly during gameplay
+4. ✅ **Game Over Detection** - Dialog appears automatically when moves = 0
+5. ✅ **Button Integration** - Reset/restart functionality through GameState methods
+6. ✅ **Single Source of Truth** - All game state managed centrally through GameState
 
 ### Implementation Notes:
-- **Fade Animation Issues**: User noted "fade animation is weird" but acceptable for now
-- **Scoring/Moves Display**: User noted "score and moves are not working, or it's just the board that are not updating" - backend logic implemented correctly but UI not showing updates
-- **Console Output Working**: All debug messages show proper game mechanics in console
+- **UI Integration Complete**: Score and moves now update in real-time during gameplay
+- **Signal-Based Architecture**: PlayScreen connects to GameState.moves_changed, score_changed, game_lost signals
+- **Button Reference Fix**: Fixed node path issues for ControlButtons (was crashing on game over)
+- **Autoload Singleton**: GameState properly configured and accessible globally
 
 ### Files Modified:
-- `gameboard/resources/FadeSprites.gd` - NEW: Fade animation resource script
-- `gameboard/resources/green_fade_sprites.tres` - NEW: Fade sprites resource file
-- `gameboard/scripts/Tile.gd` - Added fade animation methods and signals
-- `gameboard/scripts/GameBoard.gd` - Added fade integration, scoring, moves counting, game over handling
-- `gameboard/scripts/GameState.gd` - Already existed with proper backend logic
+- `project.godot` - Added GameState autoload configuration
+- `PlayScreen.gd` - Removed duplicate state, connected to GameState signals, integrated button handlers
+- `gameboard/scripts/GameState.gd` - Removed class_name conflict, cleaned up JavaScript bridge code
+- `gameboard/scripts/GameBoard.gd` - Fixed GameState.instance references to use autoload directly
 
-### Current Game Mechanics Working:
-✅ Connected tiles fade out using green_fade.png frames  
-✅ New random tiles appear after fade completes  
-✅ Score increases correctly in backend (+1 per removed tile)  
-✅ Moves decrease by 1 per drag operation in backend  
-✅ Chain reactions work automatically  
-✅ Bonus moves awarded (1 per 3 tiles removed)  
-✅ Game over detection when moves = 0
+### Current Game Features Working:
+✅ Complete 6x8 tile grid with pipe symbols  
+✅ Click and drag rows/columns with visual feedback  
+✅ Connection detection with green highlights  
+✅ Tile fade animations and removal  
+✅ **Real-time score tracking** (+1 per tile) with instant UI updates  
+✅ **Real-time moves tracking** (-1 per drag) with instant UI updates  
+✅ Chain reactions and bonus moves (1 per 3 tiles removed)  
+✅ **Game over detection** with dialog when moves = 0  
+✅ **Reset/restart functionality** through GameState  
+✅ **Complete game loop** functional end-to-end  
 
-## Next Phase: UI Integration
-**Issue to Address:** Score and moves tracking working in backend but not displaying in UI
-- GameState.score and GameState.moves_left updating correctly
-- Need to connect UI elements to display these values
-- Console debug shows all mechanics working properly
+## Phase 7 Status ⏳ NEXT PHASE
+**Goal:** Polish & Features - Smooth animations, proper sprites, sound effects
+- Smooth drag animations with Tween nodes
+- Load actual pipe sprite assets from linkage/imgs/
+- Add sound effects for all game interactions
+- Implement proper reward system with tile randomization
+- Add particle effects and visual polish
+- Optimize for 60fps performance
 
 ## File Structure Status:
 ```
 gameboard/
 ├── scripts/
-│   ├── GameBoard.gd          ✅ Phase 5 complete
-│   ├── Tile.gd               ✅ Phase 5 complete  
-│   ├── DragHandler.gd        ✅ Phase 3 complete
-│   ├── GameState.gd          ✅ Backend working
-│   └── detect.gd             ✅ Phase 4 complete
+│   ├── GameBoard.gd          ✅ Phase 6 complete - GameState integration
+│   ├── Tile.gd               ✅ Phase 5 complete - Fade animations  
+│   ├── DragHandler.gd        ✅ Phase 3 complete - Row/column dragging
+│   ├── GameState.gd          ✅ Phase 6 complete - Autoload singleton
+│   └── detect.gd             ✅ Phase 4 complete - Connection detection
 ├── scenes/
-│   ├── GameBoard.tscn        ✅ Working
-│   └── Tile.tscn             ✅ Working
+│   ├── GameBoard.tscn        ✅ Working - Integrated with GameState
+│   └── Tile.tscn             ✅ Working - Fade animation support
 ├── resources/
-│   ├── pipe_sprites.tres     ✅ Working
-│   ├── FadeSprites.gd        ✅ NEW - Phase 5
-│   └── green_fade_sprites.tres ✅ NEW - Phase 5
+│   ├── pipe_sprites.tres     ✅ Working - Green pipe sprites
+│   ├── FadeSprites.gd        ✅ Phase 5 - Fade animation resource
+│   └── green_fade_sprites.tres ✅ Phase 5 - Fade sprites resource
+└── COMPLETE_IMPLEMENTATION_PLAN.md ✅ Updated with all 7 phases
 ```
 
+**Additional Files:**
+- `project.godot` ✅ GameState configured as autoload singleton
+- `PlayScreen.gd` ✅ Connected to GameState signals for real-time UI updates
+
 ## Key Implementation Patterns:
-- **Incremental Development**: Each task kept game runnable for testing
-- **Signal-Based Architecture**: Tiles emit fade_completed, GameBoard handles via signals
-- **GameState Integration**: All scoring/moves go through GameState singleton
+- **Incremental Development**: Each phase kept game runnable for immediate testing
+- **Signal-Based Architecture**: GameState emits signals, UI components connect for real-time updates  
+- **Autoload Singleton**: GameState provides single source of truth for all game state
 - **Batch Processing**: Track multiple fade completions for chain reactions
-- **Console Debugging**: Extensive debug output for tracking game mechanics
+- **Defensive Programming**: Null checks and error handling throughout
 
 ## Testing Protocol:
-- Stop after each task completion
-- User tests before proceeding to next task
-- Game must remain fully functional at each step
-- Console output validates backend mechanics are working
+- Each phase must be fully functional before proceeding
+- Real-time UI updates confirmed during gameplay
+- Game over and restart functionality verified
+- Complete game loop tested end-to-end

@@ -8,9 +8,9 @@ var game_active: bool = true
 @onready var moves_label = $Dashboard/MovesLabel
 @onready var score_label = $Dashboard/ScoreLabel
 @onready var game_lost_dialog = $GameLostDialog
-@onready var home_button = $Dashboard/ControlButtons/HomeButton
-@onready var reset_button = $Dashboard/ControlButtons/ResetButton
-@onready var reward_button = $Dashboard/ControlButtons/RewardButton
+@onready var home_button = $ControlButtons/HomeButton
+@onready var reset_button = $ControlButtons/ResetButton
+@onready var reward_button = $ControlButtons/RewardButton
 
 func _ready():
 	_setup_game()
@@ -43,15 +43,21 @@ func _update_ui():
 	score_label.text = "SCORE: " + str(GameState.score)
 
 func _disable_controls():
-	home_button.disabled = true
-	reset_button.disabled = true  
-	reward_button.disabled = true
+	if home_button:
+		home_button.disabled = true
+	if reset_button:
+		reset_button.disabled = true  
+	if reward_button:
+		reward_button.disabled = true
 	game_active = false
 
 func _enable_controls():
-	home_button.disabled = false
-	reset_button.disabled = false
-	reward_button.disabled = false
+	if home_button:
+		home_button.disabled = false
+	if reset_button:
+		reset_button.disabled = false
+	if reward_button:
+		reward_button.disabled = false
 	game_active = true
 
 func show_lost_dialog():
