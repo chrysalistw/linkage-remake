@@ -14,9 +14,14 @@ var border_rect: ColorRect
 var drag_indicator_rect: ColorRect
 var connection_indicator_rect: ColorRect
 var pipe_sprites: PipeSprites
+var fade_sprites: FadeSprites
+var is_fading: bool = false
+var fade_timer: Timer
 
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
+# Signal for fade animation completion
+signal fade_completed(tile: Tile)
 
 # Pipe face names for debugging
 const PIPE_NAMES = ["V↑", "V|", "V↓", "H→", "└", "┘", "H─", "┌", "┐", "H←"]
@@ -43,9 +48,15 @@ func setup_visual():
 	# Load pipe sprites resource
 	pipe_sprites = load("res://gameboard/resources/pipe_sprites.tres")
 	
-	# Validate sprite sheet
+	# Load fade sprites resource
+	fade_sprites = load("res://gameboard/resources/green_fade_sprites.tres")
+	
+	# Validate sprite sheets
 	if pipe_sprites and not pipe_sprites.validate_sprite_sheet():
 		print("Warning: Pipe sprite sheet validation failed")
+	
+	if fade_sprites and not fade_sprites.validate_sprite_sheet():
+		print("Warning: Fade sprite sheet validation failed")
 	
 	# Create sprite display
 	sprite = TextureRect.new()
@@ -83,6 +94,12 @@ func setup_visual():
 	# Add connection indicator first, then move sprite to front
 	add_child(connection_indicator_rect)
 	sprite.move_to_front()
+	
+	# Create fade animation timer
+	fade_timer = Timer.new()
+	fade_timer.wait_time = 0.1  # 100ms per frame
+	fade_timer.timeout.connect(_on_fade_timer_timeout)
+	add_child(fade_timer)
 
 func _on_gui_input(event):
 	if event is InputEventMouseButton:
@@ -163,3 +180,73 @@ func update_sprite_region():
 
 func get_face() -> int:
 	return face
+
+# Fade animation variables
+var current_fade_frame: int = 0
+var fade_frame_count: int = 5
+
+# Start fade animation using green_fade.png frames
+func start_fade_animation():
+	if is_fading:
+		return  # Already fading
+	
+	if not fade_sprites:
+		print("Warning: Fade sprites not loaded, cannot start fade animation")
+		return
+	
+	is_fading = true
+	current_fade_frame = 0
+	fade_frame_count = fade_sprites.get_frame_count()
+	
+	# Start the fade timer
+	fade_timer.start()
+	
+	# Show first fade frame
+	update_fade_frame()
+
+# Update to the current fade frame
+func update_fade_frame():
+	if not is_fading or not fade_sprites:
+		return
+	
+	# Get the fade texture for current frame
+	var fade_texture = fade_sprites.get_fade_texture(current_fade_frame)
+	if fade_texture and sprite:
+		sprite.texture = fade_texture
+
+# Handle fade timer timeout
+func _on_fade_timer_timeout():
+	if not is_fading:
+		return
+	
+	current_fade_frame += 1
+	
+	if current_fade_frame >= fade_frame_count:
+		# Fade animation complete
+		complete_fade_animation()
+	else:
+		# Update to next frame
+		update_fade_frame()
+
+# Complete the fade animation and emit signal
+func complete_fade_animation():
+	is_fading = false
+	fade_timer.stop()
+	
+	# Emit completion signal
+	fade_completed.emit(self)
+
+# Stop fade animation and restore normal sprite
+func stop_fade_animation():
+	if not is_fading:
+		return
+	
+	is_fading = false
+	fade_timer.stop()
+	
+	# Restore normal pipe sprite
+	update_sprite_region()
+
+# Check if tile is currently fading
+func is_fade_active() -> bool:
+	return is_fading

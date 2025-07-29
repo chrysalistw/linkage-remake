@@ -1,0 +1,10 @@
+[gd_resource type="Resource" script_class="FadeSprites" load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://gameboard/resources/FadeSprites.gd" id="1_fade_sprites"]
+[ext_resource type="Texture2D" uid="uid://bj6q0ixtdgkh4" path="res://linkage/imgs/tile_spr/green_fade.png" id="2_fade_texture"]
+
+[resource]
+script = ExtResource("1_fade_sprites")
+sprite_texture = ExtResource("2_fade_texture")
+tile_size = 64
+animation_frames = 5

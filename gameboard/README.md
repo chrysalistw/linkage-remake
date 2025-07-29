@@ -2,7 +2,7 @@
 
 This folder contains the core gameboard mechanics for the Linkage puzzle game, converted from the JavaScript implementation to Godot 4.
 
-**Current Status:** Phase 4 completed - connection detection working with green highlights. Ready for Phase 5 implementation.
+**Current Status:** Phase 5 completed - tile removal with fade animations, scoring, and chain reactions working. Backend mechanics complete.
 
 ## Structure
 
@@ -18,7 +18,10 @@ gameboard/
 │   ├── GameBoard.tscn        # Main gameboard scene
 │   └── Tile.tscn             # Individual tile scene with Area2D
 └── resources/
-	└── tile_sprites/         # Placeholder for tile sprite resources
+	├── pipe_sprites.tres         # Green pipe sprites resource
+	├── FadeSprites.gd           # NEW: Fade animation resource script
+	├── green_fade_sprites.tres  # NEW: Fade sprites using green_fade.png
+	└── tile_sprites/            # Sprite assets directory
 ```
 
 ## Implementation Status
@@ -30,11 +33,23 @@ gameboard/
 - **Recursive Algorithm**: Handles complex networks and loop detection
 - **Debug Cleanup**: Production-ready code without debug noise
 
-### Ready for Phase 5
-- **Tile Removal Logic**: `remove_links()` method implemented in detect.gd
-- **GameState Integration**: Singleton ready for score/moves tracking
-- **Animation Support**: Tile.gd ready for fade animations
-- **Chain Reactions**: Algorithm supports cascading tile removal
+### Phase 5 Implementation Complete ✅
+
+**All 5 Tasks Completed:**
+1. ✅ Green Fade Animation Resource (FadeSprites.gd + green_fade_sprites.tres)
+2. ✅ Basic Fade Animation in Tile.gd (start_fade_animation(), signals)  
+3. ✅ Connection Detection Integration (fade triggers on connected tiles)
+4. ✅ Tile Replacement & Scoring (random new faces, +1 score per tile)
+5. ✅ Chain Reactions & Moves (moves counting, bonus moves, game over)
+
+**Implementation Notes:**
+- Fade animation has visual issues but functional
+- Score/moves backend working correctly but UI not updating  
+- All game mechanics confirmed working via console output
+- Chain reactions and bonus moves system operational
+
+### Ready for UI Integration
+**Next Phase:** Connect GameState score/moves display to UI elements
 
 ## Key Components
 

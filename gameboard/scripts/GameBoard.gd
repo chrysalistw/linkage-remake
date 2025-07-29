@@ -14,6 +14,9 @@ var drag_handler: DragHandler
 var removing: bool = false
 
 func _ready():
+	# Add to gameboard group for GameState integration
+	add_to_group("gameboard")
+	
 	# Create tile grid container
 	setup_tile_grid()
 	
@@ -22,6 +25,11 @@ func _ready():
 	
 	# Setup drag handler
 	setup_drag_handler()
+	
+	# Connect to GameState signals
+	var game_state = GameState.instance
+	if game_state:
+		game_state.game_lost.connect(_on_game_over)
 	
 	# Initialize board
 	initialize_board()
@@ -91,6 +99,10 @@ func _on_tile_clicked(tile: Tile):
 
 # Handle drag completion - apply rotation
 func _on_drag_completed(drag_state: Dictionary):
+	# Check if game is over
+	var game_state = GameState.instance
+	if game_state and game_state.lost:
+		return  # Don't process moves when game is over
 	
 	# Clear drag visual indicators
 	clear_drag_indicators()
@@ -99,6 +111,11 @@ func _on_drag_completed(drag_state: Dictionary):
 		rotate_row(drag_state.from.y, drag_state.to.x - drag_state.from.x)
 	elif drag_state.state == "vertical":
 		rotate_column(drag_state.from.x, drag_state.to.y - drag_state.from.y)
+	
+	# Use one move per drag operation
+	if game_state:
+		game_state.use_move()
+		print("Move used, moves left: ", game_state.moves_left)
 	
 	# Detect connections after move
 	detect_and_highlight_connections()
@@ -255,19 +272,90 @@ func detect_and_highlight_connections():
 		# Force a visual update
 		await get_tree().process_frame
 
-# Apply green highlights to connected tiles
+# Apply green highlights to connected tiles and start fade animations
 func highlight_connected_tiles(connections: Array):
+	# Count expected fades for batch processing
+	expected_fades = 0
+	faded_tiles_count = 0
+	
+	# Count connected tiles first
+	for y in connections.size():
+		for x in connections[y].size():
+			if connections[y][x]:
+				expected_fades += 1
+	
+	# Start fade animations on connected tiles
 	for y in connections.size():
 		for x in connections[y].size():
 			if connections[y][x]:
 				var tile = board[y][x] as Tile
 				if tile:
 					tile.highlight_connected()
+					# Start fade animation on connected tiles
+					tile.start_fade_animation()
+					# Connect to fade completion signal (for tile replacement)
+					if not tile.fade_completed.is_connected(_on_tile_fade_completed):
+						tile.fade_completed.connect(_on_tile_fade_completed)
 
-# Clear all connection highlights
+# Clear all connection highlights and stop fade animations
 func clear_connection_highlights():
 	for y in board_height:
 		for x in board_width:
 			var tile = board[y][x] as Tile
 			if tile:
 				tile.hide_connected_highlight()
+				# Stop any ongoing fade animations
+				if tile.is_fade_active():
+					tile.stop_fade_animation()
+
+# Track completed fades for batch processing
+var faded_tiles_count: int = 0
+var expected_fades: int = 0
+
+# Handle tile fade completion - replace tile and update score
+func _on_tile_fade_completed(tile: Tile):
+	var pos = tile.get_grid_position()
+	print("Tile fade completed at position: ", pos)
+	
+	# Replace tile with new random face
+	tile.set_face(randi() % 10)
+	tile.stop_fade_animation()  # Ensure fade is stopped and sprite restored
+	
+	# Update score via GameState
+	var game_state = GameState.instance
+	if game_state:
+		game_state.add_score(1)  # +1 point per removed tile
+		print("Score increased by 1, new score: ", game_state.score)
+	
+	# Track fade completion for batch processing
+	faded_tiles_count += 1
+	
+	# When all fades complete, award bonus moves and check for chain reactions
+	if faded_tiles_count >= expected_fades:
+		var tiles_removed = expected_fades
+		faded_tiles_count = 0
+		expected_fades = 0
+		
+		# Award bonus moves (1 move per 3 tiles removed)
+		if game_state:
+			var bonus_moves = tiles_removed / 3
+			if bonus_moves > 0:
+				game_state.moves_left += bonus_moves
+				print("Bonus moves awarded: ", bonus_moves, " (total moves: ", game_state.moves_left, ")")
+		
+		# Small delay before checking for chain reactions
+		await get_tree().create_timer(0.2).timeout
+		detect_and_highlight_connections()
+
+# Handle game over - disable input
+func _on_game_over():
+	print("Game Over! No more moves left.")
+	# Disable drag handler to prevent further moves
+	if drag_handler:
+		drag_handler.set_process_input(false)
+		drag_handler.dragging = false
+
+# Allow moves again (for restart functionality)
+func enable_input():
+	if drag_handler:
+		drag_handler.set_process_input(true)
