@@ -17,6 +17,7 @@ var pipe_sprites: PipeSprites
 var fade_sprites: FadeSprites
 var is_fading: bool = false
 var fade_timer: Timer
+var gameboard: GameBoard
 
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
@@ -35,6 +36,9 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 	grid_y = y
 	tile_width = width
 	face = pipe_face
+	
+	# Get reference to gameboard - defer to when node is ready
+	call_deferred("_setup_gameboard_reference")
 	
 	# Set size
 	custom_minimum_size = Vector2(tile_width, tile_width)
@@ -172,11 +176,29 @@ func set_face(new_face: int):
 # Update the texture region to show the correct pipe face
 func update_sprite_region():
 	if sprite and pipe_sprites:
-		var atlas_texture = pipe_sprites.get_pipe_texture(face)
+		# During drag, show predicted face
+		var display_face = get_display_face()
+		var atlas_texture = pipe_sprites.get_pipe_texture(display_face)
 		if atlas_texture:
 			sprite.texture = atlas_texture
 		else:
-			print("Error: Failed to get pipe texture for face ", face)
+			print("Error: Failed to get pipe texture for face ", display_face)
+
+# Get the face to display (predicted during drag)
+func get_display_face() -> int:
+	if not gameboard or not gameboard.drag_handler or not gameboard.drag_handler.is_dragging:
+		return face
+	
+	# Get predicted grid position
+	var predicted_grid = gameboard.get_predicted_tile_position(grid_y, grid_x)
+	
+	# If position changed, get the face that would be at this position
+	if predicted_grid != Vector2i(grid_x, grid_y):
+		var predicted_tile = gameboard.get_tile_at_position(predicted_grid)
+		if predicted_tile:
+			return predicted_tile.face
+	
+	return face
 
 func get_face() -> int:
 	return face
@@ -250,3 +272,16 @@ func stop_fade_animation():
 # Check if tile is currently fading
 func is_fade_active() -> bool:
 	return is_fading
+
+# Setup gameboard reference safely when node is in tree
+func _setup_gameboard_reference():
+	if not gameboard and is_inside_tree():
+		# Try direct path first
+		gameboard = get_node_or_null("/root/Main/PlayScreen/GameBoard")
+		if not gameboard:
+			# Try group lookup
+			var tree = get_tree()
+			if tree:
+				var nodes_in_group = tree.get_nodes_in_group("gameboard")
+				if nodes_in_group.size() > 0:
+					gameboard = nodes_in_group[0]

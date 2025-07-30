@@ -9,7 +9,7 @@ class_name GameBoard
 
 var board: Array = []
 var tile_scene: PackedScene
-var tile_grid: GridContainer
+var tile_grid: Control
 var drag_handler: DragHandler
 var removing: bool = false
 
@@ -34,10 +34,8 @@ func _ready():
 	initialize_board()
 	
 func setup_tile_grid():
-	tile_grid = GridContainer.new()
-	tile_grid.columns = board_width
-	tile_grid.add_theme_constant_override("h_separation", 0)
-	tile_grid.add_theme_constant_override("v_separation", 0)
+	tile_grid = Control.new()  # Use Control instead of GridContainer for manual positioning
+	tile_grid.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
 	add_child(tile_grid)
 
 func initialize_board():
@@ -74,8 +72,9 @@ func create_tile(x: int, y: int):
 	# Store in board array
 	board[y][x] = tile_instance
 	
-	# Add to grid
+	# Add to grid and set initial position
 	tile_grid.add_child(tile_instance)
+	tile_instance.position = Vector2(x * tile_size, y * tile_size)
 	
 	return tile_instance
 
@@ -185,17 +184,53 @@ func rebuild_tile_grid():
 	for child in tile_grid.get_children():
 		tile_grid.remove_child(child)
 	
-	# Re-add tiles in correct row-major order
+	# Re-add tiles in correct row-major order with proper positions
 	for y in board_height:
 		for x in board_width:
 			var tile = board[y][x]
 			if tile:
 				tile_grid.add_child(tile)
+				tile.position = Vector2(x * tile_size, y * tile_size)
 
-# Process function to update drag visual indicators
+# Efficient position caching
+var animated_positions_cache: Dictionary = {}
+var cache_dirty: bool = true
+
+func invalidate_position_cache():
+	cache_dirty = true
+
+func get_cached_animated_position(row: int, col: int) -> Vector2:
+	if cache_dirty:
+		rebuild_position_cache()
+	return animated_positions_cache.get(Vector2i(col, row), Vector2(col * tile_size, row * tile_size))
+
+func rebuild_position_cache():
+	animated_positions_cache.clear()
+	# Only rebuild if dragging
+	if drag_handler and drag_handler.is_dragging:
+		var affected_tiles = get_affected_tiles()
+		for tile_pos in affected_tiles:
+			var animated_pos = get_animated_tile_position(tile_pos.y, tile_pos.x)
+			animated_positions_cache[tile_pos] = animated_pos
+	cache_dirty = false
+
+# Process function to update drag visual indicators and positions
 func _process(_delta):
 	if drag_handler and drag_handler.dragging:
 		update_drag_indicators()
+		# Apply animated positions to tiles during drag
+		apply_animated_positions()
+		# Only update affected tiles for performance
+		var affected_tiles = get_affected_tiles()
+		for tile_pos in affected_tiles:
+			var tile = board[tile_pos.y][tile_pos.x] as Tile
+			if tile:
+				tile.update_sprite_region()
+		# Force redraw for visual indicators
+		queue_redraw()
+	else:
+		# Reset tiles to grid positions when not dragging
+		reset_tile_positions()
 
 # Update visual indicators during drag
 func update_drag_indicators():
@@ -359,3 +394,117 @@ func _on_game_over():
 func enable_input():
 	if drag_handler:
 		drag_handler.set_process_input(true)
+
+# Get animated tile position during drag operations
+func get_animated_tile_position(row: int, col: int) -> Vector2:
+	var base_pos = Vector2(col * tile_size, row * tile_size)
+	
+	if not drag_handler or drag_handler.drag_state == DragHandler.DragState.NONE:
+		return base_pos
+	
+	var from_tile = drag_handler.from_tile
+	var displacement = drag_handler.displacement
+	
+	match drag_handler.drag_state:
+		DragHandler.DragState.HORIZONTAL:
+			if row == from_tile.y:
+				base_pos.x += displacement.x
+		DragHandler.DragState.VERTICAL:
+			if col == from_tile.x:
+				base_pos.y += displacement.y
+		DragHandler.DragState.PREVIEW:
+			# Show preview in detected direction - fixed logic
+			if drag_handler.drag_direction.y == 0 and row == from_tile.y:
+				# Horizontal movement - shift row tiles horizontally
+				base_pos.x += displacement.x
+			elif drag_handler.drag_direction.x == 0 and col == from_tile.x:
+				# Vertical movement - shift column tiles vertically
+				base_pos.y += displacement.y
+	
+	return base_pos
+
+# Predict tile positions during drag for proper wrapping
+func get_predicted_tile_position(row: int, col: int) -> Vector2i:
+	if not drag_handler or not drag_handler.is_dragging:
+		return Vector2i(col, row)
+	
+	var from_pos = drag_handler.from_tile
+	var to_pos = drag_handler.to_tile
+	
+	if not to_pos or drag_handler.drag_state == DragHandler.DragState.PREVIEW:
+		return Vector2i(col, row)
+	
+	var predicted_row = row
+	var predicted_col = col
+	
+	match drag_handler.drag_state:
+		DragHandler.DragState.VERTICAL:
+			if col == from_pos.x:
+				var shift = to_pos.y - from_pos.y
+				predicted_row = (row + shift + board_height) % board_height
+		DragHandler.DragState.HORIZONTAL:
+			if row == from_pos.y:
+				var shift = to_pos.x - from_pos.x
+				predicted_col = (col + shift + board_width) % board_width
+	
+	return Vector2i(predicted_col, predicted_row)
+
+# Override _draw to add drag direction indicators
+func _draw():
+	if drag_handler and drag_handler.is_dragging and drag_handler.from_tile:
+		# Red outline on dragged tile
+		var from_pos = get_animated_tile_position(drag_handler.from_tile.y, drag_handler.from_tile.x)
+		draw_rect(Rect2(from_pos, Vector2(tile_size, tile_size)), Color.RED, false, 4.0)
+		
+		# Drag direction indicator
+		if drag_handler.displacement.length() > 0:
+			var start_center = from_pos + Vector2(tile_size/2, tile_size/2)
+			var end_center = start_center + drag_handler.displacement * 5.0  # Amplify for visibility
+			draw_line(start_center, end_center, Color.RED, 5.0)
+			# Draw arrowhead
+			var dir = drag_handler.displacement.normalized()
+			var arrow_size = 10.0
+			var arrow_p1 = end_center - dir * arrow_size + Vector2(-dir.y, dir.x) * arrow_size * 0.5
+			var arrow_p2 = end_center - dir * arrow_size + Vector2(dir.y, -dir.x) * arrow_size * 0.5
+			draw_line(end_center, arrow_p1, Color.RED, 3.0)
+			draw_line(end_center, arrow_p2, Color.RED, 3.0)
+
+# Get tiles affected by current drag operation
+func get_affected_tiles() -> Array[Vector2i]:
+	if not drag_handler or not drag_handler.is_dragging:
+		return []
+	
+	var affected: Array[Vector2i] = []
+	var from_tile = drag_handler.from_tile
+	
+	match drag_handler.drag_state:
+		DragHandler.DragState.HORIZONTAL, DragHandler.DragState.PREVIEW:
+			# Entire row
+			for col in range(board_width):
+				affected.append(Vector2i(col, from_tile.y))
+		DragHandler.DragState.VERTICAL:
+			# Entire column  
+			for row in range(board_height):
+				affected.append(Vector2i(from_tile.x, row))
+	
+	return affected
+
+# Apply animated positions to tiles during drag
+func apply_animated_positions():
+	if not drag_handler or not drag_handler.is_dragging:
+		return
+		
+	var affected_tiles = get_affected_tiles()
+	for tile_pos in affected_tiles:
+		var tile = board[tile_pos.y][tile_pos.x] as Tile
+		if tile:
+			var animated_pos = get_animated_tile_position(tile_pos.y, tile_pos.x)
+			tile.position = animated_pos
+
+func reset_tile_positions():
+	# Reset all tiles to their grid positions
+	for y in board_height:
+		for x in board_width:
+			var tile = board[y][x] as Tile
+			if tile:
+				tile.position = Vector2(x * tile_size, y * tile_size)
