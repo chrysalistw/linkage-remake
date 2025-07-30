@@ -44,6 +44,9 @@ func initialize_board():
 	# Clear existing board
 	clear_board()
 	
+	# Re-enable input (fixes restart bug)
+	enable_input()
+	
 	# Create 2D array for tile data
 	board = []
 	for y in board_height:

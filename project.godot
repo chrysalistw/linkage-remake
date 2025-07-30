@@ -24,6 +24,8 @@ GameState="*res://gameboard/scripts/GameState.gd"
 window/size/viewport_width=648
 window/size/viewport_height=1152
 window/stretch/mode="viewport"
+window/stretch/aspect="expand"
+window/handheld/orientation=1
 
 [input_devices]
 
