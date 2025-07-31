@@ -70,18 +70,27 @@ func handle_mouse_move(event: InputEventMouseMotion):
 	
 	# Calculate displacement using original algorithm
 	var current_pos = Vector2(event.global_position.x, event.global_position.y)
+	
 	displacement = calculate_displacement(current_pos)
 	
 	# Update drag direction - fixed logic
-	var movement = current_pos - start_position
+	# Convert start_position to global coordinates for proper comparison
+	var global_start_position = gameboard.tile_grid.global_position + start_position
+	prints("current_pos", current_pos)
+	prints("global_start_position", global_start_position)
+	var movement = current_pos - global_start_position
+	
 	if movement.length() > 5.0:  # Threshold to prevent jitter
+		print("Movement: ", movement, " abs(x): ", abs(movement.x), " abs(y): ", abs(movement.y))
 		if abs(movement.x) > abs(movement.y):
 			# Horizontal movement - set horizontal drag direction
+			print("Setting HORIZONTAL direction")
 			drag_direction = Vector2(sign(movement.x), 0)
 			if drag_state == DragState.PREVIEW:
 				drag_state = DragState.HORIZONTAL
 		else:
 			# Vertical movement - set vertical drag direction  
+			print("Setting VERTICAL direction")
 			drag_direction = Vector2(0, sign(movement.y))
 			if drag_state == DragState.PREVIEW:
 				drag_state = DragState.VERTICAL

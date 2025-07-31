@@ -407,12 +407,15 @@ func get_animated_tile_position(row: int, col: int) -> Vector2:
 	
 	match drag_handler.drag_state:
 		DragHandler.DragState.HORIZONTAL:
+			#print("HORIZONTAL")
 			if row == from_tile.y:
 				base_pos.x += displacement.x
 		DragHandler.DragState.VERTICAL:
+			#print("VERTICAL")
 			if col == from_tile.x:
 				base_pos.y += displacement.y
 		DragHandler.DragState.PREVIEW:
+			#print("PREVIEW")
 			# Show preview in detected direction - fixed logic
 			if drag_handler.drag_direction.y == 0 and row == from_tile.y:
 				# Horizontal movement - shift row tiles horizontally
@@ -455,19 +458,6 @@ func _draw():
 		# Red outline on dragged tile
 		var from_pos = get_animated_tile_position(drag_handler.from_tile.y, drag_handler.from_tile.x)
 		draw_rect(Rect2(from_pos, Vector2(tile_size, tile_size)), Color.RED, false, 4.0)
-		
-		# Drag direction indicator
-		if drag_handler.displacement.length() > 0:
-			var start_center = from_pos + Vector2(tile_size/2, tile_size/2)
-			var end_center = start_center + drag_handler.displacement * 5.0  # Amplify for visibility
-			draw_line(start_center, end_center, Color.RED, 5.0)
-			# Draw arrowhead
-			var dir = drag_handler.displacement.normalized()
-			var arrow_size = 10.0
-			var arrow_p1 = end_center - dir * arrow_size + Vector2(-dir.y, dir.x) * arrow_size * 0.5
-			var arrow_p2 = end_center - dir * arrow_size + Vector2(dir.y, -dir.x) * arrow_size * 0.5
-			draw_line(end_center, arrow_p1, Color.RED, 3.0)
-			draw_line(end_center, arrow_p2, Color.RED, 3.0)
 
 # Get tiles affected by current drag operation
 func get_affected_tiles() -> Array[Vector2i]:

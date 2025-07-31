@@ -73,7 +73,6 @@ func validate_sprite_sheet() -> bool:
 	if actual_size != (expected_size as Vector2):
 		push_warning("PipeSprites: Expected size " + str(expected_size) + " but got " + str(actual_size))
 		return false
-	
 	return true
 
 # Get all pipe face names for debugging

@@ -1,19 +1,35 @@
 # Drag Animation Bug Checklist
 
-## CRITICAL ISSUES (As of Session End)
+## CURRENT ISSUES STATUS
 
-### 1. 🚨 **Direction Inversion Bug**
-- **Status**: UNRESOLVED  
-- **Issue**: Horizontal drag still triggers vertical animation despite multiple fixes
-- **Attempted Fixes**:
-  - Fixed DragHandler.gd direction detection logic (lines 75-87)
-  - Fixed GameBoard.gd PREVIEW mode conditions (lines 415-422)
-- **Next Steps**: Need to debug the complete direction flow from mouse input → animation display
+### 1. ✅ **Direction Inversion Bug - RESOLVED**
+- **Issue**: Horizontal drag was triggering vertical animation due to coordinate system mismatch
+- **Root Cause**: `start_position` (local tile coordinates) vs `current_pos` (global screen coordinates) 
+- **Solution**: Fixed coordinate system consistency in DragHandler.gd:78 by converting start_position to global coordinates
+- **Files Modified**: DragHandler.gd lines 77-81
+- **Result**: Horizontal dragging now correctly triggers HORIZONTAL drag state
 
-### 2. 🚨 **Multiple Unspecified Bugs**
-- **Status**: REPORTED BUT UNIDENTIFIED
-- **Issue**: User reported "other bugs exists, too" but didn't specify details
-- **Next Steps**: Need systematic testing to identify all animation issues
+### 2. ✅ **Unwanted Red Arrow Indicator - RESOLVED** 
+- **Issue**: Red arrow appeared during dragging, indicating drag direction
+- **Solution**: Removed red arrow and arrowhead drawing code from GameBoard.gd _draw() method
+- **Files Modified**: GameBoard.gd lines 462-473 (removed arrow drawing code)
+- **Result**: Only red outline around dragged tile remains for visual feedback
+
+### 3. 🚨 **Moving Direction Issues - ACTIVE**
+- **Status**: NEEDS INVESTIGATION
+- **Issue**: The moving direction is strange/incorrect during drag animations
+- **Potential Causes**: 
+  - Displacement calculation in DragHandler.gd calculate_displacement()
+  - Animation application in GameBoard.gd get_animated_tile_position()
+- **Debug Added**: Print statements in DragHandler.gd for movement tracking
+
+### 4. 🚨 **Array Rotation with Dragging Issue - ACTIVE**
+- **Status**: NEEDS INVESTIGATION  
+- **Issue**: The array rotation with dragging seems off - tiles not rotating correctly when drag completes
+- **Potential Causes**: 
+  - Row/column rotation logic in rotate_row()/rotate_column()
+  - Drag completion logic in _on_drag_completed()
+  - Direction mapping between drag movement and final rotation
 
 ## DEBUGGING STRATEGY FOR TOMORROW
 
