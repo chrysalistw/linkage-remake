@@ -190,6 +190,7 @@ func get_display_face() -> int:
 		return face
 	
 	# Get predicted grid position
+
 	var predicted_grid = gameboard.get_predicted_tile_position(grid_y, grid_x)
 	
 	# If position changed, get the face that would be at this position
