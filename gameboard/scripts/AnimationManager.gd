@@ -39,16 +39,20 @@ func rebuild_position_cache():
 	cache_dirty = false
 
 func update_drag_indicators():
-	var drag_state = drag_handler.get_drag_state()
+	if not drag_handler or not drag_handler.is_dragging:
+		return
 	
 	# Clear previous indicators first
 	clear_drag_indicators()
 	
-	# Show red borders on dragged row or column
-	if drag_state.state == "horizontal" and drag_state.from != Vector2i.ZERO:
-		highlight_row(drag_state.from.y, true)
-	elif drag_state.state == "vertical" and drag_state.from != Vector2i.ZERO:
-		highlight_column(drag_state.from.x, true)
+	var start_tile = drag_handler.start_tile_pos
+	var drag_direction = drag_handler.drag_direction
+	
+	# Show red borders on dragged row or column based on direction
+	if drag_direction.x != 0:
+		highlight_row(start_tile.y, true)
+	elif drag_direction.y != 0:
+		highlight_column(start_tile.x, true)
 
 func highlight_row(row_index: int, highlight: bool):
 	if row_index < 0 or row_index >= board_height:
@@ -87,27 +91,20 @@ func clear_drag_indicators():
 func get_animated_tile_position(row: int, col: int) -> Vector2:
 	var base_pos = Vector2(col * tile_size, row * tile_size)
 	
-	if not drag_handler or drag_handler.drag_state == DragHandler.DragState.NONE:
+	if not drag_handler or not drag_handler.is_dragging:
 		return base_pos
 	
-	var from_tile = drag_handler.from_tile
-	var displacement = drag_handler.displacement
+	var start_tile = drag_handler.start_tile_pos
+	var pixel_displacement = drag_handler.pixel_displacement
+	var drag_direction = drag_handler.drag_direction
 	
-	match drag_handler.drag_state:
-		DragHandler.DragState.HORIZONTAL:
-			if row == from_tile.y:
-				base_pos.x += displacement.x
-		DragHandler.DragState.VERTICAL:
-			if col == from_tile.x:
-				base_pos.y += displacement.y
-		DragHandler.DragState.PREVIEW:
-			# Show preview in detected direction - fixed logic
-			if drag_handler.drag_direction.y == 0 and row == from_tile.y:
-				# Horizontal movement - shift row tiles horizontally
-				base_pos.x += displacement.x
-			elif drag_handler.drag_direction.x == 0 and col == from_tile.x:
-				# Vertical movement - shift column tiles vertically
-				base_pos.y += displacement.y
+	# Apply displacement based on drag direction and affected tiles
+	if drag_direction.x != 0 and row == start_tile.y:
+		# Horizontal drag - affect entire row
+		base_pos.x += pixel_displacement.x
+	elif drag_direction.y != 0 and col == start_tile.x:
+		# Vertical drag - affect entire column
+		base_pos.y += pixel_displacement.y
 	
 	return base_pos
 
@@ -115,10 +112,10 @@ func get_predicted_tile_position(row: int, col: int) -> Vector2i:
 	if not drag_handler or not drag_handler.is_dragging:
 		return Vector2i(col, row)
 	
-	var from_pos = drag_handler.from_tile
-	var to_pos = drag_handler.to_tile
+	var start_pos = drag_handler.start_tile_pos
+	var target_pos = drag_handler.get_target_tile_pos()
 	
-	if not to_pos or drag_handler.drag_state == DragHandler.DragState.PREVIEW:
+	if drag_handler.drag_state == DragHandler.DragState.PREVIEW:
 		return Vector2i(col, row)
 	
 	var predicted_row = row
@@ -126,12 +123,12 @@ func get_predicted_tile_position(row: int, col: int) -> Vector2i:
 	
 	match drag_handler.drag_state:
 		DragHandler.DragState.VERTICAL:
-			if col == from_pos.x:
-				var shift = to_pos.y - from_pos.y
+			if col == start_pos.x:
+				var shift = target_pos.y - start_pos.y
 				predicted_row = (row + shift + board_height) % board_height
 		DragHandler.DragState.HORIZONTAL:
-			if row == from_pos.y:
-				var shift = to_pos.x - from_pos.x
+			if row == start_pos.y:
+				var shift = target_pos.x - start_pos.x
 				predicted_col = (col + shift + board_width) % board_width
 	
 	return Vector2i(predicted_col, predicted_row)
@@ -141,17 +138,18 @@ func get_affected_tiles() -> Array[Vector2i]:
 		return []
 	
 	var affected: Array[Vector2i] = []
-	var from_tile = drag_handler.from_tile
+	var start_tile = drag_handler.start_tile_pos
+	var drag_direction = drag_handler.drag_direction
 	
-	match drag_handler.drag_state:
-		DragHandler.DragState.HORIZONTAL, DragHandler.DragState.PREVIEW:
-			# Entire row
-			for col in range(board_width):
-				affected.append(Vector2i(col, from_tile.y))
-		DragHandler.DragState.VERTICAL:
-			# Entire column  
-			for row in range(board_height):
-				affected.append(Vector2i(from_tile.x, row))
+	# Use drag direction to determine affected tiles
+	if drag_direction.x != 0:
+		# Horizontal drag - entire row
+		for col in range(board_width):
+			affected.append(Vector2i(col, start_tile.y))
+	elif drag_direction.y != 0:
+		# Vertical drag - entire column
+		for row in range(board_height):
+			affected.append(Vector2i(start_tile.x, row))
 	
 	return affected
 
@@ -171,7 +169,18 @@ func reset_tile_positions():
 	board_manager.reset_tile_positions()
 
 func draw_drag_indicators():
-	if drag_handler and drag_handler.is_dragging and drag_handler.from_tile:
+	if drag_handler and drag_handler.is_dragging:
 		# Red outline on dragged tile
-		var from_pos = get_animated_tile_position(drag_handler.from_tile.y, drag_handler.from_tile.x)
+		var start_tile = drag_handler.start_tile_pos
+		var from_pos = get_animated_tile_position(start_tile.y, start_tile.x)
 		parent_gameboard.draw_rect(Rect2(from_pos, Vector2(tile_size, tile_size)), Color.RED, false, 4.0)
+
+# Debug infrastructure
+var debug_enabled: bool = false
+
+func enable_debug():
+	debug_enabled = true
+
+func debug_print(message: String):
+	if debug_enabled:
+		print("[AnimationManager] ", message)

@@ -94,12 +94,19 @@ func _on_drag_completed(drag_state: Dictionary):
 	# Clear drag visual indicators
 	animation_manager.clear_drag_indicators()
 	
-	if drag_state.state == "horizontal":
-		var shift = drag_state.to.x - drag_state.from.x
-		rotation_handler.rotate_row(drag_state.from.y, shift)
-	elif drag_state.state == "vertical":
-		var shift = drag_state.to.y - drag_state.from.y
-		rotation_handler.rotate_column(drag_state.from.x, shift)
+	# Use Vector2 direction instead of legacy state strings
+	var drag_direction = drag_state.get("drag_direction", Vector2.ZERO)
+	var from_pos = drag_state.get("from", Vector2i.ZERO)
+	var to_pos = drag_state.get("to", Vector2i.ZERO)
+	
+	if drag_direction.x != 0:
+		# Horizontal drag
+		var shift = to_pos.x - from_pos.x
+		rotation_handler.rotate_row(from_pos.y, shift)
+	elif drag_direction.y != 0:
+		# Vertical drag
+		var shift = to_pos.y - from_pos.y
+		rotation_handler.rotate_column(from_pos.x, shift)
 	
 	# Use one move per drag operation
 	if GameState:
@@ -158,7 +165,13 @@ func _on_game_over():
 	# Disable drag handler to prevent further moves
 	if drag_handler:
 		drag_handler.set_process_input(false)
-		drag_handler.dragging = false
+		drag_handler.reset_drag_state()
+
+# Disable input during game over or other states
+func disable_input():
+	if drag_handler:
+		drag_handler.set_process_input(false)
+		drag_handler.reset_drag_state()
 
 # Allow moves again (for restart functionality)
 func enable_input():
@@ -170,3 +183,13 @@ func enable_input():
 func _draw():
 	if animation_manager:
 		animation_manager.draw_drag_indicators()
+
+# Debug control - enables debugging across all components
+func enable_debug_mode():
+	if drag_handler:
+		drag_handler.enable_debug()
+	if animation_manager:
+		animation_manager.enable_debug()
+	if rotation_handler:
+		rotation_handler.enable_debug()
+	print("[GameBoard] Debug mode enabled for all components")

@@ -12,12 +12,17 @@ func initialize(manager: BoardManager, width: int, height: int):
 
 func rotate_row(row_index: int, shift_amount: int):
 	if row_index < 0 or row_index >= board_height:
+		debug_print("Invalid row index: %d" % row_index)
 		return
 	
 	# Normalize shift amount
+	var original_shift = shift_amount
 	shift_amount = (board_width + (shift_amount % board_width)) % board_width
 	if shift_amount == 0:
+		debug_print("No rotation needed for row %d (shift: %d)" % [row_index, original_shift])
 		return
+	
+	debug_print("Rotating row %d by %d positions (original: %d)" % [row_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
@@ -38,15 +43,21 @@ func rotate_row(row_index: int, shift_amount: int):
 	
 	# Rebuild tile grid to reflect new positions
 	board_manager.rebuild_tile_grid()
+	debug_print("Row %d rotation completed" % row_index)
 
 func rotate_column(col_index: int, shift_amount: int):
 	if col_index < 0 or col_index >= board_width:
+		debug_print("Invalid column index: %d" % col_index)
 		return
 	
 	# Normalize shift amount
+	var original_shift = shift_amount
 	shift_amount = (board_height + (shift_amount % board_height)) % board_height
 	if shift_amount == 0:
+		debug_print("No rotation needed for column %d (shift: %d)" % [col_index, original_shift])
 		return
+	
+	debug_print("Rotating column %d by %d positions (original: %d)" % [col_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
@@ -67,6 +78,7 @@ func rotate_column(col_index: int, shift_amount: int):
 	
 	# Rebuild tile grid to reflect new positions
 	board_manager.rebuild_tile_grid()
+	debug_print("Column %d rotation completed" % col_index)
 
 func print_row(row_index: int):
 	if row_index < 0 or row_index >= board_height:
@@ -97,3 +109,13 @@ func print_column(col_index: int):
 		else:
 			col_data.append("null")
 	print("Column ", col_index, ": ", col_data)
+
+# Debug infrastructure
+var debug_enabled: bool = false
+
+func enable_debug():
+	debug_enabled = true
+
+func debug_print(message: String):
+	if debug_enabled:
+		print("[RotationHandler] ", message)

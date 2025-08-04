@@ -118,11 +118,11 @@
 
 ```
 User Input → DragHandler.gd (state detection)
-    ↓
+	↓
 GameBoard.gd (coordination)
-    ↓ 
+	↓ 
 AnimationManager.gd (visual updates) + RotationHandler.gd (array rotation)
-    ↓
+	↓
 Tile positioning and board state updates
 ```
 

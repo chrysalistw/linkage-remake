@@ -6,22 +6,31 @@ class_name DragHandler
 
 signal drag_completed(drag_state: Dictionary)
 
-# Animation state tracking
+# Drag state tracking - simplified and unified
 enum DragState { NONE, PREVIEW, HORIZONTAL, VERTICAL }
 var drag_state: DragState = DragState.NONE
-var displacement: Vector2 = Vector2.ZERO
-var drag_direction: Vector2 = Vector2.ZERO
-var start_position: Vector2
-var current_displacement_factor: float = 0.0
-
-# Legacy compatibility
-var from: Vector2i  # Drag start tile position
-var to: Vector2i    # Current drag target tile position
-var state: String  # "horizontal", "vertical", or ""
-var dragging: bool = false
 var is_dragging: bool = false
-var from_tile: Vector2i
-var to_tile: Vector2i
+
+# Core drag data
+var start_tile_pos: Vector2i
+var start_mouse_pos: Vector2
+var current_mouse_pos: Vector2
+var drag_direction: Vector2 = Vector2.ZERO
+var pixel_displacement: Vector2 = Vector2.ZERO
+
+# Legacy compatibility properties
+var dragging: bool:
+	get: return is_dragging
+var from: Vector2i:
+	get: return start_tile_pos
+var to: Vector2i:
+	get: return get_target_tile_pos()
+var state: String:
+	get: return get_state_string()
+var from_tile: Vector2i:
+	get: return start_tile_pos
+var to_tile: Vector2i:
+	get: return get_target_tile_pos()
 
 var gameboard: GameBoard
 var current_tile: Tile
@@ -32,30 +41,44 @@ func _ready():
 func setup(board: GameBoard):
 	gameboard = board
 
+# Helper methods for legacy compatibility
+func get_target_tile_pos() -> Vector2i:
+	if not is_dragging:
+		return start_tile_pos
+	return screen_pos_to_grid_pos(current_mouse_pos)
+
+func get_state_string() -> String:
+	match drag_state:
+		DragState.HORIZONTAL:
+			return "horizontal"
+		DragState.VERTICAL:
+			return "vertical"
+		_:
+			return ""
+
 func start_drag(tile_pos: Vector2i):
 	if gameboard.removing:
 		return
 	
-	# Animation state initialization
+	# Initialize drag state
 	drag_state = DragState.PREVIEW
-	displacement = Vector2.ZERO
-	drag_direction = Vector2.ZERO
-	start_position = Vector2(tile_pos.x * gameboard.tile_size, tile_pos.y * gameboard.tile_size)
-	current_displacement_factor = 0.0
-	
-	# Legacy compatibility
-	from = tile_pos
-	to = tile_pos
-	state = ""
-	dragging = true
 	is_dragging = true
-	from_tile = tile_pos
-	to_tile = tile_pos
+	
+	# Store positions
+	start_tile_pos = tile_pos
+	start_mouse_pos = get_viewport().get_mouse_position()
+	current_mouse_pos = start_mouse_pos
+	
+	# Reset vectors
+	drag_direction = Vector2.ZERO
+	pixel_displacement = Vector2.ZERO
 	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
+	
+	debug_print("Started drag at tile: %s, mouse: %s" % [tile_pos, start_mouse_pos])
 
 func _input(event: InputEvent):
-	if not dragging:
+	if not is_dragging:
 		return
 	
 	if event is InputEventMouseMotion:
@@ -68,71 +91,57 @@ func handle_mouse_move(event: InputEventMouseMotion):
 	if not current_tile:
 		return
 	
-	# Calculate displacement using original algorithm
-	var current_pos = Vector2(event.global_position.x, event.global_position.y)
+	# Update current mouse position
+	current_mouse_pos = event.global_position
 	
-	displacement = calculate_displacement(current_pos)
+	# Detect and update drag direction
+	detect_drag_direction()
 	
-	# Update drag direction - fixed logic
-	# Convert start_position to global coordinates for proper comparison
-	var global_start_position = gameboard.tile_grid.global_position + start_position
-	
-	var movement = current_pos - global_start_position
-	
-	if movement.length() > 5.0:  # Threshold to prevent jitter
-		if abs(movement.x) > abs(movement.y):
-			# Horizontal movement - set horizontal drag direction
-			drag_direction = Vector2(sign(movement.x), 0)
-			if drag_state == DragState.PREVIEW:
-				drag_state = DragState.HORIZONTAL
-		else:
-			# Vertical movement - set vertical drag direction  
-			drag_direction = Vector2(0, sign(movement.y))
-			if drag_state == DragState.PREVIEW:
-				drag_state = DragState.VERTICAL
-	
-	# Legacy compatibility - update grid positions
-	var new_to = screen_pos_to_grid_pos(event.global_position)
-	if new_to != to and is_valid_grid_pos(new_to):
-		to = new_to
-		to_tile = new_to
-	
-	# Determine legacy drag state
-	update_drag_state()
+	# Calculate pixel displacement for animations
+	pixel_displacement = current_mouse_pos - start_mouse_pos
 
 func handle_mouse_up(event: InputEventMouseButton):
-	if not dragging:
+	if not is_dragging:
 		return
 	
 	var drag_info = {
-		"state": state,
-		"from": from,
-		"to": to
+		"state": get_state_string(),
+		"from": start_tile_pos,
+		"to": get_target_tile_pos()
 	}
 	
 	# Reset drag state
-	dragging = false
-	is_dragging = false
 	reset_drag_state()
 	
 	# Emit completion signal
 	drag_completed.emit(drag_info)
 
-func update_drag_state():
-	if to == from:
-		state = ""
+func detect_drag_direction():
+	"""Detects drag direction based on mouse movement and updates drag state"""
+	var movement = current_mouse_pos - start_mouse_pos
+	var movement_threshold = 8.0  # Minimum pixels to determine direction
+	
+	if movement.length() < movement_threshold:
+		return  # Not enough movement to determine direction
+	
+	# Only change direction during preview state to avoid state flipping
+	if drag_state != DragState.PREVIEW:
 		return
 	
-	var delta = to - from
+	var old_state = drag_state
 	
-	if state == "":
-		if delta.x == 0 and delta.y != 0:
-			state = "vertical"
-		elif delta.y == 0 and delta.x != 0:
-			state = "horizontal"
-		elif delta.x != 0 and delta.y != 0:
-			# For diagonal movement, default to horizontal
-			state = "horizontal"
+	# Determine primary movement direction
+	if abs(movement.x) > abs(movement.y):
+		# Horizontal movement dominates
+		drag_direction = Vector2(sign(movement.x), 0)
+		drag_state = DragState.HORIZONTAL
+	else:
+		# Vertical movement dominates  
+		drag_direction = Vector2(0, sign(movement.y))
+		drag_state = DragState.VERTICAL
+	
+	if old_state != drag_state:
+		debug_print("Direction detected: %s (movement: %s)" % [get_state_string(), movement])
 
 # Simplified drag implementation - no smooth visuals needed
 
@@ -152,51 +161,48 @@ func is_valid_grid_pos(pos: Vector2i) -> bool:
 		   pos.y >= 0 and pos.y < gameboard.board_height
 
 func reset_drag_state():
-	# Immediate reset - no tween complications
+	# Reset to initial state
 	drag_state = DragState.NONE
-	displacement = Vector2.ZERO
+	is_dragging = false
+	
+	# Clear positions and vectors
+	start_tile_pos = Vector2i.ZERO
+	start_mouse_pos = Vector2.ZERO
+	current_mouse_pos = Vector2.ZERO
 	drag_direction = Vector2.ZERO
-	current_displacement_factor = 0.0
-	from = Vector2i.ZERO
-	to = Vector2i.ZERO
-	state = ""
-	from_tile = Vector2i.ZERO
-	to_tile = Vector2i.ZERO
+	pixel_displacement = Vector2.ZERO
+	
 	current_tile = null
 
 func get_drag_state() -> Dictionary:
 	return {
-		"state": state,
-		"from": from,
-		"to": to,
-		"dragging": dragging,
+		"state": get_state_string(),
+		"from": start_tile_pos,
+		"to": get_target_tile_pos(),
+		"dragging": is_dragging,
 		"drag_state": drag_state,
-		"displacement": displacement,
+		"pixel_displacement": pixel_displacement,
 		"drag_direction": drag_direction
 	}
 
-# Preview calculation for tile positioning during drag
-func get_temp_position(grid_pos: Vector2i) -> Vector2i:
-	var temp_x = grid_pos.x
-	var temp_y = grid_pos.y
-	
-	# Handle vertical drag preview
-	if state == "vertical" and from.x == grid_pos.x:
-		temp_y += to.y - from.y
-		temp_y = (temp_y + gameboard.board_height) % gameboard.board_height
-	
-	# Handle horizontal drag preview
-	elif state == "horizontal" and from.y == grid_pos.y:
-		temp_x += to.x - from.x
-		temp_x = (temp_x + gameboard.board_width) % gameboard.board_width
-	
-	return Vector2i(temp_x, temp_y)
+# Simple access to displacement for AnimationManager
+var displacement: Vector2:
+	get: return pixel_displacement
 
-# Displacement calculation matching original logic
-func calculate_displacement(current_pos: Vector2) -> Vector2:
-	var distance = start_position.distance_to(current_pos)
-	var tile_size = gameboard.tile_size
-	# Make displacement more visible by using larger factor
-	var normalized_distance = fmod(distance, tile_size) / tile_size
-	var displacement_amount = drag_direction * normalized_distance * tile_size * 0.5  # Increased from 0.1
-	return displacement_amount
+# Debug infrastructure
+var debug_enabled: bool = false
+
+func enable_debug():
+	debug_enabled = true
+
+func debug_print(message: String):
+	if debug_enabled:
+		print("[DragHandler] ", message)
+
+func debug_state():
+	if debug_enabled:
+		debug_print("State: %s | Direction: %s | Displacement: %s" % [
+			get_state_string(), 
+			drag_direction, 
+			pixel_displacement
+		])
