@@ -141,7 +141,7 @@ func detect_drag_direction():
 		drag_state = DragState.VERTICAL
 	
 	if old_state != drag_state:
-		debug_print("Direction detected: %s (movement: %s)" % [get_state_string(), movement])
+		debug_print("Direction detected: %s (movement: %s, drag_direction: %s)" % [get_state_string(), movement, drag_direction])
 
 # Simplified drag implementation - no smooth visuals needed
 
@@ -190,7 +190,7 @@ var displacement: Vector2:
 	get: return pixel_displacement
 
 # Debug infrastructure
-var debug_enabled: bool = false
+var debug_enabled: bool = true
 
 func enable_debug():
 	debug_enabled = true

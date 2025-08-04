@@ -1,119 +1,165 @@
-# Gameboard Mechanics - Phase 6 Complete ✅
+# GameBoard Module
 
-This folder contains the core gameboard mechanics for the Linkage puzzle game, converted from the JavaScript implementation to Godot 4.
+## Overview
+The GameBoard module is the core gameplay component of the Linkage remake, implementing a 6x8 tile-based puzzle game where players drag rows and columns to create pipe connections. Built using a component-based architecture for maintainability and separation of concerns.
 
-**Current Status:** Phase 6 completed - Full game loop with UI integration, moves/scoring system, and game over detection working perfectly.
+## Architecture
 
-## Structure
+### Component-Based Design
+The GameBoard uses a modular architecture with specialized manager components:
+
+- **GameBoard.gd** (165 lines) - Main coordinator that orchestrates all components
+- **BoardManager.gd** (77 lines) - Handles board initialization and tile management
+- **RotationHandler.gd** (89 lines) - Manages row/column rotation logic
+- **AnimationManager.gd** (176 lines) - Controls drag animations and visual feedback
+- **ConnectionManager.gd** (88 lines) - Detects connections and handles tile removal
+- **DragHandler.gd** - Processes mouse input for row/column dragging
+- **Tile.gd** - Individual tile behavior and fade animations
+- **GameState.gd** - Global autoload singleton for game state management
+- **detect.gd** - Core connection detection algorithms
+
+## File Structure
 
 ```
 gameboard/
 ├── scripts/
-│   ├── GameBoard.gd          # Main gameboard controller with GameState integration
-│   ├── Tile.gd               # Individual tile logic with fade animations
-│   ├── DragHandler.gd        # Row/column drag mechanics
-│   ├── GameState.gd          # Global singleton (configured as autoload)
+│   ├── GameBoard.gd          # Main coordinator component
+│   ├── BoardManager.gd       # Board/tile management
+│   ├── RotationHandler.gd    # Row/column rotation logic
+│   ├── AnimationManager.gd   # Drag animations & visual feedback
+│   ├── ConnectionManager.gd  # Connection detection & processing
+│   ├── DragHandler.gd        # Mouse input handling
+│   ├── Tile.gd               # Individual tile behavior
+│   ├── GameState.gd          # Global game state (autoload)
 │   └── detect.gd             # Connection detection algorithms
 ├── scenes/
 │   ├── GameBoard.tscn        # Main gameboard scene
-│   └── Tile.tscn             # Individual tile scene
+│   └── Tile.tscn             # Individual tile scene template
 ├── resources/
-│   ├── pipe_sprites.tres     # Green pipe sprites resource
+│   ├── pipe_sprites.tres     # Green pipe sprite resource
+│   ├── green_fade_sprites.tres # Fade animation sprites
 │   ├── FadeSprites.gd        # Fade animation resource script
-│   ├── green_fade_sprites.tres # Fade sprites using green_fade.png
-│   └── tile_sprites/         # Sprite assets directory
-└── COMPLETE_IMPLEMENTATION_PLAN.md # Full 7-phase implementation plan
+│   └── PipeSprites.gd        # Pipe sprite resource script
+└── sprites/
+    └── tile_sprites/
+        └── linkage_test_green2.png # Current pipe sprite asset
 ```
 
-## Implementation Status
+## Key Features
 
-### Completed Phases ✅
+### Gameplay Mechanics
+- **6x8 Grid**: Standard Linkage game board dimensions
+- **Row/Column Dragging**: Click and drag to rotate entire rows or columns
+- **Connection Detection**: Real-time detection of connected pipe segments
+- **Tile Removal**: Connected tiles fade out and are removed from the board
+- **Chain Reactions**: Removing tiles can trigger additional connections
+- **Scoring System**: +1 point per tile removed
+- **Move Tracking**: -1 move per drag operation
+- **Bonus Moves**: +1 move for every 3 tiles removed in a single operation
+- **Game Over**: Automatic detection when moves reach 0
 
-**Phase 1:** Basic Grid Display - Static 6x8 tile grid with colored pipe symbols  
-**Phase 2:** Input Detection - Tiles respond to mouse clicks with visual feedback  
-**Phase 3:** Basic Drag Mechanics - Row/column dragging with instant rotation  
-**Phase 4:** Connection Detection - Pipes connect and highlight properly  
-**Phase 5:** Tile Removal - Fade animations, scoring, chain reactions complete  
-**Phase 6:** Game State Integration - UI updates, game over detection, full game loop  
-
-### Phase 6 Features ✅
-- **GameState Autoload**: Configured as global singleton in project.godot
+### Visual Features
+- **Drag Animations**: Smooth visual feedback during row/column rotation
+- **Connection Highlighting**: Green highlights show connected pipe segments
+- **Fade Animations**: Smooth tile removal with fade effects
 - **Real-time UI Updates**: Score and moves update instantly during gameplay
-- **Game Over Detection**: Dialog appears when moves reach 0
-- **Full Integration**: PlayScreen connects to GameState signals
-- **Button Integration**: Reset/restart functionality through GameState
-- **Single Source of Truth**: All game state managed centrally
 
-### Next Phase ⏳
-**Phase 7:** Polish & Features - Smooth animations, proper sprites, sound effects
-
-## Current Game Features Working
-
-✅ 6x8 tile grid with pipe symbols  
-✅ Click and drag rows/columns  
-✅ Connection detection with green highlights  
-✅ Tile fade animations and removal  
-✅ Score tracking (+1 per tile) with real-time UI updates  
-✅ Moves tracking (-1 per drag) with real-time UI updates  
-✅ Chain reactions and bonus moves  
-✅ Game over detection and dialog  
-✅ Reset/restart functionality  
-✅ Complete game loop functional  
-
-## Key Components
+## Component Details
 
 ### GameBoard.gd
-- Main controller managing the 6x8 tile grid
-- Integrated with GameState singleton for moves/scoring
-- Handles board initialization, tile creation, and drag operations
-- Manages row/column rotation mechanics and fade animations
-- Coordinates link detection and removal with chain reactions
+Main coordinator that initializes and manages all component systems. Provides delegation methods for backward compatibility while maintaining clean separation of concerns.
 
-### Tile.gd
-- Individual tile representation with pipe type (faces 0-9)
-- Area2D-based input detection with visual feedback
-- Connection logic for 10 different pipe configurations
-- Fade animation system with start/stop controls and signals
+### BoardManager.gd
+Handles board initialization, tile creation, and grid management. Responsible for:
+- Creating the initial 6x8 tile grid
+- Managing tile sprites and positioning
+- Providing access to board state
 
-### DragHandler.gd
-- Processes mouse/touch input for row/column dragging
-- Provides visual feedback during drag operations
-- Calculates temporary positions for drag previews
-- Integrates with GameState for move counting
+### RotationHandler.gd
+Manages the core rotation logic for rows and columns:
+- Handles array rotation operations
+- Updates tile positions after rotation
+- Maintains board state consistency
 
-### GameState.gd
-- Autoload singleton managing global game state (moves, score, game over)
-- Signal-based architecture for real-time UI updates
-- Game over detection and restart functionality
-- Reward system integration ready
+### AnimationManager.gd
+Controls all visual animations and feedback:
+- Drag animation system with smooth interpolation
+- Visual indicators during drag operations
+- Position caching for smooth transitions
 
-### detect.gd (LinkDetector class)
-- Complete connection detection algorithm with recursive link tracking
-- Handles all 10 pipe types with proper directional connections
-- Implements tile removal with fade animations and scoring
-- Chain reaction support for cascading tile removal
-- Bonus move calculation (1 move per 3 tiles removed)
+### ConnectionManager.gd
+Detects and processes pipe connections:
+- Real-time connection detection using flood-fill algorithms
+- Highlights connected segments in green
+- Manages tile removal and fade animations
+- Tracks completion for chain reactions
+
+### GameState.gd (Autoload)
+Global singleton that manages game state:
+- Score tracking and updates
+- Move counting and limits
+- Game over detection
+- Signal-based communication with UI
+- Reset/restart functionality
 
 ## Integration
 
-**Already Integrated:**
-1. ✅ GameState configured as autoload singleton
-2. ✅ GameBoard connects to GameState for moves/scoring
-3. ✅ PlayScreen UI connected to GameState signals
-4. ✅ Button handlers use GameState methods
-5. ✅ Real-time UI updates working
+### Signal-Based Architecture
+The GameBoard integrates with the main game through Godot's signal system:
+
+```gdscript
+# GameState signals
+signal moves_changed(new_moves)
+signal score_changed(new_score)  
+signal game_lost()
+
+# UI Integration
+GameState.moves_changed.connect(_update_moves_display)
+GameState.score_changed.connect(_update_score_display)
+GameState.game_lost.connect(_show_game_over)
+```
+
+### Autoload Configuration
+GameState is configured as an autoload singleton in `project.godot`:
+```
+[autoload]
+GameState="*res://gameboard/scripts/GameState.gd"
+```
+
+## Usage
+
+### Basic Setup
+1. Add GameBoard.tscn to your scene
+2. GameState autoload provides global access to game state
+3. Connect to GameState signals for UI updates
+4. Use GameState.reset_game() for restart functionality
+
+### Customization
+Key parameters can be adjusted in GameBoard.gd:
+- `board_width`: Grid width (default: 6)
+- `board_height`: Grid height (default: 8)  
+- `tile_size`: Tile dimensions in pixels (default: 64)
+
+## Development Status
+
+### Completed Features ✅
+- Complete component-based architecture
+- Full gameplay loop (drag → detect → remove → score)
+- Real-time UI integration via signals
+- Game over detection and restart functionality
+- Smooth animations and visual feedback
+- Chain reaction support with bonus moves
+
+### In Progress 🔧
+- Drag animation polish and direction fixes
+- Array rotation logic refinement
+
+### Planned Features ⏳
+- Load actual pipe sprites from original assets
+- Sound effects integration
+- Particle effects for tile removal
+- Performance optimization for 60fps
+- Advanced reward system with tile randomization
 
 ## Testing
-
-**Complete Game Loop:**
-1. Open PlayScreen.tscn in Godot
-2. Run scene (F6) - Shows "MOVES LEFT: 100" and "SCORE: 0"
-3. Drag rows/columns - Moves decrease in real-time
-4. Create connections - Score increases immediately when tiles fade
-5. Chain reactions - Multiple score updates, bonus moves awarded
-6. Game over - Dialog appears when moves = 0
-7. Reset - Game state returns to initial values
-
-## Based On
-
-This implementation follows the pseudocode specifications and maintains compatibility with the original JavaScript mechanics while leveraging Godot 4's scene system, signals, and autoload singletons.
+The GameBoard is designed for incremental testing - each component can be tested independently, and the full game loop is functional at all times during development.
