@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://08qo8iiaa474"]
+[gd_scene load_steps=3 format=3 uid="uid://08qo8iiaa474"]
 
 [ext_resource type="Script" uid="uid://b73y8w2dda2h" path="res://TitleScreen.gd" id="1_5sxkl"]
+[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_theme"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_5sxkl")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -18,6 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.102, 0.114, 0.161, 1)
 
 [node name="TitleContainer" type="Control" parent="."]
 layout_mode = 1
@@ -34,12 +37,12 @@ anchor_left = 0.1
 anchor_top = 0.167
 anchor_right = 0.9
 anchor_bottom = 0.267
-offset_left = 5.0
-offset_top = 5.0
-offset_right = 5.0
-offset_bottom = 5.0
-theme_override_colors/font_color = Color(0, 0.553, 0.325, 1)
-theme_override_font_sizes/font_size = 50
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 4.0
+offset_bottom = 4.0
+theme_override_colors/font_color = Color(0, 0.353, 0.205, 0.8)
+theme_override_font_sizes/font_size = 56
 text = "LINKAGE"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -52,7 +55,7 @@ anchor_top = 0.167
 anchor_right = 0.9
 anchor_bottom = 0.267
 theme_override_colors/font_color = Color(0, 1, 0.443, 1)
-theme_override_font_sizes/font_size = 50
+theme_override_font_sizes/font_size = 56
 text = "LINKAGE"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -68,23 +71,21 @@ grow_vertical = 2
 [node name="StartButton" type="Button" parent="ButtonContainer"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.25
+anchor_left = 0.2
 anchor_top = 0.4
-anchor_right = 0.75
-anchor_bottom = 0.5
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 32
+anchor_right = 0.8
+anchor_bottom = 0.52
+theme_override_font_sizes/font_size = 36
 text = "START"
 
 [node name="AboutButton" type="Button" parent="ButtonContainer"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.25
-anchor_top = 0.6
-anchor_right = 0.75
+anchor_left = 0.2
+anchor_top = 0.58
+anchor_right = 0.8
 anchor_bottom = 0.7
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 36
 text = "ABOUT"
 
 [connection signal="pressed" from="ButtonContainer/StartButton" to="." method="_on_start_button_pressed"]

@@ -1,7 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://cqm2sxhj3jfmd"]
+[gd_scene load_steps=7 format=3 uid="uid://cqm2sxhj3jfmd"]
 
 [ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
 [ext_resource type="PackedScene" uid="uid://cyjkxr82hxhf8" path="res://gameboard/scenes/GameBoard.tscn" id="2_gameboard"]
+[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://2wcextrvewvv" path="res://linkage/imgs/home.png" id="4_home"]
+[ext_resource type="Texture2D" uid="uid://vvc5t38jdij1" path="res://linkage/imgs/reset.png" id="5_reset"]
+[ext_resource type="Texture2D" uid="uid://dunuummhedij5" path="res://linkage/imgs/reward.png" id="6_reward"]
 
 [node name="PlayScreen" type="Control"]
 layout_mode = 3
@@ -10,6 +14,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("3_theme")
 script = ExtResource("1_r8xdl")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -19,9 +24,9 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.102, 0.114, 0.161, 1)
 
 [node name="Dashboard" type="Panel" parent="."]
-modulate = Color(0.8, 0.8, 0.8, 1)
 layout_mode = 1
 anchors_preset = -1
 anchor_right = 1.0
@@ -38,8 +43,7 @@ offset_left = 20.0
 offset_top = 20.0
 offset_right = -20.0
 offset_bottom = -10.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 28
 text = "MOVES LEFT: 50"
 vertical_alignment = 1
 
@@ -53,48 +57,48 @@ offset_left = 20.0
 offset_top = 10.0
 offset_right = -20.0
 offset_bottom = -20.0
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 25
+theme_override_font_sizes/font_size = 28
 text = "SCORE: 0"
 vertical_alignment = 1
 
-[node name="ControlButtons" type="Control" parent="."]
+[node name="ControlButtons" type="Panel" parent="."]
 layout_mode = 1
+anchors_preset = -1
 anchor_top = 0.9
 anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="RewardButton" type="Button" parent="ControlButtons"]
+[node name="RewardButton" type="TextureButton" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.2
-anchor_top = 0.2
-anchor_right = 0.4
-anchor_bottom = 0.8
-text = "💰"
-flat = true
+anchor_left = 0.05
+anchor_top = 0.1
+anchor_right = 0.35
+anchor_bottom = 0.9
+texture_normal = ExtResource("6_reward")
+stretch_mode = 5
 
-[node name="ResetButton" type="Button" parent="ControlButtons"]
+[node name="ResetButton" type="TextureButton" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.4
-anchor_top = 0.2
-anchor_right = 0.6
-anchor_bottom = 0.8
-text = "🔄"
-flat = true
+anchor_left = 0.375
+anchor_top = 0.1
+anchor_right = 0.625
+anchor_bottom = 0.9
+texture_normal = ExtResource("5_reset")
+stretch_mode = 5
 
-[node name="HomeButton" type="Button" parent="ControlButtons"]
+[node name="HomeButton" type="TextureButton" parent="ControlButtons"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.6
-anchor_top = 0.2
-anchor_right = 0.8
-anchor_bottom = 0.8
-text = "🏠"
-flat = true
+anchor_left = 0.65
+anchor_top = 0.1
+anchor_right = 0.95
+anchor_bottom = 0.9
+texture_normal = ExtResource("4_home")
+stretch_mode = 5
 
 [node name="GameArea" type="Control" parent="."]
 layout_mode = 1
@@ -123,7 +127,7 @@ offset_bottom = 256.0
 [node name="GameLostDialog" type="AcceptDialog" parent="."]
 title = "Game Over"
 initial_position = 2
-size = Vector2i(400, 200)
+size = Vector2i(450, 250)
 
 [node name="VBox" type="VBoxContainer" parent="GameLostDialog"]
 anchors_preset = 15
@@ -136,6 +140,7 @@ offset_bottom = -49.0
 
 [node name="MessageLabel" type="Label" parent="GameLostDialog/VBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 24
 text = "No More Moves!"
 horizontal_alignment = 1
 
@@ -145,10 +150,12 @@ alignment = 1
 
 [node name="RestartButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "RESTART"
 
 [node name="FineButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "FINE"
 
 [connection signal="pressed" from="ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]

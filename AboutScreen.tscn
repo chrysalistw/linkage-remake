@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://fjmmo2urqtof"]
+[gd_scene load_steps=4 format=3 uid="uid://fjmmo2urqtof"]
 
 [ext_resource type="Script" uid="uid://bwwko3xg7prty" path="res://AboutScreen.gd" id="1_3vyws"]
+[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://2wcextrvewvv" path="res://linkage/imgs/home.png" id="3_home"]
 
 [node name="AboutScreen" type="Control"]
 layout_mode = 3
@@ -9,6 +11,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_3vyws")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -18,6 +21,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+color = Color(0.102, 0.114, 0.161, 1)
 
 [node name="TitleContainer" type="Control" parent="."]
 layout_mode = 1
@@ -34,12 +38,12 @@ anchor_left = 0.1
 anchor_top = 0.1
 anchor_right = 0.9
 anchor_bottom = 0.2
-offset_left = 5.0
-offset_top = 5.0
-offset_right = 5.0
-offset_bottom = 5.0
-theme_override_colors/font_color = Color(0, 0.553, 0.325, 1)
-theme_override_font_sizes/font_size = 40
+offset_left = 4.0
+offset_top = 4.0
+offset_right = 4.0
+offset_bottom = 4.0
+theme_override_colors/font_color = Color(0, 0.353, 0.205, 0.8)
+theme_override_font_sizes/font_size = 44
 text = "ABOUT"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -52,7 +56,7 @@ anchor_top = 0.1
 anchor_right = 0.9
 anchor_bottom = 0.2
 theme_override_colors/font_color = Color(0, 1, 0.443, 1)
-theme_override_font_sizes/font_size = 40
+theme_override_font_sizes/font_size = 44
 text = "ABOUT"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -68,12 +72,11 @@ grow_vertical = 2
 [node name="TutorialButton" type="Button" parent="ContentContainer"]
 layout_mode = 1
 anchors_preset = -1
-anchor_left = 0.25
+anchor_left = 0.2
 anchor_top = 0.3
-anchor_right = 0.75
-anchor_bottom = 0.4
-theme_override_colors/font_color = Color(0, 0, 0, 1)
-theme_override_font_sizes/font_size = 24
+anchor_right = 0.8
+anchor_bottom = 0.42
+theme_override_font_sizes/font_size = 28
 text = "TUTORIAL"
 
 [node name="HighscoreLabel" type="Label" parent="ContentContainer"]
@@ -83,8 +86,7 @@ anchor_left = 0.1
 anchor_top = 0.5
 anchor_right = 0.9
 anchor_bottom = 0.55
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 20
+theme_override_font_sizes/font_size = 24
 text = "Highscore: 0"
 horizontal_alignment = 1
 vertical_alignment = 1
@@ -121,26 +123,25 @@ anchor_left = 0.5
 anchor_top = 0.6
 anchor_right = 0.9
 anchor_bottom = 0.8
-theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 18
+theme_override_font_sizes/font_size = 20
 text = "chrysalis.tw"
 horizontal_alignment = 1
 vertical_alignment = 1
 
-[node name="HomeButton" type="Button" parent="ContentContainer"]
+[node name="HomeButton" type="TextureButton" parent="ContentContainer"]
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.85
 anchor_top = 0.05
-anchor_right = 0.95
-anchor_bottom = 0.15
-text = "🏠"
-flat = true
+anchor_right = 0.98
+anchor_bottom = 0.18
+texture_normal = ExtResource("3_home")
+stretch_mode = 5
 
 [node name="TutorialDialog" type="AcceptDialog" parent="."]
 title = "Tutorial"
 initial_position = 2
-size = Vector2i(500, 400)
+size = Vector2i(550, 450)
 
 [node name="VBox" type="VBoxContainer" parent="TutorialDialog"]
 anchors_preset = 15
@@ -154,6 +155,7 @@ offset_bottom = -49.0
 [node name="TutorialText" type="RichTextLabel" parent="TutorialDialog/VBox"]
 layout_mode = 2
 size_flags_vertical = 3
+theme_override_font_sizes/normal_font_size = 20
 bbcode_enabled = true
 text = "[b]How to Play:[/b]
 
@@ -169,6 +171,7 @@ fit_content = true
 
 [node name="OKButton" type="Button" parent="TutorialDialog/VBox"]
 layout_mode = 2
+theme_override_font_sizes/font_size = 22
 text = "OK"
 
 [connection signal="pressed" from="ContentContainer/TutorialButton" to="." method="_on_tutorial_button_pressed"]
