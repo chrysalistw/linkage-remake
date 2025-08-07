@@ -99,14 +99,18 @@ func _on_drag_completed(drag_state: Dictionary):
 	var from_pos = drag_state.get("from", Vector2i.ZERO)
 	var to_pos = drag_state.get("to", Vector2i.ZERO)
 	
-	if drag_direction.x != 0:
-		# Horizontal drag
-		var shift = to_pos.x - from_pos.x
-		rotation_handler.rotate_row(from_pos.y, shift)
-	elif drag_direction.y != 0:
-		# Vertical drag
-		var shift = to_pos.y - from_pos.y
-		rotation_handler.rotate_column(from_pos.x, shift)
+	# TODO: Fix rotation logic to match AnimationManager preview
+	# Current issue: using raw position difference instead of grid_displacement
+	# which causes mismatch between visual preview and actual rotation
+	
+	# if drag_direction.x != 0:
+	# 	# Horizontal drag
+	# 	var shift = to_pos.x - from_pos.x
+	# 	rotation_handler.rotate_row(from_pos.y, shift)
+	# elif drag_direction.y != 0:
+	# 	# Vertical drag
+	# 	var shift = to_pos.y - from_pos.y
+	# 	rotation_handler.rotate_column(from_pos.x, shift)
 	
 	# Use one move per drag operation
 	if GameState:

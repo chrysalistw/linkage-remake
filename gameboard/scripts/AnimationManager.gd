@@ -89,31 +89,48 @@ func clear_drag_indicators():
 				tile.hide_drag_indicator()
 
 func get_animated_tile_position(row: int, col: int) -> Vector2:
-	var base_pos = Vector2(col * tile_size, row * tile_size)
-	
 	if not drag_handler or not drag_handler.is_dragging:
-		return base_pos
+		return Vector2(col * tile_size, row * tile_size)
 	
 	var start_tile = drag_handler.start_tile_pos
-	var pixel_displacement = drag_handler.pixel_displacement
+	var grid_displacement = drag_handler.grid_displacement
 	var drag_direction = drag_handler.drag_direction
+	var pixel_displacement = drag_handler.pixel_displacement
 	
-	# Apply displacement based on drag direction and affected tiles
+	var final_col = col
+	var final_row = row
+	
+	# Apply grid-based displacement with wrapping to affected tiles
 	if drag_direction.x != 0 and row == start_tile.y:
-		# Horizontal drag - affect entire row
-		base_pos.x += pixel_displacement.x
+		# Horizontal drag - affect entire row with wrapping
+		final_col = (col + grid_displacement.x + board_width) % board_width
 	elif drag_direction.y != 0 and col == start_tile.x:
-		# Vertical drag - affect entire column
-		base_pos.y += pixel_displacement.y
+		# Vertical drag - affect entire column with wrapping
+		final_row = (row + grid_displacement.y + board_height) % board_height
 	
-	return base_pos
+	var base_pos = Vector2(final_col * tile_size, final_row * tile_size)
+	
+	# Add slight directional shift as visual hint during drag
+	var hint_strength = 0.3  # How much of the remaining pixel displacement to show
+	var hint_offset = Vector2.ZERO
+	
+	if drag_direction.x != 0 and row == start_tile.y:
+		# Horizontal drag - show partial horizontal movement
+		var remaining_pixels = pixel_displacement.x - (grid_displacement.x * tile_size)
+		hint_offset.x = remaining_pixels * hint_strength
+	elif drag_direction.y != 0 and col == start_tile.x:
+		# Vertical drag - show partial vertical movement
+		var remaining_pixels = pixel_displacement.y - (grid_displacement.y * tile_size)
+		hint_offset.y = remaining_pixels * hint_strength
+	
+	return base_pos + hint_offset
 
 func get_predicted_tile_position(row: int, col: int) -> Vector2i:
 	if not drag_handler or not drag_handler.is_dragging:
 		return Vector2i(col, row)
 	
 	var start_pos = drag_handler.start_tile_pos
-	var target_pos = drag_handler.get_target_tile_pos()
+	var grid_displacement = drag_handler.grid_displacement
 	
 	if drag_handler.drag_state == DragHandler.DragState.PREVIEW:
 		return Vector2i(col, row)
@@ -124,11 +141,11 @@ func get_predicted_tile_position(row: int, col: int) -> Vector2i:
 	match drag_handler.drag_state:
 		DragHandler.DragState.VERTICAL:
 			if col == start_pos.x:
-				var shift = target_pos.y - start_pos.y
+				var shift = grid_displacement.y
 				predicted_row = (row + shift + board_height) % board_height
 		DragHandler.DragState.HORIZONTAL:
 			if row == start_pos.y:
-				var shift = target_pos.x - start_pos.x
+				var shift = grid_displacement.x
 				predicted_col = (col + shift + board_width) % board_width
 	
 	return Vector2i(predicted_col, predicted_row)
@@ -156,6 +173,13 @@ func get_affected_tiles() -> Array[Vector2i]:
 func apply_animated_positions():
 	if not drag_handler or not drag_handler.is_dragging:
 		return
+	
+	# Print drag state information
+	print("[AnimationManager] Drag State: ", drag_handler.drag_state)
+	print("[AnimationManager] Is Dragging: ", drag_handler.is_dragging)
+	print("[AnimationManager] Drag Direction: ", drag_handler.drag_direction)
+	print("[AnimationManager] Pixel Displacement: ", drag_handler.pixel_displacement)
+	print("[AnimationManager] Grid Displacement: ", drag_handler.grid_displacement)
 	
 	var board = board_manager.get_board()
 	var affected_tiles = get_affected_tiles()

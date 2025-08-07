@@ -17,6 +17,7 @@ var start_mouse_pos: Vector2
 var current_mouse_pos: Vector2
 var drag_direction: Vector2 = Vector2.ZERO
 var pixel_displacement: Vector2 = Vector2.ZERO
+var grid_displacement: Vector2i = Vector2i.ZERO
 
 # Legacy compatibility properties
 var dragging: bool:
@@ -72,10 +73,11 @@ func start_drag(tile_pos: Vector2i):
 	# Reset vectors
 	drag_direction = Vector2.ZERO
 	pixel_displacement = Vector2.ZERO
+	grid_displacement = Vector2i.ZERO
 	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
 	
-	debug_print("Started drag at tile: %s, mouse: %s" % [tile_pos, start_mouse_pos])
+	# debug_print("Started drag at tile: %s, mouse: %s" % [tile_pos, start_mouse_pos])
 
 func _input(event: InputEvent):
 	if not is_dragging:
@@ -99,6 +101,9 @@ func handle_mouse_move(event: InputEventMouseMotion):
 	
 	# Calculate pixel displacement for animations
 	pixel_displacement = current_mouse_pos - start_mouse_pos
+	
+	# Calculate grid displacement based on drag direction
+	calculate_grid_displacement()
 
 func handle_mouse_up(event: InputEventMouseButton):
 	if not is_dragging:
@@ -141,7 +146,8 @@ func detect_drag_direction():
 		drag_state = DragState.VERTICAL
 	
 	if old_state != drag_state:
-		debug_print("Direction detected: %s (movement: %s, drag_direction: %s)" % [get_state_string(), movement, drag_direction])
+		# debug_print("Direction detected: %s (movement: %s, drag_direction: %s)" % [get_state_string(), movement, drag_direction])
+		pass
 
 # Simplified drag implementation - no smooth visuals needed
 
@@ -171,6 +177,7 @@ func reset_drag_state():
 	current_mouse_pos = Vector2.ZERO
 	drag_direction = Vector2.ZERO
 	pixel_displacement = Vector2.ZERO
+	grid_displacement = Vector2i.ZERO
 	
 	current_tile = null
 
@@ -182,7 +189,8 @@ func get_drag_state() -> Dictionary:
 		"dragging": is_dragging,
 		"drag_state": drag_state,
 		"pixel_displacement": pixel_displacement,
-		"drag_direction": drag_direction
+		"drag_direction": drag_direction,
+		"grid_displacement": grid_displacement
 	}
 
 # Simple access to displacement for AnimationManager
@@ -199,10 +207,31 @@ func debug_print(message: String):
 	if debug_enabled:
 		print("[DragHandler] ", message)
 
+func calculate_grid_displacement():
+	"""Calculates which grid positions the drag moves from/to"""
+	if drag_state == DragState.PREVIEW or not is_dragging:
+		grid_displacement = Vector2i.ZERO
+		return
+	
+	var current_grid_pos = screen_pos_to_grid_pos(current_mouse_pos)
+	
+	match drag_state:
+		DragState.HORIZONTAL:
+			# Calculate horizontal grid displacement
+			var grid_diff = current_grid_pos.x - start_tile_pos.x
+			grid_displacement = Vector2i(grid_diff, 0)
+		DragState.VERTICAL:
+			# Calculate vertical grid displacement
+			var grid_diff = current_grid_pos.y - start_tile_pos.y
+			grid_displacement = Vector2i(0, grid_diff)
+		_:
+			grid_displacement = Vector2i.ZERO
+
 func debug_state():
 	if debug_enabled:
-		debug_print("State: %s | Direction: %s | Displacement: %s" % [
+		debug_print("State: %s | Direction: %s | Pixel: %s | Grid: %s" % [
 			get_state_string(), 
 			drag_direction, 
-			pixel_displacement
+			pixel_displacement,
+			grid_displacement
 		])
