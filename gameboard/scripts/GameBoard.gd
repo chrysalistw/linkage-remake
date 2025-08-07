@@ -27,6 +27,9 @@ var removing: bool = false
 # Track last applied displacement to avoid redundant rotation calls
 var last_applied_displacement: Vector2i = Vector2i.ZERO
 
+# Track drag state to clean up positions only once when drag ends
+var was_dragging: bool = false
+
 func _ready():
 	# Add to gameboard group for GameState integration
 	add_to_group("gameboard")
@@ -134,7 +137,9 @@ func print_column(col_index: int):
 
 # Process function to update drag visual indicators and apply real-time rotations
 func _process(_delta):
-	if drag_handler and drag_handler.dragging:
+	var currently_dragging = drag_handler and drag_handler.dragging
+	
+	if currently_dragging:
 		animation_manager.update_drag_indicators()
 		
 		# Apply real-time rotations to match visual preview
@@ -150,8 +155,12 @@ func _process(_delta):
 				tile.update_sprite_region()
 		# Force redraw for visual indicators
 		queue_redraw()
-	# Note: Removed reset_tile_positions() call to maintain consistency 
-	# between real-time rotation preview and final drag result
+		
+		was_dragging = true
+	elif was_dragging:
+		# Drag just ended - clean up positions once
+		ensure_exact_tile_positions()
+		was_dragging = false
 
 
 func apply_realtime_rotation():
@@ -232,6 +241,16 @@ func restore_from_baseline():
 	# Rebuild tile grid to reflect restored positions
 	board_manager.rebuild_tile_grid()
 	print("[GameBoard] Board restored from baseline")
+
+func ensure_exact_tile_positions():
+	"""Ensure all tiles are positioned exactly at their grid coordinates (removes animation hints)"""
+	var current_board = board_manager.get_board()
+	for y in board_height:
+		for x in board_width:
+			var tile = current_board[y][x] as Tile
+			if tile:
+				# Set tile to exact grid position without any hint offsets
+				tile.position = Vector2(x * tile_size, y * tile_size)
 
 func get_tile_at_position(pos: Vector2i) -> Node:
 	return board_manager.get_tile_at_position(pos)
