@@ -150,9 +150,10 @@ Key parameters can be adjusted in GameBoard.gd:
 - Smooth animations and visual feedback
 - Chain reaction support with bonus moves
 
-### In Progress 🔧
-- Drag animation polish and direction fixes
+### Recently Completed ✅
+- Drag animation polish and direction fixes (August 7, 2025)
 - Array rotation logic refinement
+- Signal timing coordination between DragHandler and GameBoard
 
 ### Planned Features ⏳
 - Load actual pipe sprites from original assets
