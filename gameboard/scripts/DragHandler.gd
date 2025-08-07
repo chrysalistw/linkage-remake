@@ -19,6 +19,9 @@ var drag_direction: Vector2 = Vector2.ZERO
 var pixel_displacement: Vector2 = Vector2.ZERO
 var grid_displacement: Vector2i = Vector2i.ZERO
 
+# Baseline state tracking for real-time rotation
+var baseline_board_state: Array = []
+
 # Legacy compatibility properties
 var dragging: bool:
 	get: return is_dragging
@@ -75,6 +78,9 @@ func start_drag(tile_pos: Vector2i):
 	pixel_displacement = Vector2.ZERO
 	grid_displacement = Vector2i.ZERO
 	
+	# Store baseline board state for real-time rotation
+	store_baseline_board_state()
+	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
 	
 	# debug_print("Started drag at tile: %s, mouse: %s" % [tile_pos, start_mouse_pos])
@@ -88,6 +94,9 @@ func _input(event: InputEvent):
 	elif event is InputEventMouseButton:
 		if not event.pressed and event.button_index == MOUSE_BUTTON_LEFT:
 			handle_mouse_up(event)
+	elif event is InputEventKey:
+		if event.pressed and event.keycode == KEY_ESCAPE:
+			cancel_drag()
 
 func handle_mouse_move(event: InputEventMouseMotion):
 	if not current_tile:
@@ -179,6 +188,9 @@ func reset_drag_state():
 	pixel_displacement = Vector2.ZERO
 	grid_displacement = Vector2i.ZERO
 	
+	# Clear baseline state
+	baseline_board_state.clear()
+	
 	current_tile = null
 
 func get_drag_state() -> Dictionary:
@@ -196,6 +208,35 @@ func get_drag_state() -> Dictionary:
 # Simple access to displacement for AnimationManager
 var displacement: Vector2:
 	get: return pixel_displacement
+
+func cancel_drag():
+	"""Cancel current drag and restore board to baseline state"""
+	if not is_dragging:
+		return
+		
+	debug_print("Drag cancelled - restoring baseline state")
+	
+	# Restore board from baseline
+	if gameboard.has_method("restore_from_baseline"):
+		gameboard.restore_from_baseline()
+	
+	# Reset drag state
+	reset_drag_state()
+
+func store_baseline_board_state():
+	"""Store a deep copy of the current board state for baseline restoration"""
+	baseline_board_state.clear()
+	if not gameboard or not gameboard.board:
+		return
+		
+	var board = gameboard.board
+	for row in board:
+		var row_copy = []
+		for tile in row:
+			row_copy.append(tile)  # Store tile references
+		baseline_board_state.append(row_copy)
+	
+	debug_print("Stored baseline board state (%dx%d)" % [gameboard.board_width, gameboard.board_height])
 
 # Debug infrastructure
 var debug_enabled: bool = true

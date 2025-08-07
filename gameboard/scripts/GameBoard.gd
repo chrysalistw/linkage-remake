@@ -24,6 +24,9 @@ var tile_grid: Control:
 
 var removing: bool = false
 
+# Track last applied displacement to avoid redundant rotation calls
+var last_applied_displacement: Vector2i = Vector2i.ZERO
+
 func _ready():
 	# Add to gameboard group for GameState integration
 	add_to_group("gameboard")
@@ -129,10 +132,14 @@ func print_column(col_index: int):
 	rotation_handler.print_column(col_index)
 
 
-# Process function to update drag visual indicators and positions
+# Process function to update drag visual indicators and apply real-time rotations
 func _process(_delta):
 	if drag_handler and drag_handler.dragging:
 		animation_manager.update_drag_indicators()
+		
+		# Apply real-time rotations to match visual preview
+		apply_realtime_rotation()
+		
 		# Apply animated positions to tiles during drag
 		animation_manager.apply_animated_positions()
 		# Only update affected tiles for performance
@@ -143,10 +150,88 @@ func _process(_delta):
 				tile.update_sprite_region()
 		# Force redraw for visual indicators
 		queue_redraw()
-	else:
-		# Reset tiles to grid positions when not dragging
-		animation_manager.reset_tile_positions()
+	# Note: Removed reset_tile_positions() call to maintain consistency 
+	# between real-time rotation preview and final drag result
 
+
+func apply_realtime_rotation():
+	"""Apply real-time rotation during drag to match AnimationManager preview"""
+	if not drag_handler or not drag_handler.is_dragging:
+		# Reset tracking when not dragging
+		last_applied_displacement = Vector2i.ZERO
+		return
+		
+	var start_tile = drag_handler.start_tile_pos
+	var grid_displacement = drag_handler.grid_displacement
+	var drag_direction = drag_handler.drag_direction
+	
+	# Only apply rotation if displacement has actually changed
+	if grid_displacement == last_applied_displacement:
+		return  # No change, skip expensive rotation
+		
+	# Update tracking
+	last_applied_displacement = grid_displacement
+	
+	# Restore from baseline and apply rotation
+	if drag_direction.x != 0:
+		# Horizontal drag - rotate row
+		restore_baseline_and_rotate_row(start_tile.y, grid_displacement.x)
+	elif drag_direction.y != 0:
+		# Vertical drag - rotate column  
+		restore_baseline_and_rotate_column(start_tile.x, grid_displacement.y)
+
+func restore_baseline_and_rotate_row(row_index: int, shift_amount: int):
+	"""Restore row from baseline state and apply rotation"""
+	if not drag_handler.baseline_board_state or row_index < 0 or row_index >= board_height:
+		return
+		
+	var baseline = drag_handler.baseline_board_state
+	var current_board = board_manager.get_board()
+	
+	# Restore row from baseline
+	for x in board_width:
+		current_board[row_index][x] = baseline[row_index][x]
+	
+	# Apply rotation if needed
+	if shift_amount != 0:
+		rotation_handler.rotate_row(row_index, shift_amount)
+
+func restore_baseline_and_rotate_column(col_index: int, shift_amount: int):
+	"""Restore column from baseline state and apply rotation"""  
+	if not drag_handler.baseline_board_state or col_index < 0 or col_index >= board_width:
+		return
+		
+	var baseline = drag_handler.baseline_board_state
+	var current_board = board_manager.get_board()
+	
+	# Restore column from baseline
+	for y in board_height:
+		current_board[y][col_index] = baseline[y][col_index]
+	
+	# Apply rotation if needed
+	if shift_amount != 0:
+		rotation_handler.rotate_column(col_index, shift_amount)
+
+func restore_from_baseline():
+	"""Restore entire board from baseline state stored in drag handler"""
+	if not drag_handler or not drag_handler.baseline_board_state:
+		return
+		
+	var baseline = drag_handler.baseline_board_state
+	var current_board = board_manager.get_board()
+	
+	# Restore entire board from baseline
+	for y in board_height:
+		for x in board_width:
+			current_board[y][x] = baseline[y][x]
+			var tile = baseline[y][x] as Tile
+			if tile:
+				tile.grid_x = x
+				tile.grid_y = y
+	
+	# Rebuild tile grid to reflect restored positions
+	board_manager.rebuild_tile_grid()
+	print("[GameBoard] Board restored from baseline")
 
 func get_tile_at_position(pos: Vector2i) -> Node:
 	return board_manager.get_tile_at_position(pos)

@@ -22,7 +22,7 @@ func rotate_row(row_index: int, shift_amount: int):
 		debug_print("No rotation needed for row %d (shift: %d)" % [row_index, original_shift])
 		return
 	
-	debug_print("Rotating row %d by %d positions (original: %d)" % [row_index, shift_amount, original_shift])
+	print("[RotationHandler] Rotating row %d by %d positions (original: %d)" % [row_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
@@ -57,7 +57,7 @@ func rotate_column(col_index: int, shift_amount: int):
 		debug_print("No rotation needed for column %d (shift: %d)" % [col_index, original_shift])
 		return
 	
-	debug_print("Rotating column %d by %d positions (original: %d)" % [col_index, shift_amount, original_shift])
+	print("[RotationHandler] Rotating column %d by %d positions (original: %d)" % [col_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
