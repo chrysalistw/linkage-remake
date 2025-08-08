@@ -121,7 +121,9 @@ func handle_mouse_up(event: InputEventMouseButton):
 	var drag_info = {
 		"state": get_state_string(),
 		"from": start_tile_pos,
-		"to": get_target_tile_pos()
+		"to": get_target_tile_pos(),
+		"drag_direction": drag_direction,
+		"grid_displacement": grid_displacement
 	}
 	
 	# Reset drag state

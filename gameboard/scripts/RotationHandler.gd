@@ -11,6 +11,7 @@ func initialize(manager: BoardManager, width: int, height: int):
 	board_height = height
 
 func rotate_row(row_index: int, shift_amount: int):
+	print("rotate rotate rotate row")
 	if row_index < 0 or row_index >= board_height:
 		debug_print("Invalid row index: %d" % row_index)
 		return
@@ -46,6 +47,7 @@ func rotate_row(row_index: int, shift_amount: int):
 	debug_print("Row %d rotation completed" % row_index)
 
 func rotate_column(col_index: int, shift_amount: int):
+	print("rotate rotate rotate column")
 	if col_index < 0 or col_index >= board_width:
 		debug_print("Invalid column index: %d" % col_index)
 		return

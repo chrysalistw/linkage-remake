@@ -174,9 +174,6 @@ func apply_animated_positions():
 	if not drag_handler or not drag_handler.is_dragging:
 		return
 	
-	# Print only grid displacement for debugging rotation calls
-	if drag_handler.grid_displacement != Vector2i.ZERO:
-		print("[AnimationManager] Grid Displacement: ", drag_handler.grid_displacement)
 	
 	var board = board_manager.get_board()
 	var affected_tiles = get_affected_tiles()
@@ -204,4 +201,4 @@ func enable_debug():
 
 func debug_print(message: String):
 	if debug_enabled:
-		print("[AnimationManager] ", message)
+		print(message)
