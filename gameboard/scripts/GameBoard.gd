@@ -29,6 +29,12 @@ var removing: bool = false
 # Track drag state to clean up positions only once when drag ends
 var was_dragging: bool = false
 
+# Debug: Store before-drag state for comparison
+var debug_before_drag_data: Array = []
+var debug_before_drag_positions: Array = []
+var debug_dragged_index: int = -1
+var debug_drag_type: String = ""
+
 func _ready():
 	# Add to gameboard group for GameState integration
 	add_to_group("gameboard")
@@ -88,6 +94,10 @@ func setup_drag_handler():
 # Handle tile clicks - start drag
 func _on_tile_clicked(tile: Tile):
 	var pos = tile.get_grid_position()
+	
+	# Capture before-drag state for debug comparison
+	debug_capture_before_drag_state(pos)
+	
 	drag_handler.start_drag(pos)
 
 # Handle drag completion - apply rotation
@@ -96,20 +106,33 @@ func _on_drag_completed(drag_state: Dictionary):
 	if GameState and GameState.lost:
 		return  # Don't process moves when game is over
 	
-	# Clear drag visual indicators
+	# Clear drag visual indicators and animation offsets
+	print("[GameBoard] Clearing drag indicators...")
 	animation_manager.clear_drag_indicators()
+	print("[GameBoard] Resetting tile positions...")
+	animation_manager.reset_tile_positions()
+	print("[GameBoard] Animation cleanup complete")
 	
-	# Debug: Print board state before rotation
+	# Extract drag information for logging
 	var from_pos = drag_state.get("from", Vector2i.ZERO)
+	var to_pos = drag_state.get("to", Vector2i.ZERO)
 	var drag_direction = drag_state.get("drag_direction", Vector2.ZERO)
-	print("=== BOARD STATE BEFORE ROTATION ===")
-	if drag_direction.x != 0:
-		print_row(from_pos.y)
-	elif drag_direction.y != 0:
-		print_column(from_pos.x)
-	
-	# Get grid displacement from drag handler for accurate rotation
 	var grid_displacement = drag_state.get("grid_displacement", Vector2i.ZERO)
+	var drag_state_str = drag_state.get("state", "")
+	
+	# Print detailed drag information
+	print("=== DRAG COMPLETED ===")
+	print("From: (%d,%d) → To: (%d,%d)" % [from_pos.x, from_pos.y, to_pos.x, to_pos.y])
+	print("Direction: ", drag_direction, " | State: ", drag_state_str)
+	print("Grid displacement: ", grid_displacement)
+	
+	# Print before/after comparison
+	if drag_direction.x != 0:
+		print("Horizontal drag - Row %d comparison:" % from_pos.y)
+		debug_print_before_after_comparison("row", from_pos.y)
+	elif drag_direction.y != 0:
+		print("Vertical drag - Column %d comparison:" % from_pos.x)
+		debug_print_before_after_comparison("column", from_pos.x)
 	
 	# DEBUGGING: Rotation temporarily disabled to isolate drag visual issues
 	# Apply rotation using grid displacement (matches visual preview)
@@ -125,25 +148,168 @@ func _on_drag_completed(drag_state: Dictionary):
 	# else:
 	#	print("No rotation applied - grid displacement was zero")
 	
-	print("DEBUGGING: Rotation cut out to isolate drag visual problem - grid_displacement: %s" % grid_displacement)
+	# Rotation disabled - visual animation now handled by offset system
 	
 	# Use one move per drag operation
 	if GameState:
+		var moves_before = GameState.moves_left
 		GameState.use_move()
-		print("Move used, moves left: ", GameState.moves_left)
+		print("Move used: %d → %d moves remaining" % [moves_before, GameState.moves_left])
 	
 	# Detect connections after move
 	connection_manager.detect_and_highlight_connections()
+	print("=== END DRAG ===\n")
+	
 
 
-# Debug helper functions - delegate to rotation handler
-func print_row(row_index: int):
-	# rotation_handler.print_row(row_index)
-	pass
+# Debug helper functions for printing board data
+func debug_print_row(row_index: int):
+	if row_index < 0 or row_index >= board_height:
+		print("  Invalid row index: %d" % row_index)
+		return
+	
+	var board = board_manager.get_board()
+	var row_data = []
+	var row_positions = []
+	for x in board_width:
+		var tile = board[row_index][x] as Tile
+		if tile:
+			row_data.append(tile.face)
+			row_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+		else:
+			row_data.append("null")
+			row_positions.append("null")
+	
+	print("  Faces: ", row_data)
+	print("  Grid positions: ", row_positions)
 
-func print_column(col_index: int):
-	# rotation_handler.print_column(col_index)
-	pass
+func debug_print_column(col_index: int):
+	if col_index < 0 or col_index >= board_width:
+		print("  Invalid column index: %d" % col_index)
+		return
+	
+	var board = board_manager.get_board()
+	var col_data = []
+	var col_positions = []
+	for y in board_height:
+		var tile = board[y][col_index] as Tile
+		if tile:
+			col_data.append(tile.face)
+			col_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+		else:
+			col_data.append("null")
+			col_positions.append("null")
+	
+	print("  Faces: ", col_data)
+	print("  Grid positions: ", col_positions)
+
+func debug_capture_before_drag_state(clicked_pos: Vector2i):
+	"""Capture the state of row/column before drag starts for comparison"""
+	debug_before_drag_data.clear()
+	debug_before_drag_positions.clear()
+	debug_dragged_index = -1
+	debug_drag_type = ""
+	
+	var board = board_manager.get_board()
+	
+	# We don't know the drag direction yet, so capture both row and column
+	# The actual comparison will determine which one was dragged
+	var row_data = []
+	var row_positions = []
+	var col_data = []
+	var col_positions = []
+	
+	# Capture row data
+	for x in board_width:
+		var tile = board[clicked_pos.y][x] as Tile
+		if tile:
+			row_data.append(tile.face)
+			row_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+		else:
+			row_data.append("null")
+			row_positions.append("null")
+	
+	# Capture column data  
+	for y in board_height:
+		var tile = board[y][clicked_pos.x] as Tile
+		if tile:
+			col_data.append(tile.face)
+			col_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+		else:
+			col_data.append("null")
+			col_positions.append("null")
+	
+	# Store both for later comparison
+	debug_before_drag_data = [row_data, col_data]
+	debug_before_drag_positions = [row_positions, col_positions]
+
+func debug_print_before_after_comparison(type: String, index: int):
+	"""Print before/after comparison of dragged row or column"""
+	if debug_before_drag_data.size() != 2:
+		print("  No before-drag data captured")
+		return
+	
+	var board = board_manager.get_board()
+	var before_data = []
+	var before_positions = []
+	var after_data = []
+	var after_positions = []
+	
+	if type == "row":
+		# Get before data (row is index 0 in stored arrays)
+		before_data = debug_before_drag_data[0]
+		before_positions = debug_before_drag_positions[0]
+		
+		# Get current after data
+		for x in board_width:
+			var tile = board[index][x] as Tile
+			if tile:
+				after_data.append(tile.face)
+				after_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+			else:
+				after_data.append("null")
+				after_positions.append("null")
+				
+	elif type == "column":
+		# Get before data (column is index 1 in stored arrays)
+		before_data = debug_before_drag_data[1]
+		before_positions = debug_before_drag_positions[1]
+		
+		# Get current after data
+		for y in board_height:
+			var tile = board[y][index] as Tile
+			if tile:
+				after_data.append(tile.face)
+				after_positions.append("(%d,%d)" % [tile.grid_x, tile.grid_y])
+			else:
+				after_data.append("null")
+				after_positions.append("null")
+	
+	# Print comparison
+	print("  BEFORE faces: ", before_data)
+	print("  AFTER  faces: ", after_data)
+	print("  BEFORE positions: ", before_positions)
+	print("  AFTER  positions: ", after_positions)
+	
+	# Check if anything actually changed
+	var data_changed = (before_data != after_data)
+	var positions_changed = (before_positions != after_positions)
+	print("  Data changed: ", data_changed, " | Positions changed: ", positions_changed)
+	
+	# Also check actual visual positions of tiles
+	print("  Current visual positions:")
+	if type == "row":
+		for x in board_width:
+			var tile = board[index][x] as Tile
+			if tile:
+				print("    Tile[%d,%d] face:%d visual_pos: %s base_pos: %s offset: %s" % [
+					x, index, tile.face, tile.position, tile.get_base_position(), tile.animation_offset])
+	elif type == "column":
+		for y in board_height:
+			var tile = board[y][index] as Tile
+			if tile:
+				print("    Tile[%d,%d] face:%d visual_pos: %s base_pos: %s offset: %s" % [
+					index, y, tile.face, tile.position, tile.get_base_position(), tile.animation_offset])
 
 
 # Process function to update drag visual indicators and apply real-time rotations
@@ -166,8 +332,9 @@ func _process(_delta):
 		
 		was_dragging = true
 	elif was_dragging:
-		# Drag just ended - ensure tiles are at exact grid positions
-		ensure_exact_tile_positions()
+		# Drag just ended - clear animation offsets to restore base positions
+		print("[GameBoard] _process detected drag end - resetting positions")
+		animation_manager.reset_tile_positions()
 		was_dragging = false
 
 
@@ -231,16 +398,6 @@ func _process(_delta):
 #	board_manager.rebuild_tile_grid()
 #	print("[GameBoard] Board restored from baseline")
 
-func ensure_exact_tile_positions():
-	"""Ensure all tiles are positioned exactly at their grid coordinates (removes animation hints)"""
-	var current_board = board_manager.get_board()
-	for y in board_height:
-		for x in board_width:
-			var tile = current_board[y][x] as Tile
-			if tile:
-				# Set tile to exact grid position without any hint offsets
-				tile.position = Vector2(x * tile_size, y * tile_size)
-
 func get_tile_at_position(pos: Vector2i) -> Node:
 	return board_manager.get_tile_at_position(pos)
 
@@ -258,7 +415,6 @@ func get_animated_tile_position(row: int, col: int) -> Vector2:
 
 # Handle game over - disable input
 func _on_game_over():
-	print("Game Over! No more moves left.")
 	# Disable drag handler to prevent further moves
 	if drag_handler:
 		drag_handler.set_process_input(false)
@@ -290,4 +446,3 @@ func enable_debug_mode():
 	if rotation_handler:
 		# rotation_handler.enable_debug()
 		pass
-	print("[GameBoard] Debug mode enabled for all components")

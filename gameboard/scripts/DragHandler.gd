@@ -83,7 +83,14 @@ func start_drag(tile_pos: Vector2i):
 	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
 	
-	# debug_print("Started drag at tile: %s, mouse: %s" % [tile_pos, start_mouse_pos])
+	print("=== DRAG STARTED ===")
+	if current_tile:
+		print("Tile: (%d,%d) with face %d" % [tile_pos.x, tile_pos.y, current_tile.face])
+		print("Tile grid position: (%d,%d)" % [current_tile.grid_x, current_tile.grid_y])
+		print("Tile visual position: ", current_tile.position)
+	else:
+		print("Tile: (%d,%d) - NO TILE FOUND" % [tile_pos.x, tile_pos.y])
+	
 
 func _input(event: InputEvent):
 	if not is_dragging:
@@ -157,7 +164,6 @@ func detect_drag_direction():
 		drag_state = DragState.VERTICAL
 	
 	if old_state != drag_state:
-		# debug_print("Direction detected: %s (movement: %s, drag_direction: %s)" % [get_state_string(), movement, drag_direction])
 		pass
 
 # Simplified drag implementation - no smooth visuals needed
@@ -216,7 +222,6 @@ func cancel_drag():
 	if not is_dragging:
 		return
 		
-	debug_print("Drag cancelled - restoring baseline state")
 	
 	# Restore board from baseline
 	if gameboard.has_method("restore_from_baseline"):
@@ -238,7 +243,6 @@ func store_baseline_board_state():
 			row_copy.append(tile)  # Store tile references
 		baseline_board_state.append(row_copy)
 	
-	debug_print("Stored baseline board state (%dx%d)" % [gameboard.board_width, gameboard.board_height])
 
 # Debug infrastructure
 var debug_enabled: bool = true

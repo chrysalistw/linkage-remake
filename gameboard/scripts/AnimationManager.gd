@@ -174,17 +174,39 @@ func apply_animated_positions():
 	if not drag_handler or not drag_handler.is_dragging:
 		return
 	
-	
 	var board = board_manager.get_board()
 	var affected_tiles = get_affected_tiles()
+	var debug_offsets = []
+	
 	for tile_pos in affected_tiles:
 		var tile = board[tile_pos.y][tile_pos.x] as Tile
 		if tile:
 			var animated_pos = get_animated_tile_position(tile_pos.y, tile_pos.x)
-			tile.position = animated_pos
+			var base_pos = Vector2(tile_pos.x * tile_size, tile_pos.y * tile_size)
+			var offset = animated_pos - base_pos
+			tile.apply_animation_offset(offset)
+			
+			if offset != Vector2.ZERO:
+				debug_offsets.append("tile[%d,%d]:%s" % [tile_pos.x, tile_pos.y, offset])
+	
+	# Only print if there are significant offsets (avoid spam)
+	if debug_offsets.size() > 0 and drag_handler.grid_displacement != Vector2i.ZERO:
+		debug_print("Applying offsets: " + str(debug_offsets))
 
 func reset_tile_positions():
-	board_manager.reset_tile_positions()
+	# Clear animation offsets from all tiles, restoring them to base positions
+	print("[AnimationManager] Clearing animation offsets...")
+	var board = board_manager.get_board()
+	var tiles_with_offset = 0
+	for y in board_height:
+		for x in board_width:
+			var tile = board[y][x] as Tile
+			if tile:
+				if tile.animation_offset != Vector2.ZERO:
+					tiles_with_offset += 1
+					print("  Clearing offset from tile[%d,%d]: %s" % [x, y, tile.animation_offset])
+				tile.clear_animation_offset()
+	print("[AnimationManager] Cleared offsets from %d tiles" % tiles_with_offset)
 
 func draw_drag_indicators():
 	if drag_handler and drag_handler.is_dragging:

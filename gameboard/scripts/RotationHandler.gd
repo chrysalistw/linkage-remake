@@ -11,7 +11,6 @@ func initialize(manager: BoardManager, width: int, height: int):
 	board_height = height
 
 func rotate_row(row_index: int, shift_amount: int):
-	print("rotate rotate rotate row")
 	if row_index < 0 or row_index >= board_height:
 		debug_print("Invalid row index: %d" % row_index)
 		return
@@ -23,7 +22,6 @@ func rotate_row(row_index: int, shift_amount: int):
 		debug_print("No rotation needed for row %d (shift: %d)" % [row_index, original_shift])
 		return
 	
-	print("[RotationHandler] Rotating row %d by %d positions (original: %d)" % [row_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
@@ -45,9 +43,9 @@ func rotate_row(row_index: int, shift_amount: int):
 	# Rebuild tile grid to reflect new positions
 	board_manager.rebuild_tile_grid()
 	debug_print("Row %d rotation completed" % row_index)
+	
 
 func rotate_column(col_index: int, shift_amount: int):
-	print("rotate rotate rotate column")
 	if col_index < 0 or col_index >= board_width:
 		debug_print("Invalid column index: %d" % col_index)
 		return
@@ -59,7 +57,6 @@ func rotate_column(col_index: int, shift_amount: int):
 		debug_print("No rotation needed for column %d (shift: %d)" % [col_index, original_shift])
 		return
 	
-	print("[RotationHandler] Rotating column %d by %d positions (original: %d)" % [col_index, shift_amount, original_shift])
 	
 	var board = board_manager.get_board()
 	
@@ -81,6 +78,7 @@ func rotate_column(col_index: int, shift_amount: int):
 	# Rebuild tile grid to reflect new positions
 	board_manager.rebuild_tile_grid()
 	debug_print("Column %d rotation completed" % col_index)
+	
 
 func print_row(row_index: int):
 	if row_index < 0 or row_index >= board_height:
