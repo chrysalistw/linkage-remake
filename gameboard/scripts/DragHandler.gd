@@ -22,6 +22,10 @@ var grid_displacement: Vector2i = Vector2i.ZERO
 # Baseline state tracking for real-time rotation
 var baseline_board_state: Array = []
 
+# Real-time rotation tracking
+var last_applied_grid_displacement: Vector2i = Vector2i.ZERO
+var total_rotations_applied: Vector2i = Vector2i.ZERO
+
 # Legacy compatibility properties
 var dragging: bool:
 	get: return is_dragging
@@ -77,6 +81,10 @@ func start_drag(tile_pos: Vector2i):
 	drag_direction = Vector2.ZERO
 	pixel_displacement = Vector2.ZERO
 	grid_displacement = Vector2i.ZERO
+	
+	# Reset real-time rotation tracking
+	last_applied_grid_displacement = Vector2i.ZERO
+	total_rotations_applied = Vector2i.ZERO
 	
 	# Store baseline board state for real-time rotation
 	store_baseline_board_state()
@@ -272,3 +280,22 @@ func debug_state():
 			pixel_displacement,
 			grid_displacement
 		])
+
+func get_incremental_rotation() -> Dictionary:
+	"""Get the incremental rotation since last check (for real-time updates)"""
+	var current_displacement = grid_displacement
+	var increment = current_displacement - last_applied_grid_displacement
+	
+	if increment != Vector2i.ZERO:
+		# Update tracking
+		last_applied_grid_displacement = current_displacement
+		total_rotations_applied += increment
+		
+		return {
+			"has_increment": true,
+			"increment": increment,
+			"drag_direction": drag_direction,
+			"start_pos": start_tile_pos
+		}
+	
+	return {"has_increment": false}

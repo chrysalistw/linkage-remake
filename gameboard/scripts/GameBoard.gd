@@ -82,6 +82,9 @@ func setup_drag_handler():
 	drag_handler.setup(self)
 	drag_handler.drag_completed.connect(_on_drag_completed)
 	
+	# Enable process for real-time rotation
+	set_process(true)
+	
 
 # Handle tile clicks - start drag
 func _on_tile_clicked(tile: Tile):
@@ -100,21 +103,12 @@ func _on_drag_completed(drag_state: Dictionary):
 	var drag_direction = drag_state.get("drag_direction", Vector2.ZERO)
 	var grid_displacement = drag_state.get("grid_displacement", Vector2i.ZERO)
 	
-	# Apply rotation if enabled
-	if rotation_enabled and grid_displacement != Vector2i.ZERO:
-		if drag_direction.x != 0:
-			# Horizontal drag - rotate row
-			rotation_handler.rotate_row(from_pos.y, grid_displacement.x)
-			print("Applied horizontal rotation: row %d, shift %d" % [from_pos.y, grid_displacement.x])
-		elif drag_direction.y != 0:
-			# Vertical drag - rotate column
-			rotation_handler.rotate_column(from_pos.x, grid_displacement.y)
-			print("Applied vertical rotation: col %d, shift %d" % [from_pos.x, grid_displacement.y])
+	# Rotation now happens in real-time during dragging
+	# No additional rotation needed at completion
+	if rotation_enabled:
+		print("Drag completed - total rotations applied in real-time: %s" % drag_handler.total_rotations_applied)
 	else:
-		if not rotation_enabled:
-			print("Rotation disabled - no changes applied")
-		elif grid_displacement == Vector2i.ZERO:
-			print("No rotation needed - grid displacement was zero")
+		print("Rotation disabled - no changes applied during drag")
 	
 	# Use one move per drag operation
 	if GameState:
@@ -122,15 +116,33 @@ func _on_drag_completed(drag_state: Dictionary):
 	
 	# Detect connections after move
 	connection_manager.detect_and_highlight_connections()
+
+# Real-time rotation process
+func _process(_delta):
+	# Only process real-time rotation if enabled and currently dragging
+	if not rotation_enabled or not drag_handler or not drag_handler.is_dragging:
+		return
 	
+	# Check for incremental rotation changes
+	var rotation_info = drag_handler.get_incremental_rotation()
+	if rotation_info.get("has_increment", false):
+		var increment = rotation_info.get("increment", Vector2i.ZERO)
+		var drag_direction = rotation_info.get("drag_direction", Vector2.ZERO)
+		var start_pos = rotation_info.get("start_pos", Vector2i.ZERO)
+		
+		# Apply incremental rotation
+		if drag_direction.x != 0:
+			# Horizontal drag - rotate row incrementally
+			rotation_handler.rotate_row(start_pos.y, increment.x)
+			print("Real-time rotation: row %d by %d" % [start_pos.y, increment.x])
+		elif drag_direction.y != 0:
+			# Vertical drag - rotate column incrementally
+			rotation_handler.rotate_column(start_pos.x, increment.y)
+			print("Real-time rotation: col %d by %d" % [start_pos.x, increment.y])
 
 
 
-
-
-
-# Real-time rotation disabled - dragging is now purely visual
-# Actual rotation happens only on drag completion in _on_drag_completed()
+# Real-time rotation implementation - rotates grid-by-grid during drag
 
 # Baseline restoration functions disabled - no longer modify board during drag
 # func restore_baseline_and_rotate_row(row_index: int, shift_amount: int):
@@ -246,3 +258,4 @@ func is_rotation_enabled() -> bool:
 func print_rotation_status():
 	"""Print current rotation status for debugging"""
 	print("[GameBoard] Rotation is currently %s" % ("ENABLED" if rotation_enabled else "DISABLED"))
+	print("[GameBoard] Real-time rotation: Grid-by-grid during drag")
