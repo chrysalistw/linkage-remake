@@ -150,17 +150,11 @@ Key parameters can be adjusted in GameBoard.gd:
 - Smooth animations and visual feedback
 - Chain reaction support with bonus moves
 
-### Recently Completed ✅
-- Drag animation polish and direction fixes (August 7, 2025)
-- Array rotation logic refinement
-- Signal timing coordination between DragHandler and GameBoard
-
-### Planned Features ⏳
+### Next Steps ⏳
 - Load actual pipe sprites from original assets
-- Sound effects integration
+- Sound effects integration  
 - Particle effects for tile removal
 - Performance optimization for 60fps
-- Advanced reward system with tile randomization
 
 ## Testing
 The GameBoard is designed for incremental testing - each component can be tested independently, and the full game loop is functional at all times during development.

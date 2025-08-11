@@ -121,3 +121,4 @@ gameboard/
 - Game over and restart functionality verified
 - Complete game loop tested end-to-end
 - the visual clicking is still not obvious.
+- temporaily freeze drag when fading animation

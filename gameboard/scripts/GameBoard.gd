@@ -116,6 +116,9 @@ func _process(_delta):
 	var currently_dragging = drag_handler.is_dragging
 	
 	if currently_dragging:
+		# Apply visual drag offsets for smooth feedback
+		apply_drag_visual_offsets()
+		
 		if rotation_enabled:
 			var rotation_info = drag_handler.get_incremental_rotation()
 			if rotation_info.get("has_increment", false):
@@ -126,9 +129,11 @@ func _process(_delta):
 				if drag_direction.x != 0:
 					rotation_handler.rotate_row(start_pos.y, increment.x)
 					play_click_sound()
+					add_snap_animation(start_pos.y, true)  # Row snap
 				elif drag_direction.y != 0:
 					rotation_handler.rotate_column(start_pos.x, increment.y)
 					play_click_sound()
+					add_snap_animation(start_pos.x, false) # Column snap
 
 func clear_all_drag_offsets():
 	var board = board_manager.get_board()
@@ -137,6 +142,83 @@ func clear_all_drag_offsets():
 			var tile = board[y][x] as Tile
 			if tile:
 				tile.clear_drag_offset()
+
+func apply_drag_visual_offsets():
+	"""Apply visual drag offsets to tiles in the dragged row/column"""
+	if not drag_handler or not drag_handler.is_dragging:
+		return
+	
+	var drag_state = drag_handler.get_drag_state()
+	var drag_direction = drag_state.get("drag_direction", Vector2.ZERO)
+	var start_pos = drag_state.get("from", Vector2i.ZERO)
+	var visual_offset = drag_handler.get_drag_visual_offset()
+	
+	if visual_offset == Vector2.ZERO:
+		return
+	
+	var board = board_manager.get_board()
+	
+	# Apply offset to the entire row or column being dragged
+	if drag_direction.x != 0:
+		# Horizontal drag - apply to entire row
+		var row_y = start_pos.y
+		if row_y >= 0 and row_y < board_height:
+			for x in board_width:
+				var tile = board[row_y][x] as Tile
+				if tile:
+					tile.apply_drag_offset(visual_offset)
+	elif drag_direction.y != 0:
+		# Vertical drag - apply to entire column
+		var col_x = start_pos.x
+		if col_x >= 0 and col_x < board_width:
+			for y in board_height:
+				var tile = board[y][col_x] as Tile
+				if tile:
+					tile.apply_drag_offset(visual_offset)
+
+func add_snap_animation(index: int, is_row: bool):
+	"""Add brief snap animation when tiles overcome resistance threshold"""
+	var board = board_manager.get_board()
+	var snap_distance = 8.0  # Pixels to pull back before snap
+	var snap_duration = 0.1  # Quick anticipation
+	
+	# Create anticipation offset opposite to drag direction
+	var anticipation_offset = Vector2.ZERO
+	if is_row:
+		# Row animation - pull back horizontally
+		var drag_dir = drag_handler.drag_direction.x if drag_handler else 1
+		anticipation_offset.x = -snap_distance * sign(drag_dir)
+	else:
+		# Column animation - pull back vertically  
+		var drag_dir = drag_handler.drag_direction.y if drag_handler else 1
+		anticipation_offset.y = -snap_distance * sign(drag_dir)
+	
+	# Apply anticipation to affected tiles
+	if is_row and index >= 0 and index < board_height:
+		for x in board_width:
+			var tile = board[index][x] as Tile
+			if tile:
+				animate_tile_snap(tile, anticipation_offset, snap_duration)
+	elif not is_row and index >= 0 and index < board_width:
+		for y in board_height:
+			var tile = board[y][index] as Tile
+			if tile:
+				animate_tile_snap(tile, anticipation_offset, snap_duration)
+
+func animate_tile_snap(tile: Tile, anticipation_offset: Vector2, duration: float):
+	"""Animate individual tile with anticipation then snap back"""
+	if not tile:
+		return
+	
+	# Create a tween for the snap animation
+	var tween = create_tween()
+	
+	# Apply anticipation offset briefly
+	tile.apply_drag_offset(anticipation_offset)
+	
+	# Snap back to normal position after brief delay
+	await get_tree().create_timer(duration).timeout
+	tile.clear_drag_offset()
 
 func get_tile_at_position(pos: Vector2i) -> Node:
 	return board_manager.get_tile_at_position(pos)

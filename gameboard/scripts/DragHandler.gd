@@ -253,22 +253,26 @@ func debug_print(message: String):
 		print("[DragHandler] ", message)
 
 func calculate_grid_displacement():
-	"""Calculates which grid positions the drag moves from/to"""
+	"""Calculates which grid positions the drag moves from/to with resistance threshold"""
 	if drag_state == DragState.PREVIEW or not is_dragging:
 		grid_displacement = Vector2i.ZERO
 		return
 	
-	var current_grid_pos = screen_pos_to_grid_pos(current_mouse_pos)
+	# Resistance threshold - require 75% of tile size movement to advance one grid
+	var resistance_threshold = 0.75
+	var tile_size = gameboard.tile_size if gameboard else 64
 	
 	match drag_state:
 		DragState.HORIZONTAL:
-			# Calculate horizontal grid displacement
-			var grid_diff = current_grid_pos.x - start_tile_pos.x
-			grid_displacement = Vector2i(grid_diff, 0)
+			# Calculate horizontal displacement with resistance
+			var pixel_diff = pixel_displacement.x
+			var grid_steps = int(pixel_diff / (tile_size * resistance_threshold))
+			grid_displacement = Vector2i(grid_steps, 0)
 		DragState.VERTICAL:
-			# Calculate vertical grid displacement
-			var grid_diff = current_grid_pos.y - start_tile_pos.y
-			grid_displacement = Vector2i(0, grid_diff)
+			# Calculate vertical displacement with resistance
+			var pixel_diff = pixel_displacement.y
+			var grid_steps = int(pixel_diff / (tile_size * resistance_threshold))
+			grid_displacement = Vector2i(0, grid_steps)
 		_:
 			grid_displacement = Vector2i.ZERO
 
@@ -301,24 +305,40 @@ func get_incremental_rotation() -> Dictionary:
 	return {"has_increment": false}
 
 func get_drag_visual_offset() -> Vector2:
-	"""Get visual offset for click-like drag feedback"""
-	if not is_dragging or drag_direction == Vector2.ZERO:
+	"""Get visual offset showing resistance buildup and snap-back effect"""
+	if not is_dragging or drag_direction == Vector2.ZERO or drag_state == DragState.PREVIEW:
 		return Vector2.ZERO
 	
-	# Scale down pixel displacement for subtle effect
-	var offset_scale = 0.25  # 25% of mouse movement
-	var max_offset = 20.0    # Maximum 20 pixels offset
+	var tile_size = gameboard.tile_size if gameboard else 64
+	var resistance_threshold = 0.1
+	var snap_threshold = tile_size * resistance_threshold
 	
-	# Calculate base offset
-	var base_offset = pixel_displacement * offset_scale
-	
-	# Constrain to drag direction only
 	var constrained_offset = Vector2.ZERO
+	
 	if abs(drag_direction.x) > 0:
-		# Horizontal drag - only apply horizontal offset
-		constrained_offset.x = clamp(base_offset.x, -max_offset, max_offset)
+		# Horizontal resistance effect
+		var pixel_diff = pixel_displacement.x
+		var progress_in_current_grid = fmod(abs(pixel_diff), snap_threshold)
+		var resistance_factor = progress_in_current_grid / snap_threshold
+		
+		# Create rubber-band effect - less movement as approaching threshold
+		var rubber_band_scale = 0.6 + 0.4 * (1.0 - resistance_factor)
+		var visual_movement = progress_in_current_grid * rubber_band_scale
+		
+		constrained_offset.x = visual_movement * sign(pixel_diff)
+		constrained_offset.x = clamp(constrained_offset.x, -snap_threshold * 0.8, snap_threshold * 0.8)
+		
 	elif abs(drag_direction.y) > 0:
-		# Vertical drag - only apply vertical offset
-		constrained_offset.y = clamp(base_offset.y, -max_offset, max_offset)
+		# Vertical resistance effect
+		var pixel_diff = pixel_displacement.y
+		var progress_in_current_grid = fmod(abs(pixel_diff), snap_threshold)
+		var resistance_factor = progress_in_current_grid / snap_threshold
+		
+		# Create rubber-band effect - less movement as approaching threshold
+		var rubber_band_scale = 0.6 + 0.4 * (1.0 - resistance_factor)
+		var visual_movement = progress_in_current_grid * rubber_band_scale
+		
+		constrained_offset.y = visual_movement * sign(pixel_diff)
+		constrained_offset.y = clamp(constrained_offset.y, -snap_threshold * 0.8, snap_threshold * 0.8)
 	
 	return constrained_offset
