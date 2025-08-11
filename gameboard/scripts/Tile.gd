@@ -19,10 +19,6 @@ var is_fading: bool = false
 var fade_timer: Timer
 var gameboard: GameBoard
 
-# Animation offset system for non-destructive drag animations
-var animation_offset: Vector2 = Vector2.ZERO
-var base_position: Vector2 = Vector2.ZERO
-
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
 # Signal for fade animation completion
@@ -271,28 +267,6 @@ func stop_fade_animation():
 	is_fading = false
 	fade_timer.stop()
 	
-# Animation offset methods for non-destructive drag animations
-func set_base_position(pos: Vector2):
-	"""Set the base position this tile should return to when animation ends"""
-	base_position = pos
-	# Update actual position immediately if no animation offset
-	if animation_offset == Vector2.ZERO:
-		position = base_position
-
-func apply_animation_offset(offset: Vector2):
-	"""Apply a temporary visual offset for animation (non-destructive)"""
-	animation_offset = offset
-	position = base_position + animation_offset
-
-func clear_animation_offset():
-	"""Remove animation offset and return to base position"""
-	animation_offset = Vector2.ZERO
-	position = base_position
-
-func get_base_position() -> Vector2:
-	"""Get the base position this tile should return to"""
-	return base_position
-
 # Check if tile is currently fading
 func is_fade_active() -> bool:
 	return is_fading

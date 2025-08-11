@@ -83,13 +83,6 @@ func start_drag(tile_pos: Vector2i):
 	
 	current_tile = gameboard.get_tile_at_position(tile_pos)
 	
-	print("=== DRAG STARTED ===")
-	if current_tile:
-		print("Tile: (%d,%d) with face %d" % [tile_pos.x, tile_pos.y, current_tile.face])
-		print("Tile grid position: (%d,%d)" % [current_tile.grid_x, current_tile.grid_y])
-		print("Tile visual position: ", current_tile.position)
-	else:
-		print("Tile: (%d,%d) - NO TILE FOUND" % [tile_pos.x, tile_pos.y])
 	
 
 func _input(event: InputEvent):
@@ -213,9 +206,6 @@ func get_drag_state() -> Dictionary:
 		"grid_displacement": grid_displacement
 	}
 
-# Simple access to displacement for AnimationManager
-var displacement: Vector2:
-	get: return pixel_displacement
 
 func cancel_drag():
 	"""Cancel current drag and restore board to baseline state"""
