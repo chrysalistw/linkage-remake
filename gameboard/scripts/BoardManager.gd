@@ -56,7 +56,8 @@ func create_tile(x: int, y: int):
 	
 	# Add to grid and set initial position
 	tile_grid.add_child(tile_instance)
-	tile_instance.position = Vector2(x * tile_size, y * tile_size)
+	var base_pos = Vector2(x * tile_size, y * tile_size)
+	tile_instance.set_base_grid_position(base_pos)
 	
 	return tile_instance
 
@@ -82,7 +83,8 @@ func rebuild_tile_grid():
 			var tile = board[y][x]
 			if tile:
 				tile_grid.add_child(tile)
-				tile.position = Vector2(x * tile_size, y * tile_size)
+				var base_pos = Vector2(x * tile_size, y * tile_size)
+				tile.set_base_grid_position(base_pos)
 	
 
 func reset_tile_positions():
@@ -91,7 +93,9 @@ func reset_tile_positions():
 		for x in board_width:
 			var tile = board[y][x] as Tile
 			if tile:
-				tile.position = Vector2(x * tile_size, y * tile_size)
+				var base_pos = Vector2(x * tile_size, y * tile_size)
+				tile.set_base_grid_position(base_pos)
+				tile.clear_drag_offset()
 
 func get_board() -> Array:
 	return board

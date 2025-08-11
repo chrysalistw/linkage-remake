@@ -19,6 +19,10 @@ var is_fading: bool = false
 var fade_timer: Timer
 var gameboard: GameBoard
 
+# Drag offset system for click-like visual feedback
+var drag_offset: Vector2 = Vector2.ZERO
+var base_grid_position: Vector2 = Vector2.ZERO
+
 # Signal for tile clicks
 signal tile_clicked(tile: Tile)
 # Signal for fade animation completion
@@ -132,14 +136,7 @@ func hide_hover_feedback():
 	border_rect.size = Vector2(tile_width, tile_width)
 
 func show_click_feedback():
-	# Brief yellow flash on click
-	border_rect.color = Color.YELLOW
-	get_tree().create_timer(0.2).timeout.connect(func(): 
-		if is_hovered:
-			show_hover_feedback()
-		else:
-			hide_hover_feedback()
-	)
+	pass
 
 # Drag indicator methods
 func show_drag_indicator():
@@ -266,18 +263,29 @@ func stop_fade_animation():
 	
 	is_fading = false
 	fade_timer.stop()
+
+func set_base_grid_position(pos: Vector2):
+	base_grid_position = pos
+	if drag_offset == Vector2.ZERO:
+		position = base_grid_position
+
+func apply_drag_offset(offset: Vector2):
+	drag_offset = offset
+	position = base_grid_position + drag_offset
+
+func clear_drag_offset():
+	drag_offset = Vector2.ZERO
+	position = base_grid_position
+
+func get_base_grid_position() -> Vector2:
+	return base_grid_position
 	
-# Check if tile is currently fading
 func is_fade_active() -> bool:
 	return is_fading
-
-# Setup gameboard reference safely when node is in tree
 func _setup_gameboard_reference():
 	if not gameboard and is_inside_tree():
-		# Try direct path first
 		gameboard = get_node_or_null("/root/Main/PlayScreen/GameBoard")
 		if not gameboard:
-			# Try group lookup
 			var tree = get_tree()
 			if tree:
 				var nodes_in_group = tree.get_nodes_in_group("gameboard")

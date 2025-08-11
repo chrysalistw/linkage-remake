@@ -120,3 +120,4 @@ gameboard/
 - Real-time UI updates confirmed during gameplay
 - Game over and restart functionality verified
 - Complete game loop tested end-to-end
+- the visual clicking is still not obvious.

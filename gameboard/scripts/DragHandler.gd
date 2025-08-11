@@ -299,3 +299,26 @@ func get_incremental_rotation() -> Dictionary:
 		}
 	
 	return {"has_increment": false}
+
+func get_drag_visual_offset() -> Vector2:
+	"""Get visual offset for click-like drag feedback"""
+	if not is_dragging or drag_direction == Vector2.ZERO:
+		return Vector2.ZERO
+	
+	# Scale down pixel displacement for subtle effect
+	var offset_scale = 0.25  # 25% of mouse movement
+	var max_offset = 20.0    # Maximum 20 pixels offset
+	
+	# Calculate base offset
+	var base_offset = pixel_displacement * offset_scale
+	
+	# Constrain to drag direction only
+	var constrained_offset = Vector2.ZERO
+	if abs(drag_direction.x) > 0:
+		# Horizontal drag - only apply horizontal offset
+		constrained_offset.x = clamp(base_offset.x, -max_offset, max_offset)
+	elif abs(drag_direction.y) > 0:
+		# Vertical drag - only apply vertical offset
+		constrained_offset.y = clamp(base_offset.y, -max_offset, max_offset)
+	
+	return constrained_offset
