@@ -28,8 +28,6 @@ signal tile_clicked(tile: Tile)
 # Signal for fade animation completion
 signal fade_completed(tile: Tile)
 
-# Pipe face names for debugging
-const PIPE_NAMES = ["V↑", "V|", "V↓", "H→", "└", "┘", "H─", "┌", "┐", "H←"]
 
 func _ready():
 	# Visual and input setup will be called from setup_phase1
@@ -204,6 +202,7 @@ func get_face() -> int:
 # Fade animation variables
 var current_fade_frame: int = 0
 var fade_frame_count: int = 5
+var fade_face: int  # Store the face to use for fading (before replacement)
 
 # Start fade animation using green_fade.png frames
 func start_fade_animation():
@@ -217,6 +216,7 @@ func start_fade_animation():
 	is_fading = true
 	current_fade_frame = 0
 	fade_frame_count = fade_sprites.get_frame_count()
+	fade_face = face  # Store current face for fade animation
 	
 	# Start the fade timer
 	fade_timer.start()
@@ -229,8 +229,8 @@ func update_fade_frame():
 	if not is_fading or not fade_sprites:
 		return
 	
-	# Get the fade texture for current frame
-	var fade_texture = fade_sprites.get_fade_texture(current_fade_frame)
+	# Get the fade texture for current frame using the stored fade face
+	var fade_texture = fade_sprites.get_fade_texture_for_face(current_fade_frame, fade_face)
 	if fade_texture and sprite:
 		sprite.texture = fade_texture
 

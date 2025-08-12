@@ -8,52 +8,63 @@ class_name FadeSprites
 @export var tile_size: int = 64
 @export var animation_frames: int = 5
 
-# Fade frame mapping - 5 frames arranged horizontally in green_fade.png
+# Custom face-to-row mapping - modify this array to change which sprite sheet row each pipe face uses
+
+const FACE_TO_ROW_MAPPING = [0, 4, 1, 2, 6, 7, 5, 8, 9, 3] 
+
+# Fade frame mapping - 5 frames arranged horizontally per row, 10 rows (one per pipe face)
+# Each pipe face (0-9) has its own row with 5 fade frames
 # Frame 0: Full opacity, Frame 4: Nearly transparent
-const FADE_FRAME_MAPPING = [
-	Vector2i(0, 0),     # Frame 0: Full green pipe
-	Vector2i(64, 0),    # Frame 1: Slightly faded
-	Vector2i(128, 0),   # Frame 2: More faded
-	Vector2i(192, 0),   # Frame 3: Very faded
-	Vector2i(256, 0)    # Frame 4: Almost transparent
-]
 
 func _init():
 	# Load the fade sprite texture
 	sprite_texture = load("res://linkage/imgs/tile_spr/green_fade.png")
 
-# Get AtlasTexture for a specific fade frame
+# Get AtlasTexture for a specific fade frame (uses face 0 for backward compatibility)
 func get_fade_texture(frame: int) -> AtlasTexture:
+	return get_fade_texture_for_face(frame, 0)
+
+# Get AtlasTexture for a specific fade frame and pipe face
+func get_fade_texture_for_face(frame: int, face: int) -> AtlasTexture:
 	if not sprite_texture:
 		push_error("FadeSprites: sprite_texture not loaded")
 		return null
 	
-	if frame < 0 or frame >= FADE_FRAME_MAPPING.size():
+	if frame < 0 or frame >= animation_frames:
 		push_error("FadeSprites: invalid frame index " + str(frame))
+		return null
+		
+	if face < 0 or face > 9:
+		push_error("FadeSprites: invalid face index " + str(face) + " (must be 0-9)")
 		return null
 	
 	var atlas_texture = AtlasTexture.new()
 	atlas_texture.atlas = sprite_texture
 	
-	var mapping = FADE_FRAME_MAPPING[frame]
-	atlas_texture.region = Rect2(mapping.x, mapping.y, tile_size, tile_size)
+	# Calculate position using custom face-to-row mapping
+	var frame_x = frame * tile_size
+	var mapped_row = FACE_TO_ROW_MAPPING[face]
+	var row_y = mapped_row * tile_size
+	atlas_texture.region = Rect2(frame_x, row_y, tile_size, tile_size)
 	
 	return atlas_texture
 
 # Get UV coordinates for a fade frame (for shader use)
-func get_frame_uv(frame: int) -> Vector4:
-	if not sprite_texture or frame < 0 or frame >= FADE_FRAME_MAPPING.size():
+func get_frame_uv(frame: int, face: int = 0) -> Vector4:
+	if not sprite_texture or frame < 0 or frame >= animation_frames or face < 0 or face > 9:
 		return Vector4.ZERO
 	
 	var texture_size = sprite_texture.get_size()
-	var mapping = FADE_FRAME_MAPPING[frame]
+	var frame_x = frame * tile_size
+	var mapped_row = FACE_TO_ROW_MAPPING[face]
+	var row_y = mapped_row * tile_size
 	
 	# Return UV coordinates as Vector4(u_min, v_min, u_max, v_max)
 	return Vector4(
-		float(mapping.x) / texture_size.x,
-		float(mapping.y) / texture_size.y,
-		float(mapping.x + tile_size) / texture_size.x,
-		float(mapping.y + tile_size) / texture_size.y
+		float(frame_x) / texture_size.x,
+		float(row_y) / texture_size.y,
+		float(frame_x + tile_size) / texture_size.x,
+		float(row_y + tile_size) / texture_size.y
 	)
 
 # Validate the fade sprite sheet dimensions
@@ -61,8 +72,8 @@ func validate_sprite_sheet() -> bool:
 	if not sprite_texture:
 		return false
 	
-	var expected_width = tile_size * animation_frames
-	var expected_height = tile_size
+	var expected_width = tile_size * animation_frames  # 5 frames horizontally
+	var expected_height = tile_size * 10  # 10 rows (one per pipe face)
 	var actual_size = sprite_texture.get_size()
 	
 	if actual_size.x != expected_width or actual_size.y != expected_height:

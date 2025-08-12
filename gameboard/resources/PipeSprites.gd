@@ -75,6 +75,3 @@ func validate_sprite_sheet() -> bool:
 		return false
 	return true
 
-# Get all pipe face names for debugging
-func get_pipe_face_names() -> Array[String]:
-	return ["V↑", "V|", "V↓", "H→", "└", "┘", "H─", "┌", "┐", "H←"]

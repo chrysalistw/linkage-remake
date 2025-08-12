@@ -1,7 +1,7 @@
-[gd_resource type="Resource" script_class="FadeSprites" load_steps=3 format=3]
+[gd_resource type="Resource" script_class="FadeSprites" load_steps=3 format=3 uid="uid://cax65moxjbkgl"]
 
-[ext_resource type="Script" path="res://gameboard/resources/FadeSprites.gd" id="1_fade_sprites"]
-[ext_resource type="Texture2D" uid="uid://bj6q0ixtdgkh4" path="res://linkage/imgs/tile_spr/green_fade.png" id="2_fade_texture"]
+[ext_resource type="Script" uid="uid://ciaac4t2u5cm5" path="res://gameboard/resources/FadeSprites.gd" id="1_fade_sprites"]
+[ext_resource type="Texture2D" uid="uid://b6vaolindx5ra" path="res://linkage/imgs/tile_spr/green_fade.png" id="2_fade_texture"]
 
 [resource]
 script = ExtResource("1_fade_sprites")
