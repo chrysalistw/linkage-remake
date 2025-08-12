@@ -119,6 +119,20 @@ gameboard/
 - Real-time UI updates confirmed during gameplay
 - Game over and restart functionality verified
 - Complete game loop tested end-to-end
-- the visual clicking is still not obvious.
-- temporaily freeze drag when fading animation
-- we are going to make the UI better from now.
+
+## Current Phase - UI/UX Polish & Advanced Scoring ✅ IN PROGRESS
+**Goal:** Improve visual feedback and implement advanced scoring mechanics
+
+### Completed Tasks:
+✅ **Drag Freeze During Animations** - Implemented in ConnectionManager.gd
+- Blocks new drags when fade animations start
+- Cancels active drags during fade animations  
+- Re-enables dragging when all fades complete
+
+### Remaining Tasks:
+🔄 **Visual Clicking Feedback** - Make clicking more obvious
+🔄 **Advanced Scoring System** - Design multi-factor scoring:
+  - Extra points for tile usage patterns
+  - Corner-based scoring bonuses  
+  - Chain reaction multipliers
+🔄 **UI/UX Improvements** - General interface polish

@@ -49,6 +49,15 @@ func highlight_connected_tiles(connections: Array):
 			if connections[y][x]:
 				expected_fades += 1
 	
+	# If we have tiles to fade, block dragging and cancel any active drag
+	if expected_fades > 0:
+		var gameboard = board_manager.get_gameboard()
+		if gameboard:
+			gameboard.removing = true
+			# Cancel any active drag
+			if gameboard.drag_handler and gameboard.drag_handler.is_dragging:
+				gameboard.drag_handler.cancel_drag()
+	
 	# Start fade animations on connected tiles
 	for y in connections.size():
 		for x in connections[y].size():
@@ -102,6 +111,11 @@ func _handle_batch_completion():
 		if bonus_moves > 0:
 			GameState.moves_left += bonus_moves
 			print("Bonus moves awarded: ", bonus_moves, " (total moves: ", GameState.moves_left, ")")
+	
+	# Re-enable dragging now that fade animations are complete
+	var gameboard = board_manager.get_gameboard()
+	if gameboard:
+		gameboard.removing = false
 	
 	# Small delay before checking for chain reactions - need to be on main thread
 	await Engine.get_main_loop().create_timer(0.2).timeout

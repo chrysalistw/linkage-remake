@@ -105,3 +105,6 @@ func get_tile_grid() -> Control:
 
 func set_connection_manager(manager: ConnectionManager):
 	connection_manager = manager
+
+func get_gameboard() -> GameBoard:
+	return parent_gameboard
