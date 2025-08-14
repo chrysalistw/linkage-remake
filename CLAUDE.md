@@ -136,3 +136,5 @@ gameboard/
   - Corner-based scoring bonuses  
   - Chain reaction multipliers
 🔄 **UI/UX Improvements** - General interface polish
+- we need an icon for android.
+- we need custom splash screen
