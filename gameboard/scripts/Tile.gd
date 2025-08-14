@@ -52,7 +52,8 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 
 func setup_visual():
 	# Load pipe sprites resource
-	pipe_sprites = load("res://gameboard/resources/pipe_sprites.tres")
+	#pipe_sprites = load("res://gameboard/resources/pipe_sprites.tres")
+	pipe_sprites = load("res://gameboard/resources/tile1_sprites.tres")
 	
 	# Load fade sprites resource
 	fade_sprites = load("res://gameboard/resources/green_fade_sprites.tres")

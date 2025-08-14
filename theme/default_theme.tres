@@ -54,6 +54,7 @@ corner_radius_bottom_left = 12
 default_font = ExtResource("1_ubuntu_font")
 default_font_size = 18
 AcceptDialog/colors/title_color = Color(0, 1, 0.443, 1)
+AcceptDialog/font_sizes/title_font_size = 30
 AcceptDialog/styles/panel = SubResource("StyleBoxFlat_dialog")
 Button/colors/font_color = Color(0, 0.387274, 0.277944, 1)
 Button/colors/font_hover_color = Color(0, 0.388235, 0.278431, 1)

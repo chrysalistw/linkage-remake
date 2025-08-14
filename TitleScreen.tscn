@@ -31,6 +31,7 @@ grow_horizontal = 2
 grow_vertical = 2
 
 [node name="TitleShadow" type="Label" parent="TitleContainer"]
+visible = false
 layout_mode = 1
 anchors_preset = -1
 anchor_left = 0.1
@@ -55,7 +56,8 @@ anchor_top = 0.167
 anchor_right = 0.9
 anchor_bottom = 0.267
 theme_override_colors/font_color = Color(0, 1, 0.443, 1)
-theme_override_font_sizes/font_size = 56
+theme_override_colors/font_shadow_color = Color(0, 0.388235, 0.278431, 1)
+theme_override_font_sizes/font_size = 80
 text = "LINKAGE"
 horizontal_alignment = 1
 vertical_alignment = 1
