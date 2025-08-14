@@ -30,10 +30,54 @@ var rotation_enabled: bool = true
 # Track drag state to clean up positions only once when drag ends
 var was_dragging: bool = false
 
+# Dynamic tile sizing
+func calculate_optimal_tile_size():
+	var viewport_size = get_viewport().get_visible_rect().size
+	
+	# Reserve more space for UI elements and breathing room
+	# Dashboard = ~25% height, wider margins = 25% width total
+	var available_width = viewport_size.x * 0.75   # Use 75% of screen width
+	var available_height = viewport_size.y * 0.55  # Use 55% of screen height
+	
+	# Calculate max tile size that fits the grid
+	var max_tile_width = int(available_width / board_width)
+	var max_tile_height = int(available_height / board_height)
+	
+	# Use the smaller dimension to ensure the grid fits
+	var optimal_size = min(max_tile_width, max_tile_height)
+	
+	# Clamp to reasonable bounds (min 64px for readability, max 120px for performance)
+	tile_size = clamp(optimal_size, 64, 120)
+	
+	# Update GameBoard size to fit the calculated tiles
+	var total_width = tile_size * board_width
+	var total_height = tile_size * board_height
+	custom_minimum_size = Vector2(total_width, total_height)
+	size = Vector2(total_width, total_height)
+	
+	print("Screen: ", viewport_size, " -> Tile size: ", tile_size, " GameBoard: ", size)
+
+func update_tile_positions():
+	# Update all existing tiles with new size and positions
+	if board_manager:
+		board_manager.update_tile_sizes_and_positions()
+
+func _on_viewport_resized():
+	# Recalculate tile size when screen changes (orientation, resize)
+	calculate_optimal_tile_size()
+	
+	# Update existing tiles with new size and positions
+	if board_manager:
+		board_manager.tile_size = tile_size
+		update_tile_positions()
+
 
 func _ready():
 	# Add to gameboard group for GameState integration
 	add_to_group("gameboard")
+	
+	# Calculate optimal tile size based on screen
+	calculate_optimal_tile_size()
 	
 	# Initialize component managers
 	setup_components()
@@ -44,6 +88,9 @@ func _ready():
 	# Connect to GameState signals
 	if GameState:
 		GameState.game_lost.connect(_on_game_over)
+	
+	# Connect to viewport resize for responsive behavior
+	get_viewport().size_changed.connect(_on_viewport_resized)
 	
 	# Initialize board
 	initialize_board()

@@ -283,6 +283,12 @@ func get_base_grid_position() -> Vector2:
 	
 func is_fade_active() -> bool:
 	return is_fading
+
+func update_size(new_size: int):
+	# Update tile width and resize the control
+	tile_width = new_size
+	custom_minimum_size = Vector2(tile_width, tile_width)
+	size = Vector2(tile_width, tile_width)
 func _setup_gameboard_reference():
 	if not gameboard and is_inside_tree():
 		gameboard = get_node_or_null("/root/Main/PlayScreen/GameBoard")

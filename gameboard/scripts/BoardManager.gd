@@ -108,3 +108,15 @@ func set_connection_manager(manager: ConnectionManager):
 
 func get_gameboard() -> GameBoard:
 	return parent_gameboard
+
+func update_tile_sizes_and_positions():
+	# Update all existing tiles with new tile_size and positions
+	for y in board_height:
+		for x in board_width:
+			var tile = board[y][x] as Tile
+			if tile:
+				# Update tile size
+				tile.update_size(tile_size)
+				# Update position
+				var base_pos = Vector2(x * tile_size, y * tile_size)
+				tile.set_base_grid_position(base_pos)
