@@ -25,8 +25,9 @@ const PIPE_FACE_MAPPING = [
 ]
 
 func _init():
-	# Load the sprite texture
-	sprite_texture = load("res://gameboard/resources/tile_sprites/linkage_test_green2.png")
+	# sprite_texture will be loaded from the resource file
+	# Don't override it here - let the .tres file set it
+	pass
 
 # Get AtlasTexture for a specific pipe face
 func get_pipe_texture(face: int) -> AtlasTexture:

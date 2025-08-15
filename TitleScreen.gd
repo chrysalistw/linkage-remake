@@ -24,6 +24,10 @@ func _on_start_button_pressed():
 	# Navigate to PlayScreen
 	get_tree().change_scene_to_file("res://PlayScreen.tscn")
 
+func _on_tileset_button_pressed():
+	# Navigate to TilesetSelection screen
+	get_tree().change_scene_to_file("res://TilesetSelection.tscn")
+
 func _on_about_button_pressed():
 	# Navigate to AboutScreen
 	get_tree().change_scene_to_file("res://AboutScreen.tscn")

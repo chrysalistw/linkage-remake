@@ -1,0 +1,130 @@
+[gd_scene load_steps=2 format=3 uid="uid://bqpy3rndhqrk2"]
+
+[ext_resource type="Script" path="res://TilesetSelection.gd" id="1_tileset_selection"]
+
+[node name="TilesetSelection" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+script = ExtResource("1_tileset_selection")
+
+[node name="Background" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+color = Color(0.1, 0.1, 0.15, 1)
+
+[node name="VBoxContainer" type="VBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -300.0
+offset_top = -250.0
+offset_right = 300.0
+offset_bottom = 250.0
+
+[node name="Title" type="Label" parent="VBoxContainer"]
+layout_mode = 2
+text = "Select Tileset"
+theme_override_font_sizes/font_size = 32
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+horizontal_alignment = 1
+
+[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.3)
+
+[node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+size_flags_vertical = 3
+columns = 3
+
+[node name="TilesetButton0" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Green Classic"
+
+[node name="TilesetPreview0" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton0"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -50.0
+offset_right = 32.0
+offset_bottom = 14.0
+stretch_mode = 1
+
+[node name="TilesetButton1" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Blue Modern"
+
+[node name="TilesetPreview1" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton1"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -50.0
+offset_right = 32.0
+offset_bottom = 14.0
+stretch_mode = 1
+
+[node name="TilesetButton2" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Red Bold"
+
+[node name="TilesetPreview2" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton2"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -32.0
+offset_top = -50.0
+offset_right = 32.0
+offset_bottom = 14.0
+stretch_mode = 1
+
+[node name="TilesetButton3" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Coming Soon"
+disabled = true
+
+[node name="TilesetButton4" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Coming Soon"
+disabled = true
+
+[node name="TilesetButton5" type="Button" parent="VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(150, 150)
+layout_mode = 2
+text = "Coming Soon"
+disabled = true
+
+[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
+layout_mode = 2
+modulate = Color(1, 1, 1, 0.3)
+
+[node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 4
+
+[node name="BackButton" type="Button" parent="VBoxContainer/ButtonContainer"]
+layout_mode = 2
+text = "Back"

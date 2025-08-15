@@ -60,3 +60,4 @@ Converting JavaScript HTML5 Canvas Linkage game to Godot 4 in incremental phases
 🔄 **UI/UX Improvements** - General interface polish
 - we need an icon for android.
 - we need custom splash screen
+- todo: organize the data needed related to tilesets and pack them into a settings file.

@@ -31,6 +31,8 @@ signal fade_completed(tile: Tile)
 
 func _ready():
 	# Visual and input setup will be called from setup_phase1
+	# Connect to tileset changes for runtime switching
+	GameState.tileset_changed.connect(_on_tileset_changed)
 	pass
 
 func setup_phase1(x: int, y: int, width: int, pipe_face: int):
@@ -51,9 +53,9 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 	#setup_input()
 
 func setup_visual():
-	# Load pipe sprites resource
-	#pipe_sprites = load("res://gameboard/resources/pipe_sprites.tres")
-	pipe_sprites = load("res://gameboard/resources/tile1_sprites.tres")
+	# Load pipe sprites resource based on GameState selection
+	var tileset_resource = GameState.get_selected_tileset_resource()
+	pipe_sprites = load(tileset_resource)
 	
 	# Load fade sprites resource
 	fade_sprites = load("res://gameboard/resources/green_fade_sprites.tres")
@@ -277,6 +279,15 @@ func apply_drag_offset(offset: Vector2):
 func clear_drag_offset():
 	drag_offset = Vector2.ZERO
 	position = base_grid_position
+
+# Handle tileset changes during runtime
+func _on_tileset_changed(tileset_resource: String):
+	# Reload sprites with new tileset
+	pipe_sprites = load(tileset_resource)
+	
+	# Update the current sprite if it's visible
+	if sprite and pipe_sprites:
+		update_sprite_region()
 
 func get_base_grid_position() -> Vector2:
 	return base_grid_position

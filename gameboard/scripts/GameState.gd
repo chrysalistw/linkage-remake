@@ -38,6 +38,16 @@ var tile_size: int = 64
 var current_sprite: String = "green"
 var removing_sprite: String = "green_fade"
 
+# Tileset management
+var available_tilesets: Array[Dictionary] = [
+	{"name": "Green Classic", "resource": "res://gameboard/resources/pipe_sprites.tres", "preview_face": 4},
+	{"name": "Blue Modern", "resource": "res://gameboard/resources/tile1_sprites.tres", "preview_face": 4},
+	{"name": "Red Bold", "resource": "res://gameboard/resources/tile_red_sprites.tres", "preview_face": 4}
+]
+var selected_tileset_index: int = 1  # Default to Blue Modern (tile1_sprites)
+
+signal tileset_changed(tileset_resource: String)
+
 # Audio
 var sounds: Dictionary = {}
 
@@ -99,3 +109,20 @@ func _on_reward_requested():
 		# Signal to apply deus ex machina
 		get_tree().call_group("gameboard", "apply_deus_ex_machina")
 		apply_reward()
+
+# Tileset management functions
+func get_selected_tileset_resource() -> String:
+	if selected_tileset_index >= 0 and selected_tileset_index < available_tilesets.size():
+		return available_tilesets[selected_tileset_index]["resource"]
+	return available_tilesets[1]["resource"]  # Fallback to Blue Modern
+
+func set_selected_tileset(index: int):
+	if index >= 0 and index < available_tilesets.size():
+		selected_tileset_index = index
+		var resource_path = available_tilesets[index]["resource"]
+		emit_signal("tileset_changed", resource_path)
+
+func get_tileset_name(index: int) -> String:
+	if index >= 0 and index < available_tilesets.size():
+		return available_tilesets[index]["name"]
+	return "Unknown"
