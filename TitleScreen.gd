@@ -1,8 +1,13 @@
 extends Control
 
+var _ad_view : AdView 
+
 func _ready():
+	MobileAds.initialize()
 	# Set up responsive title sizing based on screen dimensions
 	_setup_title_sizing()
+	
+	_load_banner()
 
 func _setup_title_sizing():
 	var title_shadow = $TitleContainer/TitleShadow
@@ -19,7 +24,20 @@ func _setup_title_sizing():
 	#var shadow_offset = min(viewport_size.x * 0.01, 5)
 	#title_shadow.position.x = shadow_offset
 	#title_shadow.position.y = shadow_offset
+func _create_ad_view() -> void:
+	 #free memory
+	if _ad_view:
+		_ad_view.destroy()
+		_ad_view = null
 
+	var unit_id : String = "ca-app-pub-3940256099942544/9214589741"
+
+	_ad_view = AdView.new(unit_id, AdSize.BANNER, AdPosition.Values.TOP)
+func _load_banner():
+	if _ad_view == null:
+		_create_ad_view()
+	var ad_request := AdRequest.new()
+	_ad_view.load_ad(ad_request)
 func _on_start_button_pressed():
 	# Navigate to PlayScreen
 	get_tree().change_scene_to_file("res://PlayScreen.tscn")

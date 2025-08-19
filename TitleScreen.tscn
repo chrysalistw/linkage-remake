@@ -1,7 +1,11 @@
-[gd_scene load_steps=3 format=3 uid="uid://08qo8iiaa474"]
+[gd_scene load_steps=7 format=3 uid="uid://08qo8iiaa474"]
 
 [ext_resource type="Script" uid="uid://b73y8w2dda2h" path="res://TitleScreen.gd" id="1_5sxkl"]
 [ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_theme"]
+[ext_resource type="Texture2D" uid="uid://bw4vb0h6wby81" path="res://bg_fg.png" id="3_1xr1c"]
+[ext_resource type="Texture2D" uid="uid://clywbt1cla3bm" path="res://bg_foreground.png" id="4_tu0on"]
+[ext_resource type="Texture2D" uid="uid://dqq8cmyccxr7e" path="res://logo.png" id="5_2k3je"]
+[ext_resource type="Texture2D" uid="uid://bg6srd50pvv48" path="res://bg_foreground_gray.png" id="5_skwql"]
 
 [node name="TitleScreen" type="Control"]
 layout_mode = 3
@@ -22,7 +26,26 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.917088, 0.924742, 0.951498, 1)
 
+[node name="BgFg" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(474, 821)
+texture = ExtResource("3_1xr1c")
+
+[node name="BgForeground" type="Sprite2D" parent="."]
+visible = false
+position = Vector2(408, 787)
+texture = ExtResource("4_tu0on")
+
+[node name="BgForegroundGray" type="Sprite2D" parent="."]
+position = Vector2(369, 732)
+texture = ExtResource("5_skwql")
+
+[node name="Logo" type="Sprite2D" parent="."]
+position = Vector2(342, 266)
+texture = ExtResource("5_2k3je")
+
 [node name="TitleContainer" type="Control" parent="."]
+visible = false
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
