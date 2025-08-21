@@ -5,6 +5,7 @@ extends Control
 
 @onready var grid_container = $VBoxContainer/GridContainer
 @onready var back_button = $VBoxContainer/BackButton
+@onready var title_panel = $VBoxContainer/TitlePanel
 @onready var background = $Background
 
 var theme_buttons: Array[Button] = []
@@ -175,3 +176,31 @@ func _apply_theme(theme_data: Dictionary):
 		var theme_resource = load(theme_data["theme_resource"])
 		if theme_resource:
 			theme = theme_resource
+	
+	# Apply title panel styling based on theme
+	if title_panel and theme_data.has("background_color"):
+		# Create or update the title panel's style
+		var style = StyleBoxFlat.new()
+		var bg_color = theme_data["background_color"]
+		# Make title panel slightly darker for contrast
+		var panel_color = Color(
+			bg_color.r * 0.8,
+			bg_color.g * 0.8,
+			bg_color.b * 0.8,
+			0.9
+		)
+		style.bg_color = panel_color
+		style.corner_radius_top_left = 25
+		style.corner_radius_top_right = 25
+		style.corner_radius_bottom_left = 25
+		style.corner_radius_bottom_right = 25
+		
+		# Add accent color border
+		var accent_color = _get_theme_accent_color(theme_data)
+		style.border_color = accent_color
+		style.border_width_left = 4
+		style.border_width_top = 4
+		style.border_width_right = 4
+		style.border_width_bottom = 4
+		
+		title_panel.add_theme_stylebox_override("panel", style)

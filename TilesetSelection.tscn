@@ -24,37 +24,48 @@ color = Color(0.917088, 0.924742, 0.951498, 1)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -300.0
-offset_top = -250.0
-offset_right = 300.0
-offset_bottom = 250.0
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 60.0
+offset_top = 60.0
+offset_right = -60.0
+offset_bottom = -60.0
 grow_horizontal = 2
 grow_vertical = 2
 
-[node name="Title" type="Label" parent="VBoxContainer"]
+[node name="TitlePanel" type="Panel" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 80)
 layout_mode = 2
+size_flags_vertical = 0
+
+[node name="Title" type="Label" parent="VBoxContainer/TitlePanel"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
 theme_override_colors/font_color = Color(1, 1, 1, 1)
-theme_override_font_sizes/font_size = 32
+theme_override_font_sizes/font_size = 48
 text = "Select Tileset"
 horizontal_alignment = 1
+vertical_alignment = 1
 
-[node name="HSeparator" type="HSeparator" parent="VBoxContainer"]
-modulate = Color(1, 1, 1, 0.3)
+[node name="TitleSpacer" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 30)
 layout_mode = 2
 
 [node name="GridContainer" type="GridContainer" parent="VBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
+theme_override_constants/h_separation = 30
+theme_override_constants/v_separation = 30
 columns = 3
 
 [node name="TilesetButton0" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 text = "Green Classic"
 
@@ -65,16 +76,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -32.0
-offset_top = -50.0
-offset_right = 32.0
-offset_bottom = 14.0
+offset_left = -40.0
+offset_top = -60.0
+offset_right = 40.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 stretch_mode = 1
 
 [node name="TilesetButton1" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 text = "Blue Modern"
 
@@ -85,16 +96,16 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -32.0
-offset_top = -50.0
-offset_right = 32.0
-offset_bottom = 14.0
+offset_left = -40.0
+offset_top = -60.0
+offset_right = 40.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 stretch_mode = 1
 
 [node name="TilesetButton2" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 text = "Red Bold"
 
@@ -105,38 +116,40 @@ anchor_left = 0.5
 anchor_top = 0.5
 anchor_right = 0.5
 anchor_bottom = 0.5
-offset_left = -32.0
-offset_top = -50.0
-offset_right = 32.0
-offset_bottom = 14.0
+offset_left = -40.0
+offset_top = -60.0
+offset_right = 40.0
+offset_bottom = 20.0
 grow_horizontal = 2
 grow_vertical = 2
 stretch_mode = 1
 
 [node name="TilesetButton3" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"
 
 [node name="TilesetButton4" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"
 
 [node name="TilesetButton5" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(150, 150)
+custom_minimum_size = Vector2(180, 180)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"
 
-[node name="HSeparator2" type="HSeparator" parent="VBoxContainer"]
-modulate = Color(1, 1, 1, 0.3)
+[node name="BottomSpacer" type="Control" parent="VBoxContainer"]
+custom_minimum_size = Vector2(0, 20)
 layout_mode = 2
 
 [node name="BackButton" type="Button" parent="VBoxContainer"]
+custom_minimum_size = Vector2(200, 60)
 layout_mode = 2
+size_flags_horizontal = 4
 text = "Back"
 
 [node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
