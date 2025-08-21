@@ -51,13 +51,22 @@ Converting JavaScript HTML5 Canvas Linkage game to Godot 4 in incremental phases
 
 ✅ **Better Button Design** - Enhanced button styling and appearance
 
-### Remaining Tasks:
+✅ **TilesetSelection Screen Redesign** - Complete mobile-friendly layout overhaul
+- Removed complex ContentPanel wrapper for cleaner design
+- Added dedicated TitlePanel with theme-aware styling (rounded corners, accent borders)
+- Enhanced title with proper centering and 80px height container
+- Enlarged Back button to 200x60px for better touch accessibility
+- Improved grid spacing from 20px to 30px for better visual separation
+- Responsive 60px margins adapt to different screen sizes
+- Theme-aware panel styling with dynamic colors based on selected theme
+
+### Next Priority Tasks:
 🔄 **Visual Clicking Feedback** - Make clicking more obvious
 🔄 **Advanced Scoring System** - Design multi-factor scoring:
   - Extra points for tile usage patterns
   - Corner-based scoring bonuses  
   - Chain reaction multipliers
-🔄 **UI/UX Improvements** - General interface polish
-- we need an icon for android.
-- we need custom splash screen
-- todo: organize the data needed related to tilesets and pack them into a settings file.
+🔄 **Mobile App Preparation**:
+  - Create Android app icon
+  - Design custom splash screen  
+  - Organize tileset data into settings file structure
