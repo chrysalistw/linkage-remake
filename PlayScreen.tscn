@@ -24,7 +24,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.102, 0.114, 0.161, 1)
+color = Color(0.917088, 0.924742, 0.951498, 1)
 
 [node name="Dashboard" type="Panel" parent="."]
 layout_mode = 1
