@@ -1,6 +1,7 @@
-[gd_scene load_steps=2 format=3 uid="uid://bqpy3rndhqrk2"]
+[gd_scene load_steps=3 format=3 uid="uid://bqpy3rndhqrk2"]
 
 [ext_resource type="Script" uid="uid://dlibbop55b425" path="res://TilesetSelection.gd" id="1_tileset_selection"]
+[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_theme"]
 
 [node name="TilesetSelection" type="Control"]
 layout_mode = 3
@@ -9,6 +10,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+theme = ExtResource("2_theme")
 script = ExtResource("1_tileset_selection")
 
 [node name="Background" type="ColorRect" parent="."]
@@ -18,7 +20,7 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
-color = Color(0.1, 0.1, 0.15, 1)
+color = Color(0.917088, 0.924742, 0.951498, 1)
 
 [node name="VBoxContainer" type="VBoxContainer" parent="."]
 layout_mode = 1
@@ -133,10 +135,12 @@ text = "Coming Soon"
 modulate = Color(1, 1, 1, 0.3)
 layout_mode = 2
 
-[node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
-layout_mode = 2
-size_flags_horizontal = 4
-
-[node name="BackButton" type="Button" parent="VBoxContainer/ButtonContainer"]
+[node name="BackButton" type="Button" parent="VBoxContainer"]
 layout_mode = 2
 text = "Back"
+
+[node name="ButtonContainer" type="HBoxContainer" parent="VBoxContainer"]
+visible = false
+layout_mode = 2
+size_flags_horizontal = 4
+alignment = 1

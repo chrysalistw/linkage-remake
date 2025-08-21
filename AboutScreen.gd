@@ -3,6 +3,7 @@ extends Control
 @onready var star_button = $ContentContainer/StarContainer/StarButton
 @onready var tutorial_dialog = $TutorialDialog
 @onready var highscore_label = $ContentContainer/HighscoreLabel
+@onready var background = $Background
 
 var is_star_rotating: bool = false
 var rotation_start_time: float = 0.0
@@ -11,6 +12,10 @@ var rotation_duration: float = 3.0
 func _ready():
 	_setup_screen()
 	_load_highscore()
+	
+	# Apply current theme
+	_apply_current_theme()
+	_connect_theme_signals()
 
 func _setup_screen():
 	# Set up responsive title sizing based on screen dimensions
@@ -62,3 +67,25 @@ func _on_home_button_pressed():
 func _on_ok_button_pressed():
 	# Close tutorial dialog
 	tutorial_dialog.hide()
+
+func _connect_theme_signals():
+	# Connect to theme change signal
+	GameState.theme_changed.connect(_on_theme_changed)
+
+func _on_theme_changed(theme_data: Dictionary):
+	_apply_theme(theme_data)
+
+func _apply_current_theme():
+	var theme_data = GameState.get_selected_theme_data()
+	_apply_theme(theme_data)
+
+func _apply_theme(theme_data: Dictionary):
+	# Apply background color
+	if background and theme_data.has("background_color"):
+		background.color = theme_data["background_color"]
+	
+	# Apply theme resource
+	if theme_data.has("theme_resource"):
+		var theme_resource = load(theme_data["theme_resource"])
+		if theme_resource:
+			theme = theme_resource

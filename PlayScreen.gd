@@ -11,10 +11,12 @@ var game_active: bool = true
 @onready var home_button = $ControlButtons/HomeButton
 @onready var reset_button = $ControlButtons/ResetButton
 @onready var reward_button = $ControlButtons/RewardButton
+@onready var background = $Background
 
 func _ready():
 	_setup_game()
 	_connect_gamestate_signals()
+	_apply_current_theme()
 	_update_ui()
 
 func _setup_game():
@@ -28,6 +30,7 @@ func _connect_gamestate_signals():
 	GameState.moves_changed.connect(_on_moves_changed)
 	GameState.score_changed.connect(_on_score_changed)
 	GameState.game_lost.connect(_on_game_lost)
+	GameState.theme_changed.connect(_on_theme_changed)
 
 func _on_moves_changed(new_moves: int):
 	moves_label.text = "MOVES LEFT: " + str(new_moves)
@@ -37,6 +40,24 @@ func _on_score_changed(new_score: int):
 	
 func _on_game_lost():
 	show_lost_dialog()
+
+func _on_theme_changed(theme_data: Dictionary):
+	_apply_theme(theme_data)
+
+func _apply_current_theme():
+	var theme_data = GameState.get_selected_theme_data()
+	_apply_theme(theme_data)
+
+func _apply_theme(theme_data: Dictionary):
+	# Apply background color
+	if background and theme_data.has("background_color"):
+		background.color = theme_data["background_color"]
+	
+	# Apply theme resource
+	if theme_data.has("theme_resource"):
+		var theme_resource = load(theme_data["theme_resource"])
+		if theme_resource:
+			theme = theme_resource
 
 func _update_ui():
 	moves_label.text = "MOVES LEFT: " + str(GameState.moves_left)

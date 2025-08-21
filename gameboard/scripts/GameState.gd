@@ -38,15 +38,33 @@ var tile_size: int = 64
 var current_sprite: String = "green"
 var removing_sprite: String = "green_fade"
 
-# Tileset management
-var available_tilesets: Array[Dictionary] = [
-	{"name": "Green Classic", "resource": "res://gameboard/resources/pipe_sprites.tres", "preview_face": 4},
-	{"name": "Blue Modern", "resource": "res://gameboard/resources/tile1_sprites.tres", "preview_face": 4},
-	{"name": "Red Bold", "resource": "res://gameboard/resources/tile_red_sprites.tres", "preview_face": 4}
+# Theme environment management - unified tileset, theme, and background
+var available_themes: Array[Dictionary] = [
+	{
+		"name": "Green Classic", 
+		"tileset_resource": "res://gameboard/resources/pipe_sprites.tres", 
+		"theme_resource": "res://theme/green_theme.tres",
+		"background_color": Color(0.85, 0.92, 0.87, 1.0),  # Light green tint
+		"preview_face": 4
+	},
+	{
+		"name": "Blue Modern", 
+		"tileset_resource": "res://gameboard/resources/tile1_sprites.tres", 
+		"theme_resource": "res://theme/blue_theme.tres",
+		"background_color": Color(0.917, 0.925, 0.951, 1.0),  # Light blue (current)
+		"preview_face": 4
+	},
+	{
+		"name": "Red Bold", 
+		"tileset_resource": "res://gameboard/resources/tile_red_sprites.tres", 
+		"theme_resource": "res://theme/red_theme.tres",
+		"background_color": Color(0.95, 0.87, 0.85, 1.0),  # Light red tint
+		"preview_face": 4
+	}
 ]
-var selected_tileset_index: int = 1  # Default to Blue Modern (tile1_sprites)
+var selected_theme_index: int = 1  # Default to Blue Modern
 
-signal tileset_changed(tileset_resource: String)
+signal theme_changed(theme_data: Dictionary)
 
 # Audio
 var sounds: Dictionary = {}
@@ -110,19 +128,31 @@ func _on_reward_requested():
 		get_tree().call_group("gameboard", "apply_deus_ex_machina")
 		apply_reward()
 
-# Tileset management functions
+# Theme environment management functions
+func get_selected_theme_data() -> Dictionary:
+	if selected_theme_index >= 0 and selected_theme_index < available_themes.size():
+		return available_themes[selected_theme_index]
+	return available_themes[1]  # Fallback to Blue Modern
+
 func get_selected_tileset_resource() -> String:
-	if selected_tileset_index >= 0 and selected_tileset_index < available_tilesets.size():
-		return available_tilesets[selected_tileset_index]["resource"]
-	return available_tilesets[1]["resource"]  # Fallback to Blue Modern
+	return get_selected_theme_data()["tileset_resource"]
 
-func set_selected_tileset(index: int):
-	if index >= 0 and index < available_tilesets.size():
-		selected_tileset_index = index
-		var resource_path = available_tilesets[index]["resource"]
-		emit_signal("tileset_changed", resource_path)
+func get_selected_theme_resource() -> String:
+	return get_selected_theme_data()["theme_resource"]
 
-func get_tileset_name(index: int) -> String:
-	if index >= 0 and index < available_tilesets.size():
-		return available_tilesets[index]["name"]
+func get_selected_background_color() -> Color:
+	return get_selected_theme_data()["background_color"]
+
+func set_selected_theme(index: int):
+	if index >= 0 and index < available_themes.size():
+		selected_theme_index = index
+		var theme_data = available_themes[index]
+		emit_signal("theme_changed", theme_data)
+
+func get_theme_name(index: int) -> String:
+	if index >= 0 and index < available_themes.size():
+		return available_themes[index]["name"]
 	return "Unknown"
+
+func get_theme_count() -> int:
+	return available_themes.size()

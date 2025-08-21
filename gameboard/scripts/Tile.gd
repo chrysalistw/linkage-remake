@@ -31,8 +31,8 @@ signal fade_completed(tile: Tile)
 
 func _ready():
 	# Visual and input setup will be called from setup_phase1
-	# Connect to tileset changes for runtime switching
-	GameState.tileset_changed.connect(_on_tileset_changed)
+	# Connect to theme changes for runtime switching
+	GameState.theme_changed.connect(_on_theme_changed)
 	pass
 
 func setup_phase1(x: int, y: int, width: int, pipe_face: int):
@@ -281,8 +281,9 @@ func clear_drag_offset():
 	position = base_grid_position
 
 # Handle tileset changes during runtime
-func _on_tileset_changed(tileset_resource: String):
-	# Reload sprites with new tileset
+func _on_theme_changed(theme_data: Dictionary):
+	# Reload sprites with new tileset from theme
+	var tileset_resource = theme_data["tileset_resource"]
 	pipe_sprites = load(tileset_resource)
 	
 	# Update the current sprite if it's visible
