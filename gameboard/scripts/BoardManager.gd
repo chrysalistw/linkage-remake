@@ -86,6 +86,9 @@ func rebuild_tile_grid():
 				var base_pos = Vector2(x * tile_size, y * tile_size)
 				tile.set_base_grid_position(base_pos)
 	
+	# Debug: Print board after rebuild
+	debug_print_board()
+	
 
 func reset_tile_positions():
 	# Reset all tiles to their grid positions
@@ -105,6 +108,20 @@ func get_tile_grid() -> Control:
 
 func set_connection_manager(manager: ConnectionManager):
 	connection_manager = manager
+
+# Debug function to print all tile faces on the board
+func debug_print_board():
+	print("=== BOARD TILE FACES DEBUG ===")
+	for y in board_height:
+		var row_string = ""
+		for x in board_width:
+			var tile = board[y][x] 
+			if tile and tile.has_method("get_face"):
+				row_string += str(tile.get_face()).pad_zeros(2) + " "
+			else:
+				row_string += "-- "
+		print("Row %d: %s" % [y, row_string])
+	print("===============================")
 
 func get_gameboard() -> GameBoard:
 	return parent_gameboard

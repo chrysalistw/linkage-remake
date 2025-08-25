@@ -112,10 +112,20 @@ func setup_components():
 	# Set up audio system
 	setup_audio()
 
+# Debug input handler - press 'D' key to print board
+func _input(event):
+	if event is InputEventKey and event.pressed:
+		if event.keycode == KEY_D:
+			if board_manager:
+				board_manager.debug_print_board()
+
 func initialize_board():
 	board_manager.clear_board()
 	enable_input()
 	board_manager.initialize_board()
+	
+	# Debug: Print board after initialization
+	board_manager.debug_print_board()
 	
 	await get_tree().create_timer(0.1).timeout
 	connection_manager.detect_and_highlight_connections()

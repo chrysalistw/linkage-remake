@@ -48,6 +48,13 @@ var available_themes: Array[Dictionary] = [
 		"preview_face": 4
 	},
 	{
+		"name": "Green Animated", 
+		"tileset_resource": "res://gameboard/resources/green_tile_anim.tres", 
+		"theme_resource": "res://theme/green_theme.tres",
+		"background_color": Color(0.85, 0.92, 0.87, 1.0),  # Light green tint
+		"preview_face": 4
+	},
+	{
 		"name": "Blue Modern", 
 		"tileset_resource": "res://gameboard/resources/tile1_sprites.tres", 
 		"theme_resource": "res://theme/blue_theme.tres",

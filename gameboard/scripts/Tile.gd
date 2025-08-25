@@ -13,11 +13,11 @@ var is_hovered: bool = false
 var border_rect: ColorRect
 var drag_indicator_rect: ColorRect
 var connection_indicator_rect: ColorRect
-var pipe_sprites: PipeSprites
-var fade_sprites: FadeSprites
+var unified_sprites: UnifiedTileSprites
 var is_fading: bool = false
-var fade_timer: Timer
+var fade_timer: Timer  # Keep for backward compatibility
 var gameboard: GameBoard
+var animation_controller: UnifiedTileSprites.TileAnimationController
 
 # Drag offset system for click-like visual feedback
 var drag_offset: Vector2 = Vector2.ZERO
@@ -53,19 +53,13 @@ func setup_phase1(x: int, y: int, width: int, pipe_face: int):
 	#setup_input()
 
 func setup_visual():
-	# Load pipe sprites resource based on GameState selection
+	# Load unified sprites resource based on GameState selection
 	var tileset_resource = GameState.get_selected_tileset_resource()
-	pipe_sprites = load(tileset_resource)
+	unified_sprites = load(tileset_resource)
 	
-	# Load fade sprites resource
-	fade_sprites = load("res://gameboard/resources/green_fade_sprites.tres")
-	
-	# Validate sprite sheets
-	if pipe_sprites and not pipe_sprites.validate_sprite_sheet():
-		print("Warning: Pipe sprite sheet validation failed")
-	
-	if fade_sprites and not fade_sprites.validate_sprite_sheet():
-		print("Warning: Fade sprite sheet validation failed")
+	# Validate unified sprite sheet
+	if unified_sprites and not unified_sprites.validate_unified_sheet():
+		print("Warning: Unified sprite sheet validation failed")
 	
 	# Create sprite display
 	sprite = TextureRect.new()
@@ -173,10 +167,10 @@ func set_face(new_face: int):
 
 # Update the texture region to show the correct pipe face
 func update_sprite_region():
-	if sprite and pipe_sprites:
+	if sprite and unified_sprites:
 		# During drag, show predicted face
 		var display_face = get_display_face()
-		var atlas_texture = pipe_sprites.get_pipe_texture(display_face)
+		var atlas_texture = unified_sprites.get_pipe_texture(display_face)
 		if atlas_texture:
 			sprite.texture = atlas_texture
 		else:
@@ -202,24 +196,52 @@ func get_display_face() -> int:
 func get_face() -> int:
 	return face
 
-# Fade animation variables
+# Legacy fade animation variables (kept for backward compatibility)
 var current_fade_frame: int = 0
 var fade_frame_count: int = 5
 var fade_face: int  # Store the face to use for fading (before replacement)
 
-# Start fade animation using green_fade.png frames
+# Modern animation system preference
+@export var use_modern_animation: bool = true
+
+# Start fade animation - now uses modern animation system by default
 func start_fade_animation():
 	if is_fading:
 		return  # Already fading
 	
-	if not fade_sprites:
-		print("Warning: Fade sprites not loaded, cannot start fade animation")
+	if not unified_sprites:
+		print("Warning: Unified sprites not loaded, cannot start fade animation")
 		return
 	
 	is_fading = true
-	current_fade_frame = 0
-	fade_frame_count = fade_sprites.get_frame_count()
 	fade_face = face  # Store current face for fade animation
+	
+	if use_modern_animation:
+		_start_modern_fade_animation()
+	else:
+		_start_legacy_fade_animation()
+
+# Modern fade animation using AnimationController
+func _start_modern_fade_animation():
+	# Create animation controller if not exists
+	if not animation_controller:
+		animation_controller = unified_sprites.create_animation_controller(fade_face)
+		if animation_controller:
+			add_child(animation_controller)
+			animation_controller.animation_finished.connect(_on_modern_animation_finished)
+			# Position the animation controller to match the sprite
+			animation_controller.position = sprite.position
+			animation_controller.scale = Vector2(sprite.size.x / 64.0, sprite.size.y / 64.0)
+	
+	if animation_controller:
+		# Hide the static sprite and show the animated one
+		sprite.visible = false
+		animation_controller.play_animation()
+
+# Legacy fade animation using timer system
+func _start_legacy_fade_animation():
+	current_fade_frame = 0
+	fade_frame_count = unified_sprites.get_frame_count()
 	
 	# Start the fade timer
 	fade_timer.start()
@@ -229,11 +251,11 @@ func start_fade_animation():
 
 # Update to the current fade frame
 func update_fade_frame():
-	if not is_fading or not fade_sprites:
+	if not is_fading or not unified_sprites:
 		return
 	
 	# Get the fade texture for current frame using the stored fade face
-	var fade_texture = fade_sprites.get_fade_texture_for_face(current_fade_frame, fade_face)
+	var fade_texture = unified_sprites.get_fade_texture_for_face(current_fade_frame, fade_face)
 	if fade_texture and sprite:
 		sprite.texture = fade_texture
 
@@ -254,10 +276,21 @@ func _on_fade_timer_timeout():
 # Complete the fade animation and emit signal
 func complete_fade_animation():
 	is_fading = false
-	fade_timer.stop()
+	
+	if use_modern_animation and animation_controller:
+		animation_controller.stop_animation()
+		animation_controller.queue_free()
+		animation_controller = null
+		sprite.visible = true  # Restore static sprite visibility
+	else:
+		fade_timer.stop()
 	
 	# Emit completion signal
 	fade_completed.emit(self)
+
+# Modern animation finished callback
+func _on_modern_animation_finished():
+	complete_fade_animation()
 
 # Stop fade animation and restore normal sprite
 func stop_fade_animation():
@@ -265,7 +298,14 @@ func stop_fade_animation():
 		return
 	
 	is_fading = false
-	fade_timer.stop()
+	
+	if use_modern_animation and animation_controller:
+		animation_controller.stop_animation()
+		animation_controller.queue_free()
+		animation_controller = null
+		sprite.visible = true  # Restore static sprite visibility
+	else:
+		fade_timer.stop()
 
 func set_base_grid_position(pos: Vector2):
 	base_grid_position = pos
@@ -284,10 +324,10 @@ func clear_drag_offset():
 func _on_theme_changed(theme_data: Dictionary):
 	# Reload sprites with new tileset from theme
 	var tileset_resource = theme_data["tileset_resource"]
-	pipe_sprites = load(tileset_resource)
+	unified_sprites = load(tileset_resource)
 	
 	# Update the current sprite if it's visible
-	if sprite and pipe_sprites:
+	if sprite and unified_sprites:
 		update_sprite_region()
 
 func get_base_grid_position() -> Vector2:
@@ -295,6 +335,34 @@ func get_base_grid_position() -> Vector2:
 	
 func is_fade_active() -> bool:
 	return is_fading
+
+# Get animation progress (0.0 to 1.0) for modern animations
+func get_animation_progress() -> float:
+	if use_modern_animation and animation_controller:
+		return animation_controller.get_animation_progress()
+	elif not use_modern_animation and is_fading:
+		# Legacy progress calculation
+		var progress = float(current_fade_frame) / float(fade_frame_count - 1)
+		return clamp(progress, 0.0, 1.0)
+	else:
+		return 0.0
+
+# Pause/resume animation (only available with modern system)
+func pause_animation():
+	if use_modern_animation and animation_controller:
+		animation_controller.pause_animation()
+
+func resume_animation():
+	if use_modern_animation and animation_controller:
+		animation_controller.resume_animation()
+
+# Restart animation
+func restart_animation():
+	if use_modern_animation and animation_controller:
+		animation_controller.restart_animation()
+	else:
+		stop_fade_animation()
+		start_fade_animation()
 
 func update_size(new_size: int):
 	# Update tile width and resize the control

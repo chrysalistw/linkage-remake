@@ -1,0 +1,17 @@
+[gd_resource type="Resource" script_class="UnifiedTileSprites" load_steps=3 format=3 uid="uid://cmq53xms07yx8"]
+
+[ext_resource type="Script" uid="uid://qa5ggdki5k84" path="res://gameboard/resources/UnifiedTileSprites.gd" id="1_unified_sprites"]
+[ext_resource type="Texture2D" uid="uid://mi502okk3lx8" path="res://gameboard/resources/tile_sprites/green_tile_anim.png" id="2_sprite_texture"]
+
+[resource]
+script = ExtResource("1_unified_sprites")
+sprite_texture = ExtResource("2_sprite_texture")
+tile_size = 64
+sheet_columns = 10
+sheet_rows = 5
+static_face_count = 10
+static_rows = 1
+animation_frames = 5
+animation_rows = 5
+animation_start_row = 0
+animation_fps = 10.0
