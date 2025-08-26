@@ -25,12 +25,12 @@ const PIPE_FACE_MAPPING = [
 	Vector2i(0, 64*1),
 	Vector2i(0, 64*2),
 	Vector2i(0, 64*3),
-	Vector2i(0, 64*4),
-	Vector2i(0, 64*5),
 	Vector2i(0, 64*6),
 	Vector2i(0, 64*7),
+	Vector2i(0, 64*4),
 	Vector2i(0, 64*8),
-	Vector2i(0, 64*9)
+	Vector2i(0, 64*9),
+	Vector2i(0, 64*5)
 ]
 
 # No longer needed - each face is in its own column, each frame is in its own row
@@ -42,6 +42,8 @@ var _sprite_frames_cache: Dictionary = {}
 func _init():
 	# Initialize animation cache
 	_sprite_frames_cache.clear()
+	# Clear cache when layout changes
+	call_deferred("clear_animation_cache")
 
 # STATIC PIPE METHODS - Compatible with PipeSprites interface
 
@@ -101,10 +103,14 @@ func get_fade_texture_for_face(frame: int, face: int) -> AtlasTexture:
 	var atlas_texture = AtlasTexture.new()
 	atlas_texture.atlas = sprite_texture
 	
-	# Calculate position - face determines column, frame determines row
-	var face_x = face * tile_size  # Each face is in its own column
-	var frame_y = frame * tile_size  # Each frame is in its own row (0=still, 1-4=fade)
-	atlas_texture.region = Rect2(face_x, frame_y, tile_size, tile_size)
+	# Calculate position using PIPE_FACE_MAPPING for consistency with static pipes
+	if face >= PIPE_FACE_MAPPING.size():
+		push_error("UnifiedTileSprites: invalid face index for animation " + str(face))
+		return null
+	
+	var face_mapping = PIPE_FACE_MAPPING[face]
+	var frame_x = frame * tile_size  # Each frame is in its own column (0=still, 1-4=fade)
+	atlas_texture.region = Rect2(frame_x, face_mapping.y, tile_size, tile_size)
 	
 	return atlas_texture
 
@@ -128,14 +134,18 @@ func create_sprite_frames_for_face(face: int) -> SpriteFrames:
 	sprite_frames.set_animation_loop("fade", false)  # Don't loop fade animation
 	sprite_frames.set_animation_speed("fade", animation_fps)
 	
-	# Add all animation frames for this face (each frame is a different row)
-	var face_x = face * tile_size  # Face determines column
+	# Add all animation frames for this face using PIPE_FACE_MAPPING
+	if face >= PIPE_FACE_MAPPING.size():
+		push_error("UnifiedTileSprites: invalid face index for SpriteFrames " + str(face))
+		return null
+	
+	var face_mapping = PIPE_FACE_MAPPING[face]
 	
 	for frame in range(animation_frames):
 		var atlas_texture = AtlasTexture.new()
 		atlas_texture.atlas = sprite_texture
-		var frame_y = frame * tile_size  # Frame determines row
-		atlas_texture.region = Rect2(face_x, frame_y, tile_size, tile_size)
+		var frame_x = frame * tile_size  # Frame determines column
+		atlas_texture.region = Rect2(frame_x, face_mapping.y, tile_size, tile_size)
 		sprite_frames.add_frame("fade", atlas_texture)
 	
 	# Cache the result
@@ -161,14 +171,18 @@ func get_frame_uv(frame: int, face: int = 0) -> Vector4:
 		return Vector4.ZERO
 	
 	var texture_size = sprite_texture.get_size()
-	var face_x = face * tile_size  # Face determines column
-	var frame_y = frame * tile_size  # Frame determines row
+	
+	if face >= PIPE_FACE_MAPPING.size():
+		return Vector4.ZERO
+	
+	var face_mapping = PIPE_FACE_MAPPING[face]
+	var frame_x = frame * tile_size  # Frame determines column
 	
 	return Vector4(
-		float(face_x) / texture_size.x,
-		float(frame_y) / texture_size.y,
-		float(face_x + tile_size) / texture_size.x,
-		float(frame_y + tile_size) / texture_size.y
+		float(frame_x) / texture_size.x,
+		float(face_mapping.y) / texture_size.y,
+		float(frame_x + tile_size) / texture_size.x,
+		float(face_mapping.y + tile_size) / texture_size.y
 	)
 
 # Get total number of animation frames

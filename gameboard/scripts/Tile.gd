@@ -229,11 +229,14 @@ func _start_modern_fade_animation():
 		if animation_controller:
 			add_child(animation_controller)
 			animation_controller.animation_finished.connect(_on_modern_animation_finished)
-			# Position the animation controller to match the sprite
-			animation_controller.position = sprite.position
-			animation_controller.scale = Vector2(sprite.size.x / 64.0, sprite.size.y / 64.0)
 	
 	if animation_controller:
+		# Position and center the animation controller properly
+		animation_controller.position = Vector2(tile_width / 2.0, tile_width / 2.0)
+		# Scale to match tile size (animation sprites are 64x64 base size)
+		var scale_factor = tile_width / 64.0
+		animation_controller.scale = Vector2(scale_factor, scale_factor)
+		
 		# Hide the static sprite and show the animated one
 		sprite.visible = false
 		animation_controller.play_animation()

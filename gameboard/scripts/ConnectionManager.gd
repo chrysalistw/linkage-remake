@@ -64,8 +64,7 @@ func highlight_connected_tiles(connections: Array):
 			if connections[y][x]:
 				var tile = board[y][x] as Tile
 				if tile:
-					tile.highlight_connected()
-					# Start fade animation on connected tiles
+					# Start fade animation on connected tiles (without highlight)
 					tile.start_fade_animation()
 					# Connect to fade completion signal (for tile replacement)
 					if not tile.fade_completed.is_connected(_on_tile_fade_completed):

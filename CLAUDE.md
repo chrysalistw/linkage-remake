@@ -70,3 +70,8 @@ Converting JavaScript HTML5 Canvas Linkage game to Godot 4 in incremental phases
   - Create Android app icon
   - Design custom splash screen  
   - Organize tileset data into settings file structure
+- 動畫的最後一格要是空白的!
+- 遊戲功能和admob整合
+- VFX
+- 金幣/鑽石系統
+- 減小MVP規模,減小更新規模,增加更新頻率

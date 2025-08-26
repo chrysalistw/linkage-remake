@@ -160,7 +160,7 @@ func _on_drag_completed(drag_state: Dictionary):
 	if GameState and GameState.lost:
 		return
 	
-	if GameState:
+	if GameState and drag_state.get("grid_displacement", Vector2i.ZERO) != Vector2i.ZERO:
 		GameState.use_move()
 	
 	clear_all_drag_offsets()
