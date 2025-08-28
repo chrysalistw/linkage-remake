@@ -19,6 +19,7 @@ config/icon="res://icon.svg"
 [autoload]
 
 GameState="*res://gameboard/scripts/GameState.gd"
+AdMobManager="*res://AdMobManager.gd"
 
 [display]
 
