@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=7 format=3 uid="uid://724vbqhne3v"]
 
-[ext_resource type="FontFile" uid="uid://c5l2xth032cow" path="res://linkage/Ubuntu-Regular.ttf" id="1_ubuntu_font"]
+[ext_resource type="FontFile" uid="uid://c5l2xth032cow" path="res://linkageaaa/Ubuntu-Regular.ttf" id="1_ubuntu_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialog"]
 bg_color = Color(0.102, 0.114, 0.161, 0.98)

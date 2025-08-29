@@ -1,0 +1,32 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7p5yaj2k8m4q"]
+
+[ext_resource type="Script" uid="uid://bgntrgf7bt0nf" path="res://ui/ShuffleButton.gd" id="1_script"]
+[ext_resource type="Texture2D" uid="uid://dm0wxl2u3c1yh" path="res://new_assets/shuffle.png" id="2_icon"]
+
+[node name="ShuffleButton" type="Control"]
+custom_minimum_size = Vector2(50, 50)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_script")
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Icon" type="TextureRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+texture = ExtResource("2_icon")
+expand_mode = 1
+stretch_mode = 5
+
+[connection signal="pressed" from="Button" to="." method="_on_pressed"]

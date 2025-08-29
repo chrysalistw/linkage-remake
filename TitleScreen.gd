@@ -15,8 +15,8 @@ func _ready():
 func _on_start_button_pressed():
 	# Navigate to PlayScreen
 	#AdMobManager.load_interstitial()
-	AdMobManager.load_rewarded()
-	#get_tree().change_scene_to_file("res://PlayScreen.tscn")
+	#AdMobManager.load_rewarded()
+	get_tree().change_scene_to_file("res://PlayScreen.tscn")
 
 func _on_tileset_button_pressed():
 	# Navigate to TilesetSelection screen

@@ -135,7 +135,7 @@ func setup_audio():
 	click_audio = AudioStreamPlayer.new()
 	add_child(click_audio)
 	
-	var click_sound = load("res://linkage/sounds/trim_click_1.mp3")
+	var click_sound = load("res://assets/sounds/trim_click_1.mp3")
 	if click_sound:
 		click_audio.stream = click_sound
 		click_audio.volume_db = -12.0

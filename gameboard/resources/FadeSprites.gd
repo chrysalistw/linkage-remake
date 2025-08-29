@@ -18,7 +18,7 @@ const FACE_TO_ROW_MAPPING = [0, 4, 1, 2, 6, 7, 5, 8, 9, 3]
 
 func _init():
 	# Load the fade sprite texture
-	sprite_texture = load("res://linkage/imgs/tile_spr/green_fade.png")
+	sprite_texture = load("res://assets/sprites/green_fade.png")
 
 # Get AtlasTexture for a specific fade frame (uses face 0 for backward compatibility)
 func get_fade_texture(frame: int) -> AtlasTexture:
