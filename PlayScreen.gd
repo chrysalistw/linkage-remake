@@ -5,8 +5,8 @@ var game_width: int = 6
 var game_height: int = 8
 var game_active: bool = true
 
-@onready var moves_label = $Dashboard/MovesLabel
-@onready var score_label = $Dashboard/ScoreLabel
+@onready var moves_display = $Dashboard/HBoxContainer/VBoxContainer/MovesDisplay
+@onready var score_display = $Dashboard/HBoxContainer/VBoxContainer/ScoreDisplay
 @onready var game_lost_dialog = $GameLostDialog
 @onready var home_button = $ControlButtons/HomeButton
 @onready var reset_button = $ControlButtons/ResetButton
@@ -33,10 +33,12 @@ func _connect_gamestate_signals():
 	GameState.theme_changed.connect(_on_theme_changed)
 
 func _on_moves_changed(new_moves: int):
-	moves_label.text = "MOVES LEFT: " + str(new_moves)
+	_update_ui()
+	moves_display.quantity = new_moves
 	
 func _on_score_changed(new_score: int):
-	score_label.text = "SCORE: " + str(new_score)
+	_update_ui()
+	score_display.quantity = new_score
 	
 func _on_game_lost():
 	show_lost_dialog()
@@ -60,8 +62,8 @@ func _apply_theme(theme_data: Dictionary):
 			theme = theme_resource
 
 func _update_ui():
-	moves_label.text = "MOVES LEFT: " + str(GameState.moves_left)
-	score_label.text = "SCORE: " + str(GameState.score)
+	moves_display.update_quantity(GameState.moves_left)
+	score_display.update_quantity(GameState.score)
 
 func _disable_controls():
 	if home_button:

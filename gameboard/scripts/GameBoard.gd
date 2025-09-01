@@ -36,8 +36,8 @@ func calculate_optimal_tile_size():
 	
 	# Reserve more space for UI elements and breathing room
 	# Dashboard = ~25% height, wider margins = 25% width total
-	var available_width = viewport_size.x * 0.75   # Use 75% of screen width
-	var available_height = viewport_size.y * 0.55  # Use 55% of screen height
+	var available_width = viewport_size.x * 0.9   # Use 75% of screen width
+	var available_height = viewport_size.y * 0.9 # Use 55% of screen height
 	
 	# Calculate max tile size that fits the grid
 	var max_tile_width = int(available_width / board_width)

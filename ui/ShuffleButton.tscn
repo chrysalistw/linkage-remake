@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://dm0wxl2u3c1yh" path="res://new_assets/shuffle.png" id="2_icon"]
 
 [node name="ShuffleButton" type="Control"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_script")

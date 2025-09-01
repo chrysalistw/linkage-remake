@@ -1,6 +1,4 @@
-[gd_resource type="Theme" load_steps=7 format=3 uid="uid://be8grmawpb7cm"]
-
-[ext_resource type="FontFile" uid="uid://c5l2xth032cow" path="res://linkageaaa/Ubuntu-Regular.ttf" id="1_ubuntu_font"]
+[gd_resource type="Theme" load_steps=6 format=3 uid="uid://be8grmawpb7cm"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialog"]
 bg_color = Color(0.102, 0.114, 0.161, 0.98)
@@ -48,7 +46,6 @@ corner_radius_bottom_right = 12
 corner_radius_bottom_left = 12
 
 [resource]
-default_font = ExtResource("1_ubuntu_font")
 default_font_size = 18
 AcceptDialog/colors/title_color = Color(0, 1, 0.443, 1)
 AcceptDialog/font_sizes/title_font_size = 30

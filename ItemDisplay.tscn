@@ -1,0 +1,48 @@
+[gd_scene load_steps=4 format=3 uid="uid://bvxqy8n4x5wqp"]
+
+[ext_resource type="Script" uid="uid://br74dd0tug81q" path="res://ItemDisplay.gd" id="1_0x5wq"]
+[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_3x5wq"]
+
+[sub_resource type="LabelSettings" id="LabelSettings_tl3le"]
+font_size = 24
+
+[node name="ItemDisplay" type="Panel"]
+custom_minimum_size = Vector2(220, 80)
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -324.0
+offset_top = -576.0
+offset_right = -124.0
+offset_bottom = -516.0
+grow_horizontal = 2
+grow_vertical = 2
+theme = ExtResource("2_3x5wq")
+script = ExtResource("1_0x5wq")
+
+[node name="HBoxContainer" type="HBoxContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_left = 5.0
+offset_top = 5.0
+offset_right = -5.0
+offset_bottom = -5.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ItemIcon" type="TextureRect" parent="HBoxContainer"]
+custom_minimum_size = Vector2(40, 40)
+layout_mode = 2
+expand_mode = 1
+stretch_mode = 5
+
+[node name="ItemLabel" type="Label" parent="HBoxContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+text = "Item: 0"
+label_settings = SubResource("LabelSettings_tl3le")
+vertical_alignment = 1

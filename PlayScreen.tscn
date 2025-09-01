@@ -1,7 +1,8 @@
-[gd_scene load_steps=7 format=3 uid="uid://cqm2sxhj3jfmd"]
+[gd_scene load_steps=8 format=3 uid="uid://cqm2sxhj3jfmd"]
 
 [ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
 [ext_resource type="PackedScene" uid="uid://cyjkxr82hxhf8" path="res://gameboard/scenes/GameBoard.tscn" id="2_gameboard"]
+[ext_resource type="PackedScene" uid="uid://bvxqy8n4x5wqp" path="res://ItemDisplay.tscn" id="3_item_display"]
 [ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="3_theme"]
 [ext_resource type="PackedScene" uid="uid://b4n8x7j1k2nap" path="res://ui/RewardButton.tscn" id="4_reward_scene"]
 [ext_resource type="PackedScene" uid="uid://c7p5yaj2k8m4q" path="res://ui/ShuffleButton.tscn" id="5_shuffle_scene"]
@@ -26,40 +27,45 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.917088, 0.924742, 0.951498, 1)
 
-[node name="Dashboard" type="Panel" parent="."]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 1.0
-anchor_bottom = 0.208
-offset_bottom = -3.0
-grow_horizontal = 2
+[node name="CenterContainer" type="CenterContainer" parent="."]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
 
-[node name="MovesLabel" type="Label" parent="Dashboard"]
-layout_mode = 1
-anchors_preset = -1
-anchor_right = 0.75
-anchor_bottom = 0.5
+[node name="Dashboard" type="Control" parent="."]
+anchors_preset = 0
 offset_left = 20.0
 offset_top = 20.0
-offset_right = -20.0
-offset_bottom = -10.0
-theme_override_font_sizes/font_size = 28
-text = "MOVES LEFT: 50"
-vertical_alignment = 1
+offset_right = 20.0
+offset_bottom = 20.0
 
-[node name="ScoreLabel" type="Label" parent="Dashboard"]
-layout_mode = 1
-anchors_preset = -1
-anchor_top = 0.5
-anchor_right = 0.75
-anchor_bottom = 1.0
-offset_left = 20.0
-offset_top = 10.0
-offset_right = -20.0
-offset_bottom = -20.0
-theme_override_font_sizes/font_size = 28
-text = "SCORE: 0"
-vertical_alignment = 1
+[node name="HBoxContainer" type="HBoxContainer" parent="Dashboard"]
+layout_mode = 0
+offset_left = 35.0
+offset_top = 78.0
+offset_right = 563.0
+offset_bottom = 202.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Dashboard/HBoxContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="MovesDisplay" parent="Dashboard/HBoxContainer/VBoxContainer" instance=ExtResource("3_item_display")]
+layout_mode = 2
+item_name = "MOVES"
+quantity = 50
+
+[node name="ScoreDisplay" parent="Dashboard/HBoxContainer/VBoxContainer" instance=ExtResource("3_item_display")]
+layout_mode = 2
+item_name = "SCORE"
+
+[node name="Control" type="Control" parent="Dashboard/HBoxContainer"]
+custom_minimum_size = Vector2(100, 0)
+layout_mode = 2
+
+[node name="CoinsDisplay" parent="Dashboard/HBoxContainer" instance=ExtResource("3_item_display")]
+layout_mode = 2
+item_name = "COINS"
 
 [node name="ControlButtons" type="HBoxContainer" parent="."]
 layout_mode = 1
@@ -68,7 +74,9 @@ anchor_top = 0.9
 anchor_right = 1.0
 anchor_bottom = 1.0
 offset_left = 20.0
+offset_top = -70.4
 offset_right = -20.0
+offset_bottom = -65.6001
 grow_horizontal = 2
 grow_vertical = 2
 alignment = 1
@@ -77,17 +85,17 @@ alignment = 1
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="Spacer1" type="Control" parent="ControlButtons"]
+[node name="Control" type="Control" parent="ControlButtons"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="ShuffleButton" parent="ControlButtons" instance=ExtResource("5_shuffle_scene")]
 layout_mode = 2
 size_flags_horizontal = 0
 
-[node name="Spacer2" type="Control" parent="ControlButtons"]
+[node name="Control2" type="Control" parent="ControlButtons"]
+custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
-size_flags_horizontal = 3
 
 [node name="HomeButton" parent="ControlButtons" instance=ExtResource("6_home_scene")]
 layout_mode = 2
@@ -99,9 +107,9 @@ anchor_top = 0.208
 anchor_right = 1.0
 anchor_bottom = 0.9
 offset_left = 20.0
-offset_top = 20.0
+offset_top = -50.0
 offset_right = -20.0
-offset_bottom = -20.0
+offset_bottom = -90.0
 grow_horizontal = 2
 grow_vertical = 2
 

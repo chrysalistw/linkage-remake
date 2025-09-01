@@ -4,7 +4,7 @@
 [ext_resource type="Texture2D" uid="uid://cbpfjatw14yso" path="res://new_assets/home.png" id="2_icon"]
 
 [node name="HomeButton" type="Control"]
-custom_minimum_size = Vector2(50, 50)
+custom_minimum_size = Vector2(120, 120)
 layout_mode = 3
 anchors_preset = 0
 script = ExtResource("1_script")
