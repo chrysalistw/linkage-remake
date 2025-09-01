@@ -8,6 +8,7 @@ signal score_changed(new_score: int)
 signal game_lost()
 signal reward_earned()
 
+
 # Game state variables
 var moves_left: int = 100 :
 	set(value):
@@ -15,12 +16,30 @@ var moves_left: int = 100 :
 		emit_signal("moves_changed", moves_left)
 		if moves_left <= 0:
 			lost = true
+			convert_score_to_coins()
 			emit_signal("game_lost")
 
 var score: int = 0 :
 	set(value):
 		score = value
 		emit_signal("score_changed", score)
+
+signal coins_changed(new_coins: int)
+signal high_score_changed(new_high_score: int)
+
+var coins: int = 0 :
+	set(value):
+		coins = value
+		emit_signal("coins_changed", coins)
+		if not _loading_data:
+			save_game_data()
+
+var high_score: int = 0 :
+	set(value):
+		high_score = value
+		emit_signal("high_score_changed", high_score)
+		if not _loading_data:
+			save_game_data()
 
 var lost: bool = false
 var is_reward_earned: bool = false :
@@ -73,10 +92,16 @@ var selected_theme_index: int = 1  # Default to Blue Modern
 
 signal theme_changed(theme_data: Dictionary)
 
+# Save file path
+const SAVE_FILE_PATH = "user://game_data.cfg"
+var _loading_data: bool = false
+
 # Audio
 var sounds: Dictionary = {}
 
 func _ready():
+	# Load persistent data first
+	load_game_data()
 	# Initialize default values
 	reset_game()
 
@@ -88,6 +113,19 @@ func reset_game():
 
 func add_score(points: int):
 	score += points
+
+func add_coins(amount: int):
+	coins += amount
+
+func convert_score_to_coins():
+	# Update high score if current score is higher
+	if score > high_score:
+		high_score = score
+	
+	# Convert score to coins
+	var coins_earned = int(score / 50)
+	if coins_earned > 0:
+		add_coins(coins_earned)
 
 func use_move():
 	moves_left -= 1
@@ -163,3 +201,39 @@ func get_theme_name(index: int) -> String:
 
 func get_theme_count() -> int:
 	return available_themes.size()
+
+# Save/Load system
+func save_game_data():
+	var config = ConfigFile.new()
+	
+	# Save persistent data
+	config.set_value("game", "coins", coins)
+	config.set_value("game", "high_score", high_score)
+	config.set_value("game", "selected_theme_index", selected_theme_index)
+	
+	# Save to file
+	var error = config.save(SAVE_FILE_PATH)
+	if error != OK:
+		print("Failed to save game data: ", error)
+
+func load_game_data():
+	var config = ConfigFile.new()
+	
+	# Load config file
+	var error = config.load(SAVE_FILE_PATH)
+	if error != OK:
+		print("No save file found or failed to load: ", error)
+		return
+	
+	# Set loading flag to prevent saving during load
+	_loading_data = true
+	
+	# Load persistent data (use current values as defaults)
+	coins = config.get_value("game", "coins", 0)
+	high_score = config.get_value("game", "high_score", 0)  
+	selected_theme_index = config.get_value("game", "selected_theme_index", 1)
+	
+	# Clear loading flag
+	_loading_data = false
+	
+	print("Loaded data - Coins: ", coins, " High Score: ", high_score)

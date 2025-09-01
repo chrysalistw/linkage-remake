@@ -7,6 +7,7 @@ var game_active: bool = true
 
 @onready var moves_display = $Dashboard/HBoxContainer/VBoxContainer/MovesDisplay
 @onready var score_display = $Dashboard/HBoxContainer/VBoxContainer/ScoreDisplay
+@onready var coins_display = $Dashboard/HBoxContainer/CoinsDisplay
 @onready var game_lost_dialog = $GameLostDialog
 @onready var home_button = $ControlButtons/HomeButton
 @onready var reset_button = $ControlButtons/ResetButton
@@ -17,6 +18,7 @@ func _ready():
 	_setup_game()
 	_connect_gamestate_signals()
 	_apply_current_theme()
+	
 	_update_ui()
 
 func _setup_game():
@@ -29,6 +31,7 @@ func _connect_gamestate_signals():
 	# Connect to GameState signals for real-time UI updates
 	GameState.moves_changed.connect(_on_moves_changed)
 	GameState.score_changed.connect(_on_score_changed)
+	GameState.coins_changed.connect(_on_coins_changed)
 	GameState.game_lost.connect(_on_game_lost)
 	GameState.theme_changed.connect(_on_theme_changed)
 
@@ -39,6 +42,10 @@ func _on_moves_changed(new_moves: int):
 func _on_score_changed(new_score: int):
 	_update_ui()
 	score_display.quantity = new_score
+
+func _on_coins_changed(new_coins: int):
+	_update_ui()
+	coins_display.quantity = new_coins
 	
 func _on_game_lost():
 	show_lost_dialog()
@@ -64,6 +71,7 @@ func _apply_theme(theme_data: Dictionary):
 func _update_ui():
 	moves_display.update_quantity(GameState.moves_left)
 	score_display.update_quantity(GameState.score)
+	coins_display.update_quantity(GameState.coins)
 
 func _disable_controls():
 	if home_button:

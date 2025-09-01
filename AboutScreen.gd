@@ -35,10 +35,12 @@ func _setup_screen():
 	title_shadow.position.y = shadow_offset
 
 func _load_highscore():
-	# Placeholder for highscore loading
-	# In the original pseudocode this would be Android.getHighscore()
-	var highscore = 0  # Placeholder value
-	highscore_label.text = "Highscore: " + str(highscore)
+	# Load actual high score from GameState
+	highscore_label.text = "Highscore: " + str(GameState.high_score)
+
+func _on_high_score_changed(new_high_score: int):
+	# Update display when high score changes
+	highscore_label.text = "Highscore: " + str(new_high_score)
 
 func _process(delta):
 	if is_star_rotating:
@@ -71,6 +73,8 @@ func _on_ok_button_pressed():
 func _connect_theme_signals():
 	# Connect to theme change signal
 	GameState.theme_changed.connect(_on_theme_changed)
+	# Connect to high score updates
+	GameState.high_score_changed.connect(_on_high_score_changed)
 
 func _on_theme_changed(theme_data: Dictionary):
 	_apply_theme(theme_data)
