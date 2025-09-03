@@ -9,6 +9,8 @@ var game_active: bool = true
 @onready var score_display = $Dashboard/HBoxContainer/VBoxContainer/ScoreDisplay
 @onready var coins_display = $Dashboard/HBoxContainer/CoinsDisplay
 @onready var game_lost_dialog = $GameLostDialog
+@onready var dialog_score_label = $GameLostDialog/VBox/StatsContainer/ScoreContainer/ScoreLabel
+@onready var dialog_coins_label = $GameLostDialog/VBox/StatsContainer/CoinsContainer/CoinsLabel
 @onready var home_button = $ControlButtons/HomeButton
 @onready var reset_button = $ControlButtons/ResetButton
 @onready var reward_button = $ControlButtons/RewardButton
@@ -24,6 +26,8 @@ func _ready():
 func _setup_game():
 	# Initialize game state based on pseudocode specifications
 	# Game board is 6x8 tiles as specified
+	# Reset moves and score when entering PlayScreen
+	GameState.reset_game()
 	game_active = true
 	_update_ui()
 
@@ -75,25 +79,30 @@ func _update_ui():
 
 func _disable_controls():
 	if home_button:
-		home_button.disabled = true
+		home_button.get_node("Button").disabled = true
 	if reset_button:
 		reset_button.disabled = true  
 	if reward_button:
-		reward_button.disabled = true
+		reward_button.get_node("Button").disabled = true
 	game_active = false
 
 func _enable_controls():
 	if home_button:
-		home_button.disabled = false
+		home_button.get_node("Button").disabled = false
 	if reset_button:
 		reset_button.disabled = false
 	if reward_button:
-		reward_button.disabled = false
+		reward_button.get_node("Button").disabled = false
 	game_active = true
 
 func show_lost_dialog():
 	_disable_controls()
+	# Update dialog with final stats
+	dialog_score_label.text = "Final Score: " + str(GameState.score)
+	var coins_earned = int(GameState.score / 50)
+	dialog_coins_label.text = "Coins Earned: " + str(coins_earned)
 	game_lost_dialog.popup_centered()
+	game_lost_dialog.set_flag(Window.FLAG_POPUP, false)
 
 func _on_home_button_pressed():
 	if not game_active:
@@ -122,9 +131,10 @@ func _on_restart_button_pressed():
 	GameState.restart_game()
 
 func _on_fine_button_pressed():
-	# Called from game lost dialog
+	# Called from game lost dialog - navigate to home screen
 	_enable_controls()
 	game_lost_dialog.hide()
+	get_tree().change_scene_to_file("res://TitleScreen.tscn")
 
 # Placeholder method to simulate game over condition
 func _input(event):

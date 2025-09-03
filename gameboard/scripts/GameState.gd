@@ -18,6 +18,7 @@ var moves_left: int = 100 :
 			lost = true
 			convert_score_to_coins()
 			emit_signal("game_lost")
+			
 
 var score: int = 0 :
 	set(value):

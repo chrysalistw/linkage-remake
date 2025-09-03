@@ -1,12 +1,22 @@
-[gd_scene load_steps=8 format=3 uid="uid://cqm2sxhj3jfmd"]
+[gd_scene load_steps=10 format=3 uid="uid://cqm2sxhj3jfmd"]
 
 [ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
 [ext_resource type="PackedScene" uid="uid://cyjkxr82hxhf8" path="res://gameboard/scenes/GameBoard.tscn" id="2_gameboard"]
 [ext_resource type="PackedScene" uid="uid://bvxqy8n4x5wqp" path="res://ItemDisplay.tscn" id="3_item_display"]
 [ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="3_theme"]
+[ext_resource type="Texture2D" uid="uid://cr34aclui3pyc" path="res://assets/coin.png" id="4_74rhi"]
 [ext_resource type="PackedScene" uid="uid://b4n8x7j1k2nap" path="res://ui/RewardButton.tscn" id="4_reward_scene"]
 [ext_resource type="PackedScene" uid="uid://c7p5yaj2k8m4q" path="res://ui/ShuffleButton.tscn" id="5_shuffle_scene"]
 [ext_resource type="PackedScene" uid="uid://cf8e6nu3xwb1" path="res://ui/HomeButton.tscn" id="6_home_scene"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
+bg_color = Color(0.0675489, 0.584914, 0.376821, 1)
+border_width_bottom = 10
+border_color = Color(0, 0.552941, 0.32549, 1)
+corner_radius_top_left = 12
+corner_radius_top_right = 12
+corner_radius_bottom_right = 12
+corner_radius_bottom_left = 12
 
 [node name="PlayScreen" type="Control"]
 layout_mode = 3
@@ -65,6 +75,7 @@ layout_mode = 2
 
 [node name="CoinsDisplay" parent="Dashboard/HBoxContainer" instance=ExtResource("3_item_display")]
 layout_mode = 2
+icon_texture = ExtResource("4_74rhi")
 item_name = "COINS"
 
 [node name="ControlButtons" type="HBoxContainer" parent="."]
@@ -124,24 +135,59 @@ grow_vertical = 2
 [node name="GameBoard" parent="GameArea/CenterContainer" instance=ExtResource("2_gameboard")]
 layout_mode = 2
 
-[node name="GameLostDialog" type="AcceptDialog" parent="."]
-title = "Game Over"
+[node name="GameLostDialog" type="PopupPanel" parent="."]
 initial_position = 2
-size = Vector2i(450, 250)
+size = Vector2i(350, 300)
+popup_window = false
+theme = ExtResource("3_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameLostDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_left = 8.0
-offset_top = 8.0
-offset_right = -8.0
-offset_bottom = -49.0
+offset_bottom = -10.0
+
+[node name="TitleLabel" type="Label" parent="GameLostDialog/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 28
+text = "Game Over"
+horizontal_alignment = 1
 
 [node name="MessageLabel" type="Label" parent="GameLostDialog/VBox"]
 layout_mode = 2
 theme_override_font_sizes/font_size = 24
 text = "No More Moves!"
+horizontal_alignment = 1
+
+[node name="StatsContainer" type="VBoxContainer" parent="GameLostDialog/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="ScoreContainer" type="HBoxContainer" parent="GameLostDialog/VBox/StatsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="ScoreLabel" type="Label" parent="GameLostDialog/VBox/StatsContainer/ScoreContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Final Score: 0"
+horizontal_alignment = 1
+
+[node name="CoinsContainer" type="HBoxContainer" parent="GameLostDialog/VBox/StatsContainer"]
+layout_mode = 2
+alignment = 1
+
+[node name="CoinsIcon" type="TextureRect" parent="GameLostDialog/VBox/StatsContainer/CoinsContainer"]
+layout_mode = 2
+texture = ExtResource("4_74rhi")
+expand_mode = 3
+stretch_mode = 4
+
+[node name="CoinsLabel" type="Label" parent="GameLostDialog/VBox/StatsContainer/CoinsContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 18
+text = "Coins Earned: 0"
 horizontal_alignment = 1
 
 [node name="ButtonContainer" type="HBoxContainer" parent="GameLostDialog/VBox"]
