@@ -7,6 +7,8 @@ signal moves_changed(new_moves: int)
 signal score_changed(new_score: int)
 signal game_lost()
 signal reward_earned()
+signal tiles_about_to_score(tile_count: int)
+signal moves_about_to_be_awarded(move_count: int)
 
 
 # Game state variables

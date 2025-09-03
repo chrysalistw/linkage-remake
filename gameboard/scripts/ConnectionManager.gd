@@ -57,6 +57,14 @@ func highlight_connected_tiles(connections: Array):
 			# Cancel any active drag
 			if gameboard.drag_handler and gameboard.drag_handler.is_dragging:
 				gameboard.drag_handler.cancel_drag()
+		
+		# Emit early signals for popup notifications
+		GameState.emit_signal("tiles_about_to_score", expected_fades)
+		
+		# Calculate and emit bonus moves signal (1 move per 3 tiles removed)
+		if expected_fades >= 3:
+			var bonus_moves = expected_fades / 3
+			GameState.emit_signal("moves_about_to_be_awarded", bonus_moves)
 	
 	# Start fade animations on connected tiles
 	for y in connections.size():

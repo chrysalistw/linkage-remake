@@ -1,4 +1,4 @@
-[gd_scene load_steps=10 format=3 uid="uid://cqm2sxhj3jfmd"]
+[gd_scene load_steps=11 format=3 uid="uid://cqm2sxhj3jfmd"]
 
 [ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
 [ext_resource type="PackedScene" uid="uid://cyjkxr82hxhf8" path="res://gameboard/scenes/GameBoard.tscn" id="2_gameboard"]
@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" uid="uid://b4n8x7j1k2nap" path="res://ui/RewardButton.tscn" id="4_reward_scene"]
 [ext_resource type="PackedScene" uid="uid://c7p5yaj2k8m4q" path="res://ui/ShuffleButton.tscn" id="5_shuffle_scene"]
 [ext_resource type="PackedScene" uid="uid://cf8e6nu3xwb1" path="res://ui/HomeButton.tscn" id="6_home_scene"]
+[ext_resource type="Script" uid="uid://6nrmwidwtyqf" path="res://ui/PopupManager.gd" id="7_popup_manager"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
 bg_color = Color(0.0675489, 0.584914, 0.376821, 1)
@@ -36,6 +37,15 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.917088, 0.924742, 0.951498, 1)
+
+[node name="PopupManager" type="Control" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+script = ExtResource("7_popup_manager")
 
 [node name="CenterContainer" type="CenterContainer" parent="."]
 layout_mode = 0
@@ -146,7 +156,8 @@ theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_bottom = -10.0
+offset_right = 350.0
+offset_bottom = 290.0
 
 [node name="TitleLabel" type="Label" parent="GameLostDialog/VBox"]
 layout_mode = 2
@@ -194,18 +205,16 @@ horizontal_alignment = 1
 layout_mode = 2
 alignment = 1
 
-[node name="RestartButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
+[node name="RestartButton" parent="GameLostDialog/VBox/ButtonContainer" instance=ExtResource("5_shuffle_scene")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "RESTART"
+size_flags_horizontal = 0
 
-[node name="FineButton" type="Button" parent="GameLostDialog/VBox/ButtonContainer"]
+[node name="HomeButton" parent="GameLostDialog/VBox/ButtonContainer" instance=ExtResource("6_home_scene")]
 layout_mode = 2
-theme_override_font_sizes/font_size = 22
-text = "FINE"
+size_flags_horizontal = 0
 
 [connection signal="reward_pressed" from="ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]
 [connection signal="shuffle_pressed" from="ControlButtons/ShuffleButton" to="." method="_on_reset_button_pressed"]
 [connection signal="home_pressed" from="ControlButtons/HomeButton" to="." method="_on_home_button_pressed"]
-[connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/RestartButton" to="." method="_on_restart_button_pressed"]
-[connection signal="pressed" from="GameLostDialog/VBox/ButtonContainer/FineButton" to="." method="_on_fine_button_pressed"]
+[connection signal="shuffle_pressed" from="GameLostDialog/VBox/ButtonContainer/RestartButton" to="." method="_on_restart_button_pressed"]
+[connection signal="home_pressed" from="GameLostDialog/VBox/ButtonContainer/HomeButton" to="." method="_on_fine_button_pressed"]

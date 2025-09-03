@@ -12,9 +12,10 @@ var game_active: bool = true
 @onready var dialog_score_label = $GameLostDialog/VBox/StatsContainer/ScoreContainer/ScoreLabel
 @onready var dialog_coins_label = $GameLostDialog/VBox/StatsContainer/CoinsContainer/CoinsLabel
 @onready var home_button = $ControlButtons/HomeButton
-@onready var reset_button = $ControlButtons/ResetButton
+@onready var reset_button = $ControlButtons/ShuffleButton
 @onready var reward_button = $ControlButtons/RewardButton
 @onready var background = $Background
+@onready var popup_manager = $PopupManager
 
 func _ready():
 	_setup_game()
