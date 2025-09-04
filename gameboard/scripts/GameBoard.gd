@@ -30,6 +30,10 @@ var rotation_enabled: bool = true
 # Track drag state to clean up positions only once when drag ends
 var was_dragging: bool = false
 
+# Tile replacement tracking
+var _replacement_tiles_remaining: int = 0
+var _replacement_positions: Array = []
+
 # Dynamic tile sizing
 func calculate_optimal_tile_size():
 	var viewport_size = get_viewport().get_visible_rect().size
@@ -304,3 +308,83 @@ func toggle_rotation():
 
 func is_rotation_enabled() -> bool:
 	return rotation_enabled
+
+func apply_tile_replacement_reward():
+	"""Replace half the tiles randomly with fade animation"""
+	print("Applying tile replacement reward...")
+	
+	# Disable input during replacement
+	disable_input()
+	
+	# Get all tile positions
+	var all_positions = []
+	for y in board_height:
+		for x in board_width:
+			all_positions.append(Vector2i(x, y))
+	
+	# Shuffle and select half the tiles
+	all_positions.shuffle()
+	var tiles_to_replace = all_positions.slice(0, all_positions.size() / 2)
+	
+	print("Replacing ", tiles_to_replace.size(), " tiles out of ", all_positions.size())
+	
+	# If no tiles to replace, re-enable input immediately
+	if tiles_to_replace.size() == 0:
+		print("No tiles to replace, re-enabling input")
+		enable_input()
+		return
+	
+	# Use a more reliable tracking system
+	_replacement_tiles_remaining = tiles_to_replace.size()
+	_replacement_positions = tiles_to_replace
+	
+	# Start fade animations for selected tiles
+	for pos in tiles_to_replace:
+		var tile = board_manager.get_tile_at_position(pos)
+		if tile:
+			# Connect to individual fade completion
+			tile.fade_completed.connect(_on_replacement_tile_fade_complete, CONNECT_ONE_SHOT)
+			tile.start_fade_out()
+		else:
+			# If tile doesn't exist, reduce counter
+			_replacement_tiles_remaining -= 1
+
+func _on_replacement_tile_fade_complete(tile: Tile):
+	"""Called when a single replacement tile completes its fade"""
+	_replacement_tiles_remaining -= 1
+	print("Tile fade complete, remaining: ", _replacement_tiles_remaining)
+	
+	# Check if all tiles have completed fading
+	if _replacement_tiles_remaining <= 0:
+		_finish_tile_replacement()
+
+func _finish_tile_replacement():
+	"""Complete the tile replacement process"""
+	print("All replacement fades complete, creating new tiles...")
+	
+	# Replace faded tiles with new random ones
+	for pos in _replacement_positions:
+		var tile = board_manager.get_tile_at_position(pos)
+		if tile:
+			# Remove old tile
+			tile.queue_free()
+			board_manager.get_board()[pos.y][pos.x] = null
+			
+			# Create new tile with random face
+			await get_tree().process_frame  # Wait for old tile to be freed
+			var new_tile = board_manager.create_tile(pos.x, pos.y)
+	
+	# Clear tracking variables
+	_replacement_positions.clear()
+	_replacement_tiles_remaining = 0
+	
+	# Small delay to let new tiles settle
+	await get_tree().create_timer(0.1).timeout
+	
+	# Re-detect connections with new tiles
+	connection_manager.detect_and_highlight_connections()
+	
+	# Re-enable input
+	enable_input()
+	
+	print("Tile replacement reward complete!")

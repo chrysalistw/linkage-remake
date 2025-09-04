@@ -381,3 +381,8 @@ func _setup_gameboard_reference():
 				var nodes_in_group = tree.get_nodes_in_group("gameboard")
 				if nodes_in_group.size() > 0:
 					gameboard = nodes_in_group[0]
+
+# Simple wrapper for reward button functionality
+func start_fade_out():
+	"""Start fade out animation for tile replacement"""
+	start_fade_animation()

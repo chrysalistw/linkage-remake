@@ -111,6 +111,7 @@ custom_minimum_size = Vector2(60, 0)
 layout_mode = 2
 
 [node name="ShuffleButton" parent="ControlButtons" instance=ExtResource("5_shuffle_scene")]
+visible = false
 layout_mode = 2
 size_flags_horizontal = 0
 
@@ -144,6 +145,20 @@ grow_vertical = 2
 
 [node name="GameBoard" parent="GameArea/CenterContainer" instance=ExtResource("2_gameboard")]
 layout_mode = 2
+
+[node name="DebugCoinButton" type="Button" parent="."]
+layout_mode = 1
+anchors_preset = 1
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -100.0
+offset_top = 20.0
+offset_right = -20.0
+offset_bottom = 70.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 1, 1, 1)
+theme_override_font_sizes/font_size = 14
+text = "+100 $"
 
 [node name="GameLostDialog" type="PopupPanel" parent="."]
 initial_position = 2
@@ -213,8 +228,95 @@ size_flags_horizontal = 0
 layout_mode = 2
 size_flags_horizontal = 0
 
+[node name="RewardConfirmDialog" type="PopupPanel" parent="."]
+initial_position = 2
+size = Vector2i(320, 200)
+popup_window = false
+theme = ExtResource("3_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="RewardConfirmDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 320.0
+offset_bottom = 190.0
+
+[node name="TitleLabel" type="Label" parent="RewardConfirmDialog/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Watch Ad for Reward?"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="RewardConfirmDialog/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Spend 10 coins and watch a short ad to replace bad tiles with better ones?"
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonContainer" type="HBoxContainer" parent="RewardConfirmDialog/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="RewardConfirmDialog/VBox/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cancel"
+
+[node name="WatchButton" type="Button" parent="RewardConfirmDialog/VBox/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Watch Ad"
+
+[node name="HomeConfirmDialog" type="PopupPanel" parent="."]
+initial_position = 2
+size = Vector2i(300, 180)
+popup_window = false
+theme = ExtResource("3_theme")
+theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
+
+[node name="VBox" type="VBoxContainer" parent="HomeConfirmDialog"]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+offset_right = 300.0
+offset_bottom = 170.0
+
+[node name="TitleLabel" type="Label" parent="HomeConfirmDialog/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "Leave Game?"
+horizontal_alignment = 1
+
+[node name="MessageLabel" type="Label" parent="HomeConfirmDialog/VBox"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Are you sure you want to go home? Your current game will be lost."
+horizontal_alignment = 1
+autowrap_mode = 2
+
+[node name="ButtonContainer" type="HBoxContainer" parent="HomeConfirmDialog/VBox"]
+layout_mode = 2
+alignment = 1
+
+[node name="CancelButton" type="Button" parent="HomeConfirmDialog/VBox/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Cancel"
+
+[node name="HomeButton" type="Button" parent="HomeConfirmDialog/VBox/ButtonContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 16
+text = "Go Home"
+
 [connection signal="reward_pressed" from="ControlButtons/RewardButton" to="." method="_on_reward_button_pressed"]
 [connection signal="shuffle_pressed" from="ControlButtons/ShuffleButton" to="." method="_on_reset_button_pressed"]
 [connection signal="home_pressed" from="ControlButtons/HomeButton" to="." method="_on_home_button_pressed"]
+[connection signal="pressed" from="DebugCoinButton" to="." method="_on_debug_coin_button_pressed"]
 [connection signal="shuffle_pressed" from="GameLostDialog/VBox/ButtonContainer/RestartButton" to="." method="_on_restart_button_pressed"]
 [connection signal="home_pressed" from="GameLostDialog/VBox/ButtonContainer/HomeButton" to="." method="_on_fine_button_pressed"]
+[connection signal="pressed" from="RewardConfirmDialog/VBox/ButtonContainer/CancelButton" to="." method="_on_reward_cancel_pressed"]
+[connection signal="pressed" from="RewardConfirmDialog/VBox/ButtonContainer/WatchButton" to="." method="_on_reward_confirm_pressed"]
+[connection signal="pressed" from="HomeConfirmDialog/VBox/ButtonContainer/CancelButton" to="." method="_on_home_cancel_pressed"]
+[connection signal="pressed" from="HomeConfirmDialog/VBox/ButtonContainer/HomeButton" to="." method="_on_home_confirm_pressed"]

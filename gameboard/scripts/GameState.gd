@@ -176,6 +176,21 @@ func _on_reward_requested():
 		get_tree().call_group("gameboard", "apply_deus_ex_machina")
 		apply_reward()
 
+func use_coins_for_reward():
+	# Check if player has enough coins
+	if coins < 10:
+		print("Not enough coins for reward")
+		return false
+	
+	# Consume 10 coins
+	coins -= 10
+	
+	# Trigger tile replacement
+	await get_tree().process_frame
+	get_tree().call_group("gameboard", "apply_tile_replacement_reward")
+	
+	return true
+
 # Theme environment management functions
 func get_selected_theme_data() -> Dictionary:
 	if selected_theme_index >= 0 and selected_theme_index < available_themes.size():
