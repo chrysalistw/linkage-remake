@@ -1,33 +1,5 @@
 {
-  "schema_version": "1.0",
-  "default_theme": "green_classic",
   "themes": [
-    {
-      "id": "green_classic",
-      "config_file": "themes/green_classic/theme_config.json",
-      "enabled": true,
-      "unlock_condition": "default",
-      "display_order": 0
-    },
-    {
-      "id": "red_bold",
-      "config_file": "themes/red_bold/theme_config.json",
-      "enabled": true,
-      "unlock_condition": "default",
-      "display_order": 1
-    },
-    {
-      "id": "blue_modern",
-      "config_file": "themes/blue_modern/theme_config.json", 
-      "enabled": true,
-      "unlock_condition": "default",
-      "display_order": 2
-    }
-  ],
-  "settings": {
-    "auto_unlock_themes": true,
-    "allow_custom_themes": false,
-    "theme_preview_enabled": true,
-    "transition_animations": true
-  }
+	"themes/default_green/theme_config.json",
+  ]
 }

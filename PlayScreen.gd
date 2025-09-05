@@ -81,11 +81,15 @@ func _apply_current_theme():
 func _apply_theme(theme_data: Dictionary):
 	# Apply background color
 	if background and theme_data.has("background_color"):
-		background.color = theme_data["background_color"]
+		var bg_color = theme_data["background_color"]
+		if bg_color is String:
+			background.color = Color(bg_color)
+		else:
+			background.color = bg_color
 	
 	# Apply theme resource
-	if theme_data.has("theme_resource"):
-		var theme_resource = load(theme_data["theme_resource"])
+	if theme_data.has("theme_path"):
+		var theme_resource = load(theme_data["theme_path"])
 		if theme_resource:
 			theme = theme_resource
 

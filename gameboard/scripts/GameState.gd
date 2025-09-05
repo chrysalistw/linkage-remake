@@ -173,7 +173,7 @@ func use_coins_for_reward():
 func get_selected_theme_data() -> Dictionary:
 	if selected_theme_index >= 0 and selected_theme_index < available_themes.size():
 		return available_themes[selected_theme_index]
-	return available_themes[1]  # Fallback to Blue Modern
+	return available_themes[0]  # Fallback to Blue Modern
 
 func get_selected_tileset_resource() -> String:
 	return get_selected_theme_data()["tileset_path"]

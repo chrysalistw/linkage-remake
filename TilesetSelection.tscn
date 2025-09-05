@@ -60,84 +60,39 @@ layout_mode = 2
 layout_mode = 2
 size_flags_horizontal = 4
 size_flags_vertical = 3
-theme_override_constants/h_separation = 30
-theme_override_constants/v_separation = 30
+theme_override_constants/h_separation = 40
+theme_override_constants/v_separation = 40
 columns = 3
 
 [node name="TilesetButton0" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 text = "Green Classic"
 
-[node name="TilesetPreview0" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton0"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -60.0
-offset_right = 40.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch_mode = 1
-
 [node name="TilesetButton1" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 text = "Blue Modern"
 
-[node name="TilesetPreview1" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton1"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -60.0
-offset_right = 40.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch_mode = 1
-
 [node name="TilesetButton2" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 text = "Red Bold"
 
-[node name="TilesetPreview2" type="TextureRect" parent="VBoxContainer/GridContainer/TilesetButton2"]
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -40.0
-offset_top = -60.0
-offset_right = 40.0
-offset_bottom = 20.0
-grow_horizontal = 2
-grow_vertical = 2
-stretch_mode = 1
-
 [node name="TilesetButton3" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"
 
 [node name="TilesetButton4" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"
 
 [node name="TilesetButton5" type="Button" parent="VBoxContainer/GridContainer"]
-custom_minimum_size = Vector2(180, 180)
+custom_minimum_size = Vector2(200, 240)
 layout_mode = 2
 disabled = true
 text = "Coming Soon"

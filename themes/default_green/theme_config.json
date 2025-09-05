@@ -1,0 +1,9 @@
+{
+  "name": "Default Green",
+  "title_path": "res://themes/default_green/logo.png",
+  "tileset_path": "res://themes/default_green/default_green_tile_anim.tres",
+  "bg_pattern_path": "res://themes/default_green/bg_pattern.png",
+  "theme_path": "res://themes/default_green/default_green.tres",
+  "background_color": "#eaecf3",
+  "preview_face": 0
+}

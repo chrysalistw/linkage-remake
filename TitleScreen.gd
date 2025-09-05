@@ -1,6 +1,8 @@
 extends Control
 
 @onready var background = $Background
+@onready var logo = $Logo
+@onready var bg_pattern = $bg_pattern
 
 func _ready():
 	MobileAds.initialize()
@@ -40,10 +42,28 @@ func _apply_current_theme():
 func _apply_theme(theme_data: Dictionary):
 	# Apply background color
 	if background and theme_data.has("background_color"):
-		background.color = theme_data["background_color"]
+		var bg_color = theme_data["background_color"]
+		if bg_color is String:
+			background.color = Color(bg_color)
+		else:
+			background.color = bg_color
+	
+	# Apply logo
+	if logo and theme_data.has("title_path") and theme_data["title_path"]:
+		var logo_texture = load(theme_data["title_path"])
+		if logo_texture:
+			logo.texture = logo_texture
+			logo.visible = true
+	
+	# Apply background pattern
+	if bg_pattern and theme_data.has("bg_pattern_path") and theme_data["bg_pattern_path"]:
+		var pattern_texture = load(theme_data["bg_pattern_path"])
+		if pattern_texture:
+			bg_pattern.texture = pattern_texture
+			bg_pattern.visible = true
 	
 	# Apply theme resource
-	if theme_data.has("theme_resource"):
-		var theme_resource = load(theme_data["theme_resource"])
+	if theme_data.has("theme_path"):
+		var theme_resource = load(theme_data["theme_path"])
 		if theme_resource:
 			theme = theme_resource

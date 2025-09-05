@@ -26,11 +26,9 @@ func load_themes():
 	var registry = json.data
 	themes.clear()
 	
-	for theme_entry in registry.themes:
-		var theme_config = load_theme_config(theme_entry.config_file)
+	for config_file in registry.themes:
+		var theme_config = load_theme_config(config_file)
 		if theme_config:
-			theme_config["id"] = theme_entry.id
-			theme_config["enabled"] = theme_entry.enabled
 			themes.append(theme_config)
 
 func load_theme_config(config_path: String) -> Dictionary:
