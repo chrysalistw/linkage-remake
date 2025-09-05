@@ -3,12 +3,12 @@
 [ext_resource type="FontFile" uid="uid://c5l2xth032cow" path="res://linkageaaa/Ubuntu-Regular.ttf" id="1_ubuntu_font"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_dialog"]
-bg_color = Color(0.102, 0.114, 0.161, 0.98)
+bg_color = Color(0.08, 0.08, 0.15, 0.98)
 border_width_left = 3
 border_width_top = 3
 border_width_right = 3
 border_width_bottom = 3
-border_color = Color(0, 1, 0.443, 1)
+border_color = Color(0.2, 0.2, 1, 1)
 corner_radius_top_left = 16
 corner_radius_top_right = 16
 corner_radius_bottom_right = 16
@@ -17,9 +17,9 @@ corner_radius_bottom_left = 16
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ag65a"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_button_normal"]
-bg_color = Color(0, 1, 0.443, 1)
+bg_color = Color(0.2, 0.2, 1, 1)
 border_width_bottom = 8
-border_color = Color(0, 0.388235, 0.278431, 1)
+border_color = Color(0.1, 0.1, 0.5, 1)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
@@ -30,18 +30,18 @@ content_margin_left = 2.0
 content_margin_top = 4.0
 content_margin_right = 2.0
 content_margin_bottom = 0.0
-bg_color = Color(0, 1, 0.443137, 1)
+bg_color = Color(0.2, 0.2, 1, 1)
 border_width_top = 8
-border_color = Color(0, 0.388235, 0.278431, 1)
+border_color = Color(0.1, 0.1, 0.5, 1)
 corner_radius_top_left = 30
 corner_radius_top_right = 30
 corner_radius_bottom_right = 30
 corner_radius_bottom_left = 30
 
 [sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.0675489, 0.584914, 0.376821, 1)
+bg_color = Color(0.1, 0.2, 0.6, 1)
 border_width_bottom = 10
-border_color = Color(0, 0.553, 0.325, 0.5)
+border_color = Color(0.05, 0.15, 0.4, 0.5)
 corner_radius_top_left = 12
 corner_radius_top_right = 12
 corner_radius_bottom_right = 12
@@ -50,19 +50,19 @@ corner_radius_bottom_left = 12
 [resource]
 default_font = ExtResource("1_ubuntu_font")
 default_font_size = 18
-AcceptDialog/colors/title_color = Color(0, 1, 0.443, 1)
+AcceptDialog/colors/title_color = Color(0.2, 0.2, 1, 1)
 AcceptDialog/font_sizes/title_font_size = 30
 AcceptDialog/styles/panel = SubResource("StyleBoxFlat_dialog")
-Button/colors/font_color = Color(0, 0.387274, 0.277944, 1)
-Button/colors/font_hover_color = Color(0, 0.388235, 0.278431, 1)
-Button/colors/font_pressed_color = Color(0, 0.388235, 0.278431, 1)
+Button/colors/font_color = Color(0.1, 0.1, 0.5, 1)
+Button/colors/font_hover_color = Color(0.1, 0.1, 0.5, 1)
+Button/colors/font_pressed_color = Color(0.1, 0.1, 0.5, 1)
 Button/font_sizes/font_size = 24
 Button/styles/focus = SubResource("StyleBoxEmpty_ag65a")
 Button/styles/hover = SubResource("StyleBoxFlat_button_normal")
 Button/styles/normal = SubResource("StyleBoxFlat_button_normal")
 Button/styles/pressed = SubResource("StyleBoxFlat_button_pressed")
 Label/colors/font_color = Color(0.9, 0.95, 1, 1)
-Label/colors/font_shadow_color = Color(0, 0.553, 0.325, 0.5)
+Label/colors/font_shadow_color = Color(0.05, 0.15, 0.4, 0.5)
 Label/constants/shadow_offset_x = 2
 Label/constants/shadow_offset_y = 2
 Label/font_sizes/font_size = 18

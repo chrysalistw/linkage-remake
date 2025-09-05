@@ -60,38 +60,9 @@ var tile_size: int = 64
 var current_sprite: String = "green"
 var removing_sprite: String = "green_fade"
 
-# Theme environment management - unified tileset, theme, and background
-var available_themes: Array[Dictionary] = [
-	{
-		"name": "Green Classic", 
-		"tileset_resource": "res://gameboard/resources/pipe_sprites.tres", 
-		"theme_resource": "res://theme/green_theme.tres",
-		"background_color": Color(0.85, 0.92, 0.87, 1.0),  # Light green tint
-		"preview_face": 4
-	},
-	{
-		"name": "Green Animated", 
-		"tileset_resource": "res://gameboard/resources/green_tile_anim.tres", 
-		"theme_resource": "res://theme/green_theme.tres",
-		"background_color": Color(0.85, 0.92, 0.87, 1.0),  # Light green tint
-		"preview_face": 4
-	},
-	{
-		"name": "Blue Modern", 
-		"tileset_resource": "res://gameboard/resources/tile1_sprites.tres", 
-		"theme_resource": "res://theme/blue_theme.tres",
-		"background_color": Color(0.917, 0.925, 0.951, 1.0),  # Light blue (current)
-		"preview_face": 4
-	},
-	{
-		"name": "Red Bold", 
-		"tileset_resource": "res://gameboard/resources/tile_red_sprites.tres", 
-		"theme_resource": "res://theme/red_theme.tres",
-		"background_color": Color(0.95, 0.87, 0.85, 1.0),  # Light red tint
-		"preview_face": 4
-	}
-]
-var selected_theme_index: int = 1  # Default to Blue Modern
+# Theme environment management - now uses ThemeManager
+var available_themes: Array[Dictionary] = []
+var selected_theme_index: int = 0  # Default to Green Default
 
 signal theme_changed(theme_data: Dictionary)
 
@@ -103,6 +74,13 @@ var _loading_data: bool = false
 var sounds: Dictionary = {}
 
 func _ready():
+	# Initialize theme manager
+	var theme_manager = ThemeManager.new()
+	theme_manager.load_themes()
+	available_themes = theme_manager.themes
+	print("GameState: Loaded ", available_themes.size(), " themes")
+	for i in range(available_themes.size()):
+		print("Theme ", i, ": ", available_themes[i].get("name", "Unknown"))
 	# Load persistent data first
 	load_game_data()
 	# Initialize default values
@@ -198,13 +176,16 @@ func get_selected_theme_data() -> Dictionary:
 	return available_themes[1]  # Fallback to Blue Modern
 
 func get_selected_tileset_resource() -> String:
-	return get_selected_theme_data()["tileset_resource"]
+	return get_selected_theme_data()["tileset_path"]
 
 func get_selected_theme_resource() -> String:
-	return get_selected_theme_data()["theme_resource"]
+	return get_selected_theme_data()["theme_path"]
 
 func get_selected_background_color() -> Color:
-	return get_selected_theme_data()["background_color"]
+	var bg_color = get_selected_theme_data()["background_color"]
+	if bg_color is String:
+		return Color(bg_color)
+	return bg_color
 
 func set_selected_theme(index: int):
 	if index >= 0 and index < available_themes.size():

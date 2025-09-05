@@ -1,0 +1,69 @@
+extends Node
+class_name ThemeManager
+
+var themes: Array[Dictionary] = []
+var current_theme: Dictionary = {}
+
+func _ready():
+	load_themes()
+
+func load_themes():
+	var registry_path = "res://themes/theme_registry.json"
+	var file = FileAccess.open(registry_path, FileAccess.READ)
+	if not file:
+		print("Failed to load theme registry")
+		return
+	
+	var json_string = file.get_as_text()
+	file.close()
+	
+	var json = JSON.new()
+	var parse_result = json.parse(json_string)
+	if parse_result != OK:
+		print("Failed to parse theme registry JSON")
+		return
+	
+	var registry = json.data
+	themes.clear()
+	
+	for theme_entry in registry.themes:
+		var theme_config = load_theme_config(theme_entry.config_file)
+		if theme_config:
+			theme_config["id"] = theme_entry.id
+			theme_config["enabled"] = theme_entry.enabled
+			themes.append(theme_config)
+
+func load_theme_config(config_path: String) -> Dictionary:
+	var file = FileAccess.open("res://" + config_path, FileAccess.READ)
+	if not file:
+		print("Failed to load theme config: ", config_path)
+		return {}
+	
+	var json_string = file.get_as_text()
+	file.close()
+	
+	var json = JSON.new()
+	var parse_result = json.parse(json_string)
+	if parse_result != OK:
+		print("Failed to parse theme config JSON: ", config_path)
+		return {}
+	
+	return json.data
+
+func get_theme_count() -> int:
+	return themes.size()
+
+func get_theme(index: int) -> Dictionary:
+	if index >= 0 and index < themes.size():
+		return themes[index]
+	return {}
+
+func get_theme_name(index: int) -> String:
+	var theme = get_theme(index)
+	return theme.get("name", "Unknown")
+
+func set_current_theme(index: int):
+	current_theme = get_theme(index)
+
+func get_current_theme() -> Dictionary:
+	return current_theme

@@ -1,0 +1,9 @@
+{
+  "name": "Red Theme",
+  "title_path": null,
+  "tileset_path": "res://gameboard/resources/green_tile_anim.tres",
+  "bg_pattern_path": null,
+  "theme_path": "res://theme/red_theme.tres",
+  "background_color": "#F2D8D5",
+  "preview_face": 4
+}

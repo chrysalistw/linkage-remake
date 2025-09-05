@@ -1,0 +1,9 @@
+{
+  "name": "Green Default",
+  "title_path": null,
+  "tileset_path": "res://gameboard/resources/green_tile_anim.tres",
+  "bg_pattern_path": null,
+  "theme_path": "res://theme/green_theme.tres",
+  "background_color": "#D9EBD9",
+  "preview_face": 4
+}

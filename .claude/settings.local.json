@@ -2,7 +2,19 @@
   "permissions": {
     "allow": [
       "Bash(git log:*)",
-      "Bash(cp:*)"
+      "Bash(cp:*)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\scripts/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\theme/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\scripts/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\scripts/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\theme/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\theme/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\resources/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\resources/**)",
+      "Read(/C:\\Users\\csn\\Documents\\linkage-remake\\gameboard\\resources/**)"
     ],
     "deny": []
   }

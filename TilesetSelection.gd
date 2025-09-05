@@ -79,17 +79,24 @@ func setup_previews():
 		var button = theme_buttons[i]
 		if i < GameState.get_theme_count():
 			var theme_data = GameState.available_themes[i]
+			print("TilesetSelection: Loading theme ", i, ": ", theme_data.get("name", "Unknown"))
+			print("TilesetSelection: Tileset path: ", theme_data.get("tileset_path", "Missing"))
 			
 			# Setup tileset preview
 			var preview_name = "TilesetPreview" + str(i)
 			var preview = button.get_node(preview_name) as TextureRect
 			if preview:
 				theme_previews.append(preview)
-				var pipe_sprites = load(theme_data["tileset_resource"]) as PipeSprites
-				if pipe_sprites:
-					var preview_texture = pipe_sprites.get_pipe_texture(theme_data["preview_face"])
+				var tile_sprites = load(theme_data["tileset_path"]) as UnifiedTileSprites
+				if tile_sprites:
+					print("TilesetSelection: Unified tile sprites loaded successfully")
+					var preview_texture = tile_sprites.get_pipe_texture(theme_data["preview_face"])
 					if preview_texture:
 						preview.texture = preview_texture
+					else:
+						print("TilesetSelection: Failed to get preview texture for face: ", theme_data["preview_face"])
+				else:
+					print("TilesetSelection: Failed to load unified tile sprites from: ", theme_data["tileset_path"])
 			
 			# Setup background color preview (if there's a ColorRect for it)
 			var bg_preview_name = "BackgroundPreview" + str(i)
@@ -182,6 +189,8 @@ func _apply_theme(theme_data: Dictionary):
 		# Create or update the title panel's style
 		var style = StyleBoxFlat.new()
 		var bg_color = theme_data["background_color"]
+		if bg_color is String:
+			bg_color = Color(bg_color)
 		# Make title panel slightly darker for contrast
 		var panel_color = Color(
 			bg_color.r * 0.8,
