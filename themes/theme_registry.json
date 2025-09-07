@@ -1,5 +1,6 @@
 {
   "themes": [
 	"themes/default_green/theme_config.json",
+	"themes/default_red/theme_config.json"
   ]
 }

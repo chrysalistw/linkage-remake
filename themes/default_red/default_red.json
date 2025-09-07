@@ -1,0 +1,13 @@
+{
+  "name": "Red Default",
+  "tilesetPrimary": "#ff0000",
+  "tilesetOutline": "#800000",
+  "displayPanelColor": "#ff0000",
+  "displayPanelOutline": "#800000",
+  "dialogPanelColor": "#fbedbc",
+  "dialogPanelOutline": "#fd7126",
+  "textColor": "#800000",
+  "backgroundColor": "#fcd2a5",
+  "patternColor": "#fd7126",
+  "timestamp": "2025-09-07T13:31:02.090Z"
+}

@@ -13,6 +13,26 @@ class_name ItemDisplay
 func _ready():
 	print($HBoxContainer/ItemLabel)
 	_update_display()
+	_connect_theme_signal()
+	_apply_current_theme()
+
+func _connect_theme_signal():
+	if GameState.theme_changed.is_connected(_on_theme_changed):
+		return
+	GameState.theme_changed.connect(_on_theme_changed)
+
+func _on_theme_changed(theme_data: Dictionary):
+	_apply_theme(theme_data)
+
+func _apply_current_theme():
+	var theme_data = GameState.get_selected_theme_data()
+	_apply_theme(theme_data)
+
+func _apply_theme(theme_data: Dictionary):
+	if theme_data.has("theme_path"):
+		var theme_resource = load(theme_data["theme_path"])
+		if theme_resource:
+			theme = theme_resource
 
 func _update_display():
 	var item_icon = $HBoxContainer/ItemIcon

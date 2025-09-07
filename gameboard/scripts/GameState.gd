@@ -83,6 +83,8 @@ func _ready():
 		print("Theme ", i, ": ", available_themes[i].get("name", "Unknown"))
 	# Load persistent data first
 	load_game_data()
+	# Apply the loaded theme
+	_apply_loaded_theme()
 	# Initialize default values
 	reset_game()
 
@@ -191,7 +193,16 @@ func set_selected_theme(index: int):
 	if index >= 0 and index < available_themes.size():
 		selected_theme_index = index
 		var theme_data = available_themes[index]
+		# Save the theme preference immediately
+		save_game_data()
 		emit_signal("theme_changed", theme_data)
+
+func _apply_loaded_theme():
+	# Apply the loaded theme on startup
+	if selected_theme_index >= 0 and selected_theme_index < available_themes.size():
+		var theme_data = available_themes[selected_theme_index]
+		emit_signal("theme_changed", theme_data)
+		print("GameState: Applied loaded theme: ", theme_data.get("name", "Unknown"))
 
 func get_theme_name(index: int) -> String:
 	if index >= 0 and index < available_themes.size():

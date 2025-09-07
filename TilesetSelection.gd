@@ -4,15 +4,14 @@ extends Control
 # Allows player to choose between available theme packages (tileset + background + UI theme)
 
 @onready var grid_container = $VBoxContainer/GridContainer
-@onready var back_button = $VBoxContainer/BackButton
+@onready var back_button = $VBoxContainer/ButtonContainer/BackButton
 @onready var title_panel = $VBoxContainer/TitlePanel
 @onready var background = $Background
 
 var theme_buttons: Array[Button] = []
 var theme_previews: Array = []  # Now holds Array[TextureRect] for each theme
 var background_previews: Array[ColorRect] = []
-var selection_borders: Array[ColorRect] = []
-var selection_labels: Array[Label] = []
+var selection_frames: Array[Panel] = []
 
 func _ready():
 	setup_theme_buttons()
@@ -26,6 +25,7 @@ func _ready():
 	# Setup responsive design and hover effects
 	setup_hover_effects()
 	_optimize_for_mobile()
+	var button = $VBoxContainer/GridContainer/TilesetButton4
 
 func setup_theme_buttons():
 	# Get theme buttons and connect signals
@@ -35,31 +35,31 @@ func setup_theme_buttons():
 		if button:
 			theme_buttons.append(button)
 			
-			# Create selection border for each button
-			var border = ColorRect.new()
-			border.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			border.color = Color.TRANSPARENT
-			border.size = button.size + Vector2(8, 8)  # 4px border on each side
-			border.position = Vector2(-4, -4)  # Offset to center the border
-			button.add_child(border)
-			button.move_child(border, 0)  # Move border to first child (behind content)
-			selection_borders.append(border)
+			# Create selection frame for each button
+			var frame = Panel.new()
+			frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			frame.visible = false  # Initially hidden
+			frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+			frame.position = Vector2(0, 0)  # Same position as button
+			frame.size = button.size  # Same size as button
 			
-			# Create "SELECTED" label for each button
-			var label = Label.new()
-			label.text = "✓ SELECTED"
-			label.modulate = Color.TRANSPARENT  # Initially hidden
-			label.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			label.add_theme_font_size_override("font_size", 14)
-			label.add_theme_color_override("font_color", Color.WHITE)
-			label.add_theme_color_override("font_shadow_color", Color.BLACK)
-			label.add_theme_constant_override("shadow_offset_x", 1)
-			label.add_theme_constant_override("shadow_offset_y", 1)
-			label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
-			label.position = Vector2(0, button.size.y - 25)  # Bottom of button
-			label.size = Vector2(button.size.x, 20)
-			button.add_child(label)
-			selection_labels.append(label)
+			# Create frame style
+			var frame_style = StyleBoxFlat.new()
+			frame_style.bg_color = Color.TRANSPARENT  # No background fill
+			frame_style.corner_radius_top_left = 12
+			frame_style.corner_radius_top_right = 12
+			frame_style.corner_radius_bottom_left = 12
+			frame_style.corner_radius_bottom_right = 12
+			frame_style.border_width_left = 4
+			frame_style.border_width_top = 4
+			frame_style.border_width_right = 4
+			frame_style.border_width_bottom = 4
+			frame_style.border_color = Color.WHITE  # Default frame color
+			frame.add_theme_stylebox_override("panel", frame_style)
+			
+			button.add_child(frame)
+			button.move_child(frame, 0)  # Move frame to first child (behind content)
+			selection_frames.append(frame)
 			
 			if i < GameState.get_theme_count():
 				# Active theme
@@ -71,8 +71,8 @@ func setup_theme_buttons():
 				button.text = "Coming Soon"
 				button.disabled = true
 	
-	# Apply initial highlight after all buttons are set up
-	update_selection_highlight()
+	# Apply initial selection frame after all buttons are set up
+	update_selection_frame()
 
 func setup_previews():
 	# Setup preview textures and background colors for available themes
@@ -205,77 +205,53 @@ func _on_theme_button_pressed(index: int):
 	GameState.set_selected_theme(index)
 	
 	# Update visual feedback
-	update_selection_highlight()
+	update_selection_frame()
 	
 	# Optional: Play sound effect
 	GameState.play_sound("click")
 
-func update_selection_highlight():
-	# Reset all button colors, borders, and labels
-	for i in range(theme_buttons.size()):
-		if i < GameState.get_theme_count() and i < theme_buttons.size():
+func update_selection_frame():
+	# Reset all frames and apply selection frame to active theme
+	for i in range(selection_frames.size()):
+		if i < GameState.get_theme_count() and i < selection_frames.size():
 			if i == GameState.selected_theme_index:
-				# Selected theme - enhanced visual feedback
-				apply_selected_theme_style(i)
+				# Selected theme - show frame with theme accent color
+				show_selection_frame(i)
 			else:
-				# Unselected theme - subtle hover-ready appearance
-				apply_unselected_theme_style(i)
+				# Unselected theme - hide frame
+				hide_selection_frame(i)
 
-func apply_selected_theme_style(theme_index: int):
-	"""Apply enhanced visual styling for the selected theme"""
-	var button = theme_buttons[theme_index]
-	var theme_data = GameState.available_themes[theme_index]
-	var accent_color = _get_theme_accent_color(theme_data)
-	
-	# Enhanced button highlighting with pulsing effect
-	button.modulate = Color(1.2, 1.2, 1.05)  # Subtle brightness boost
-	
-	# Create animated glowing border
-	if theme_index < selection_borders.size():
-		var border = selection_borders[theme_index]
-		border.color = accent_color
+func show_selection_frame(theme_index: int):
+	"""Show the selection frame for the selected theme"""
+	if theme_index < selection_frames.size() and theme_index < theme_buttons.size():
+		var frame = selection_frames[theme_index]
+		var button = theme_buttons[theme_index]
+		var theme_data = GameState.available_themes[theme_index]
+		var accent_color = _get_theme_accent_color(theme_data)
 		
-		# Add pulsing animation to the border
+		# Resize frame to match current button size
+		frame.size = button.size
+		frame.position = Vector2(0, 0)
+		
+		# Update frame style with theme accent color
+		var frame_style = frame.get_theme_stylebox("panel") as StyleBoxFlat
+		if frame_style:
+			frame_style.border_color = accent_color
+		
+		# Make frame visible
+		frame.visible = true
+		
+		# Add subtle pulsing animation to the frame
 		var tween = create_tween()
 		tween.set_loops()
-		tween.tween_method(
-			func(alpha): border.color = Color(accent_color.r, accent_color.g, accent_color.b, alpha),
-			0.6, 1.0, 0.8
-		)
-		tween.tween_method(
-			func(alpha): border.color = Color(accent_color.r, accent_color.g, accent_color.b, alpha),
-			1.0, 0.6, 0.8
-		)
-	
-	# Enhanced "SELECTED" label with better positioning and styling
-	if theme_index < selection_labels.size():
-		var label = selection_labels[theme_index]
-		label.modulate = Color.WHITE
-		label.text = "✓ ACTIVE"
-		label.add_theme_font_size_override("font_size", 16)
-		label.add_theme_color_override("font_color", accent_color)
-		label.add_theme_color_override("font_shadow_color", Color.BLACK)
-		label.add_theme_constant_override("shadow_offset_x", 2)
-		label.add_theme_constant_override("shadow_offset_y", 2)
-		
-		# Create subtle bounce animation for the label
-		var label_tween = create_tween()
-		label_tween.set_loops()
-		label_tween.tween_property(label, "position:y", button.size.y - 30, 0.6)
-		label_tween.tween_property(label, "position:y", button.size.y - 20, 0.6)
+		tween.tween_property(frame, "modulate", Color(1.0, 1.0, 1.0, 0.7), 0.8)
+		tween.tween_property(frame, "modulate", Color(1.0, 1.0, 1.0, 1.0), 0.8)
 
-func apply_unselected_theme_style(theme_index: int):
-	"""Apply subtle styling for unselected themes"""
-	var button = theme_buttons[theme_index]
-	
-	# Subtle dimming with hover-ready state
-	button.modulate = Color(0.85, 0.85, 0.85, 1.0)
-	
-	# Remove border and label
-	if theme_index < selection_borders.size():
-		selection_borders[theme_index].color = Color.TRANSPARENT
-	if theme_index < selection_labels.size():
-		selection_labels[theme_index].modulate = Color.TRANSPARENT
+func hide_selection_frame(theme_index: int):
+	"""Hide the selection frame for unselected themes"""
+	if theme_index < selection_frames.size():
+		var frame = selection_frames[theme_index]
+		frame.visible = false
 
 func _get_theme_accent_color(theme_data: Dictionary) -> Color:
 	# Return accent color based on theme name
@@ -300,8 +276,8 @@ func _connect_theme_signals():
 
 func _on_theme_changed(theme_data: Dictionary):
 	_apply_theme(theme_data)
-	# Also update selection highlight
-	update_selection_highlight()
+	# Also update selection frame
+	update_selection_frame()
 
 func _apply_current_theme():
 	var theme_data = GameState.get_selected_theme_data()
@@ -322,35 +298,11 @@ func _apply_theme(theme_data: Dictionary):
 		if theme_resource:
 			theme = theme_resource
 	
-	# Apply title panel styling based on theme
-	if title_panel and theme_data.has("background_color"):
-		# Create or update the title panel's style
-		var style = StyleBoxFlat.new()
-		var bg_color = theme_data["background_color"]
-		if bg_color is String:
-			bg_color = Color(bg_color)
-		# Make title panel slightly darker for contrast
-		var panel_color = Color(
-			bg_color.r * 0.8,
-			bg_color.g * 0.8,
-			bg_color.b * 0.8,
-			0.9
-		)
-		style.bg_color = panel_color
-		style.corner_radius_top_left = 25
-		style.corner_radius_top_right = 25
-		style.corner_radius_bottom_left = 25
-		style.corner_radius_bottom_right = 25
-		
-		# Add accent color border
-		var accent_color = _get_theme_accent_color(theme_data)
-		style.border_color = accent_color
-		style.border_width_left = 4
-		style.border_width_top = 4
-		style.border_width_right = 4
-		style.border_width_bottom = 4
-		
-		title_panel.add_theme_stylebox_override("panel", style)
+	# Apply theme's panel style to title panel
+	if title_panel and theme_data.has("theme_path"):
+		var theme_resource = load(theme_data["theme_path"])
+		if theme_resource:
+			title_panel.theme = theme_resource
 
 func setup_hover_effects():
 	"""Add hover effects to theme buttons for better interactivity"""
@@ -374,7 +326,7 @@ func _on_theme_button_hover_exit(theme_index: int):
 		var button = theme_buttons[theme_index]
 		# Return to normal state
 		var tween = create_tween()
-		tween.tween_property(button, "modulate", Color(0.85, 0.85, 0.85), 0.2)
+		tween.tween_property(button, "modulate", Color(1.0, 1.0, 1.0), 0.2)
 
 func _optimize_for_mobile():
 	"""Optimize layout and sizing for mobile devices"""

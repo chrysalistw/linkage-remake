@@ -87,11 +87,18 @@ func _apply_theme(theme_data: Dictionary):
 		else:
 			background.color = bg_color
 	
-	# Apply theme resource
+	# Apply theme resource to main screen and all dialogs
 	if theme_data.has("theme_path"):
 		var theme_resource = load(theme_data["theme_path"])
 		if theme_resource:
 			theme = theme_resource
+			# Apply to all dialogs
+			if game_lost_dialog:
+				game_lost_dialog.theme = theme_resource
+			if reward_confirm_dialog:
+				reward_confirm_dialog.theme = theme_resource
+			if home_confirm_dialog:
+				home_confirm_dialog.theme = theme_resource
 
 func _update_ui():
 	moves_display.update_quantity(GameState.moves_left)

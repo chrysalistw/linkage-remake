@@ -1,0 +1,9 @@
+{
+  "name": "default red",
+  "title_path": "res://themes/default_red/logo.png",
+  "tileset_path": "res://themes/default_red/default_red_tile_anim.tres",
+  "bg_pattern_path": "res://themes/default_red/bg_pattern.png",
+  "theme_path": "res://themes/default_red/default_red.tres",
+  "background_color": "#fcd2a5",
+  "preview_face": 0
+}
