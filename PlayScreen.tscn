@@ -1,23 +1,14 @@
-[gd_scene load_steps=11 format=3 uid="uid://cqm2sxhj3jfmd"]
+[gd_scene load_steps=10 format=3 uid="uid://cqm2sxhj3jfmd"]
 
 [ext_resource type="Script" uid="uid://cut2nmmfqsy3s" path="res://PlayScreen.gd" id="1_r8xdl"]
 [ext_resource type="PackedScene" uid="uid://cyjkxr82hxhf8" path="res://gameboard/scenes/GameBoard.tscn" id="2_gameboard"]
 [ext_resource type="PackedScene" uid="uid://bvxqy8n4x5wqp" path="res://ItemDisplay.tscn" id="3_item_display"]
-[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="3_theme"]
+[ext_resource type="Theme" uid="uid://dwsj6kn2y4tds" path="res://themes/default_green/default_green.tres" id="3_theme"]
 [ext_resource type="Texture2D" uid="uid://cr34aclui3pyc" path="res://assets/coin.png" id="4_74rhi"]
 [ext_resource type="PackedScene" uid="uid://b4n8x7j1k2nap" path="res://ui/RewardButton.tscn" id="4_reward_scene"]
 [ext_resource type="PackedScene" uid="uid://c7p5yaj2k8m4q" path="res://ui/ShuffleButton.tscn" id="5_shuffle_scene"]
 [ext_resource type="PackedScene" uid="uid://cf8e6nu3xwb1" path="res://ui/HomeButton.tscn" id="6_home_scene"]
 [ext_resource type="Script" uid="uid://6nrmwidwtyqf" path="res://ui/PopupManager.gd" id="7_popup_manager"]
-
-[sub_resource type="StyleBoxFlat" id="StyleBoxFlat_panel"]
-bg_color = Color(0.0675489, 0.584914, 0.376821, 1)
-border_width_bottom = 10
-border_color = Color(0, 0.552941, 0.32549, 1)
-corner_radius_top_left = 12
-corner_radius_top_right = 12
-corner_radius_bottom_right = 12
-corner_radius_bottom_left = 12
 
 [node name="PlayScreen" type="Control"]
 layout_mode = 3
@@ -165,23 +156,26 @@ initial_position = 2
 size = Vector2i(350, 300)
 popup_window = false
 theme = ExtResource("3_theme")
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="GameLostDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 350.0
-offset_bottom = 290.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 347.0
+offset_bottom = 297.0
 
 [node name="TitleLabel" type="Label" parent="GameLostDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 28
 text = "Game Over"
 horizontal_alignment = 1
 
 [node name="MessageLabel" type="Label" parent="GameLostDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 24
 text = "No More Moves!"
 horizontal_alignment = 1
@@ -196,6 +190,7 @@ alignment = 1
 
 [node name="ScoreLabel" type="Label" parent="GameLostDialog/VBox/StatsContainer/ScoreContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.9, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 18
 text = "Final Score: 0"
 horizontal_alignment = 1
@@ -212,6 +207,7 @@ stretch_mode = 4
 
 [node name="CoinsLabel" type="Label" parent="GameLostDialog/VBox/StatsContainer/CoinsContainer"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.4, 0.9, 1)
 theme_override_font_sizes/font_size = 18
 text = "Coins Earned: 0"
 horizontal_alignment = 1
@@ -233,23 +229,26 @@ initial_position = 2
 size = Vector2i(320, 200)
 popup_window = false
 theme = ExtResource("3_theme")
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="RewardConfirmDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 320.0
-offset_bottom = 454.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 317.0
+offset_bottom = 457.0
 
 [node name="TitleLabel" type="Label" parent="RewardConfirmDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 20
 text = "Watch Ad for Reward?"
 horizontal_alignment = 1
 
 [node name="MessageLabel" type="Label" parent="RewardConfirmDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "Spend 10 coins and watch a short ad to replace bad tiles with better ones?"
 horizontal_alignment = 1
@@ -274,23 +273,26 @@ initial_position = 2
 size = Vector2i(300, 180)
 popup_window = false
 theme = ExtResource("3_theme")
-theme_override_styles/panel = SubResource("StyleBoxFlat_panel")
 
 [node name="VBox" type="VBoxContainer" parent="HomeConfirmDialog"]
 anchors_preset = 15
 anchor_right = 1.0
 anchor_bottom = 1.0
-offset_right = 300.0
-offset_bottom = 428.0
+offset_left = 3.0
+offset_top = 3.0
+offset_right = 297.0
+offset_bottom = 431.0
 
 [node name="TitleLabel" type="Label" parent="HomeConfirmDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 20
 text = "Leave Game?"
 horizontal_alignment = 1
 
 [node name="MessageLabel" type="Label" parent="HomeConfirmDialog/VBox"]
 layout_mode = 2
+theme_override_colors/font_color = Color(0.2, 0.2, 0.2, 1)
 theme_override_font_sizes/font_size = 16
 text = "Are you sure you want to go home? Your current game will be lost."
 horizontal_alignment = 1

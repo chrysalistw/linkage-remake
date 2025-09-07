@@ -1,10 +1,7 @@
-[gd_scene load_steps=4 format=3 uid="uid://bvxqy8n4x5wqp"]
+[gd_scene load_steps=3 format=3 uid="uid://bvxqy8n4x5wqp"]
 
 [ext_resource type="Script" uid="uid://br74dd0tug81q" path="res://ItemDisplay.gd" id="1_0x5wq"]
-[ext_resource type="Theme" uid="uid://be8grmawpb7cm" path="res://theme/default_theme.tres" id="2_3x5wq"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_tl3le"]
-font_size = 24
+[ext_resource type="Theme" uid="uid://dwsj6kn2y4tds" path="res://themes/default_green/default_green.tres" id="1_tl3le"]
 
 [node name="ItemDisplay" type="Panel"]
 custom_minimum_size = Vector2(220, 80)
@@ -19,7 +16,7 @@ offset_right = -124.0
 offset_bottom = -516.0
 grow_horizontal = 2
 grow_vertical = 2
-theme = ExtResource("2_3x5wq")
+theme = ExtResource("1_tl3le")
 script = ExtResource("1_0x5wq")
 
 [node name="HBoxContainer" type="HBoxContainer" parent="."]
@@ -43,6 +40,7 @@ stretch_mode = 5
 [node name="ItemLabel" type="Label" parent="HBoxContainer"]
 layout_mode = 2
 size_flags_horizontal = 3
+theme = ExtResource("1_tl3le")
+theme_override_font_sizes/font_size = 24
 text = "Item: 0"
-label_settings = SubResource("LabelSettings_tl3le")
 vertical_alignment = 1

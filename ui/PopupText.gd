@@ -24,9 +24,12 @@ func setup_popup(text_content: String, type: PopupType, start_position: Vector2)
 	
 	# Set color and styling based on type
 	if popup_type == PopupType.SCORE:
-		modulate = Color(0.9, 0.2, 0.2, 1.0)  # Bright red for score
+		add_theme_color_override("font_color", Color(0.9, 0.2, 0.2, 1.0))  # Bright red for score
 	else:
-		modulate = Color(0.2, 0.4, 0.9, 1.0)  # Bright blue for moves
+		add_theme_color_override("font_color", Color(0.2, 0.4, 0.9, 1.0))  # Bright blue for moves
+	
+	# Start with transparent modulate for fade-in animation
+	modulate = Color(1.0, 1.0, 1.0, 0.0)
 	
 	# Set font size and styling for visibility
 	add_theme_font_size_override("font_size", 28)
