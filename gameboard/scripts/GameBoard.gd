@@ -313,6 +313,13 @@ func apply_tile_replacement_reward():
 	"""Replace half the tiles randomly with fade animation"""
 	print("Applying tile replacement reward...")
 	
+	# Deduct coins at the point of execution (moved from PlayScreen and GameState)
+	if GameState.coins >= 10:
+		GameState.coins -= 10
+		print("Deducted 10 coins for tile replacement reward")
+	else:
+		print("Warning: Not enough coins for reward, but proceeding anyway")
+	
 	# Disable input during replacement
 	disable_input()
 	

@@ -25,6 +25,9 @@ func _ready():
 	# Setup responsive design and hover effects
 	setup_hover_effects()
 	_optimize_for_mobile()
+	
+	# Preload interstitial ad for theme change
+	AdMobManager.load_interstitial()
 	var button = $VBoxContainer/GridContainer/TilesetButton4
 
 func setup_theme_buttons():
@@ -64,8 +67,8 @@ func setup_theme_buttons():
 			if i < GameState.get_theme_count():
 				# Active theme
 				button.pressed.connect(_on_theme_button_pressed.bind(i))
-				# Update button text with theme name
-				button.text = GameState.get_theme_name(i)
+				# Remove theme name text - keep button empty for visual preview focus
+				button.text = ""
 			else:
 				# Future slot - keep disabled
 				button.text = "Coming Soon"
@@ -73,6 +76,65 @@ func setup_theme_buttons():
 	
 	# Apply initial selection frame after all buttons are set up
 	update_selection_frame()
+
+func apply_theme_to_button(button: Button, theme_index: int, theme_data: Dictionary):
+	"""Apply the theme's visual styling to its button"""
+	
+	# Load the theme resource if available
+	if theme_data.has("theme_path"):
+		var theme_resource = load(theme_data["theme_path"])
+		if theme_resource:
+			button.theme = theme_resource
+	
+	# Create a custom StyleBox for the button background using theme colors
+	var bg_color = theme_data.get("background_color", Color.WHITE)
+	if bg_color is String:
+		bg_color = Color(bg_color)
+	
+	# Create StyleBoxFlat for normal state
+	var normal_style = StyleBoxFlat.new()
+	normal_style.bg_color = Color(bg_color.r * 0.95, bg_color.g * 0.95, bg_color.b * 0.95, 1.0)  # Slightly darker than background
+	normal_style.corner_radius_top_left = 12
+	normal_style.corner_radius_top_right = 12
+	normal_style.corner_radius_bottom_left = 12
+	normal_style.corner_radius_bottom_right = 12
+	normal_style.border_width_left = 3
+	normal_style.border_width_top = 3
+	normal_style.border_width_right = 3
+	normal_style.border_width_bottom = 3
+	normal_style.border_color = Color(bg_color.r * 0.7, bg_color.g * 0.7, bg_color.b * 0.7, 1.0)
+	
+	# Create StyleBoxFlat for hover state
+	var hover_style = StyleBoxFlat.new()
+	hover_style.bg_color = Color(bg_color.r * 1.05, bg_color.g * 1.05, bg_color.b * 1.05, 1.0)  # Slightly brighter
+	hover_style.corner_radius_top_left = 12
+	hover_style.corner_radius_top_right = 12
+	hover_style.corner_radius_bottom_left = 12
+	hover_style.corner_radius_bottom_right = 12
+	hover_style.border_width_left = 3
+	hover_style.border_width_top = 3
+	hover_style.border_width_right = 3
+	hover_style.border_width_bottom = 3
+	hover_style.border_color = Color(bg_color.r * 0.6, bg_color.g * 0.6, bg_color.b * 0.6, 1.0)
+	
+	# Create StyleBoxFlat for pressed state
+	var pressed_style = StyleBoxFlat.new()
+	pressed_style.bg_color = Color(bg_color.r * 0.85, bg_color.g * 0.85, bg_color.b * 0.85, 1.0)  # Darker when pressed
+	pressed_style.corner_radius_top_left = 12
+	pressed_style.corner_radius_top_right = 12
+	pressed_style.corner_radius_bottom_left = 12
+	pressed_style.corner_radius_bottom_right = 12
+	pressed_style.border_width_left = 3
+	pressed_style.border_width_top = 3
+	pressed_style.border_width_right = 3
+	pressed_style.border_width_bottom = 3
+	pressed_style.border_color = Color(bg_color.r * 0.5, bg_color.g * 0.5, bg_color.b * 0.5, 1.0)
+	
+	# Apply the custom styles to the button
+	button.add_theme_stylebox_override("normal", normal_style)
+	button.add_theme_stylebox_override("hover", hover_style) 
+	button.add_theme_stylebox_override("pressed", pressed_style)
+	button.add_theme_stylebox_override("focus", hover_style)  # Use hover style for focus
 
 func setup_previews():
 	# Setup preview textures and background colors for available themes
@@ -86,8 +148,11 @@ func setup_previews():
 			print("TilesetSelection: Loading theme ", i, ": ", theme_data.get("name", "Unknown"))
 			print("TilesetSelection: Tileset path: ", theme_data.get("tileset_path", "Missing"))
 			
-			# Create enhanced preview grid instead of single texture
-			create_enhanced_preview_grid(button, i, theme_data)
+			# Apply the theme's styling to the button itself
+			apply_theme_to_button(button, i, theme_data)
+			
+			# Create simple tile preview using theme config specification
+			create_simple_tile_preview(button, i, theme_data)
 			
 			# Setup background color preview (if there's a ColorRect for it)
 			var bg_preview_name = "BackgroundPreview" + str(i)
@@ -96,14 +161,19 @@ func setup_previews():
 				background_previews.append(bg_preview)
 				bg_preview.color = theme_data["background_color"]
 
-func create_enhanced_preview_grid(button: Button, theme_index: int, theme_data: Dictionary):
-	"""Create a 2x2 grid of different pipe tiles to show tileset variety"""
+func create_simple_tile_preview(button: Button, theme_index: int, theme_data: Dictionary):
+	"""Create a single tile preview using the preview_face specification from theme config"""
 	
-	# Remove existing single preview if it exists
+	# Remove existing preview if it exists
 	var old_preview_name = "TilesetPreview" + str(theme_index)
 	var old_preview = button.get_node_or_null(old_preview_name)
 	if old_preview:
 		old_preview.queue_free()
+	
+	var old_enhanced_preview_name = "EnhancedPreview" + str(theme_index)
+	var old_enhanced_preview = button.get_node_or_null(old_enhanced_preview_name)
+	if old_enhanced_preview:
+		old_enhanced_preview.queue_free()
 	
 	# Load the tileset
 	var tile_sprites = load(theme_data["tileset_path"]) as UnifiedTileSprites
@@ -111,94 +181,33 @@ func create_enhanced_preview_grid(button: Button, theme_index: int, theme_data: 
 		print("TilesetSelection: Failed to load unified tile sprites from: ", theme_data["tileset_path"])
 		return
 	
-	# Create container for the preview grid
-	var preview_container = Control.new()
-	preview_container.name = "EnhancedPreview" + str(theme_index)
-	preview_container.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	preview_container.position = Vector2(-60, -60)  # Larger preview area
-	preview_container.size = Vector2(120, 120)
-	preview_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	button.add_child(preview_container)
+	# Calculate 75% of button size for preview
+	var button_size = button.custom_minimum_size
+	var preview_size = Vector2(button_size.x * 0.75, button_size.y * 0.75)
+	var half_preview = preview_size / 2
 	
-	# Create background panel for the preview
-	var preview_bg = Panel.new()
-	preview_bg.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-	preview_bg.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	# Create single tile preview directly on the button (no background frame needed)
+	# Make tile 70% of the button size for good visibility
+	var tile_size = Vector2(button_size.x * 0.7, button_size.y * 0.7)
+	var half_tile = tile_size / 2
+	var tile_rect = TextureRect.new()
+	tile_rect.name = "TilesetPreview" + str(theme_index)
+	tile_rect.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
+	tile_rect.position = Vector2(-half_tile.x, -half_tile.y)
+	tile_rect.size = tile_size
+	tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+	tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	button.add_child(tile_rect)
 	
-	# Style the background panel with theme colors
-	var bg_style = StyleBoxFlat.new()
-	var bg_color = theme_data.get("background_color", Color.WHITE)
-	if bg_color is String:
-		bg_color = Color(bg_color)
-	bg_style.bg_color = Color(bg_color.r * 0.9, bg_color.g * 0.9, bg_color.b * 0.9, 0.8)
-	bg_style.corner_radius_top_left = 8
-	bg_style.corner_radius_top_right = 8
-	bg_style.corner_radius_bottom_left = 8
-	bg_style.corner_radius_bottom_right = 8
-	bg_style.border_width_left = 2
-	bg_style.border_width_top = 2
-	bg_style.border_width_right = 2
-	bg_style.border_width_bottom = 2
-	bg_style.border_color = Color(bg_color.r * 0.7, bg_color.g * 0.7, bg_color.b * 0.7, 1.0)
-	preview_bg.add_theme_stylebox_override("panel", bg_style)
-	preview_container.add_child(preview_bg)
+	# Get the preview face index from theme config, default to 0
+	var preview_face = theme_data.get("preview_face", 0)
+	var texture = tile_sprites.get_pipe_texture(preview_face)
+	if texture:
+		tile_rect.texture = texture
 	
-	# Create 2x2 grid of different pipe tiles
-	var grid_container = GridContainer.new()
-	grid_container.columns = 2
-	grid_container.set_anchors_and_offsets_preset(Control.PRESET_CENTER)
-	grid_container.position = Vector2(-48, -48)
-	grid_container.size = Vector2(96, 96)
-	grid_container.add_theme_constant_override("h_separation", 4)
-	grid_container.add_theme_constant_override("v_separation", 4)
-	grid_container.mouse_filter = Control.MOUSE_FILTER_IGNORE
-	preview_container.add_child(grid_container)
-	
-	# Show 4 different pipe types to demonstrate variety
-	var preview_faces = [0, 3, 5, 9]  # Different pipe connections for visual variety
-	var preview_tiles = []
-	
-	for j in range(4):
-		var tile_rect = TextureRect.new()
-		tile_rect.custom_minimum_size = Vector2(44, 44)
-		tile_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
-		tile_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
-		
-		var face_index = preview_faces[j] if j < preview_faces.size() else 0
-		var texture = tile_sprites.get_pipe_texture(face_index)
-		if texture:
-			tile_rect.texture = texture
-		
-		grid_container.add_child(tile_rect)
-		preview_tiles.append(tile_rect)
-	
-	# Store references for animation
-	theme_previews.append(preview_tiles)
-	
-	# Start animation cycle for this preview
-	start_preview_animation(theme_index, tile_sprites, preview_tiles)
+	# Store single tile reference for potential future use
+	theme_previews.append([tile_rect])
 
-func start_preview_animation(theme_index: int, tile_sprites: UnifiedTileSprites, preview_tiles: Array):
-	"""Start animated cycling through different tile faces"""
-	var animation_timer = Timer.new()
-	animation_timer.wait_time = 2.0  # Change tiles every 2 seconds
-	animation_timer.timeout.connect(_on_preview_animation_timeout.bind(theme_index, tile_sprites, preview_tiles))
-	add_child(animation_timer)
-	animation_timer.start()
-
-var animation_face_offset = 0
-
-func _on_preview_animation_timeout(theme_index: int, tile_sprites: UnifiedTileSprites, preview_tiles: Array):
-	"""Cycle through different tile faces for animation"""
-	animation_face_offset += 1
-	var base_faces = [0, 3, 5, 9]
-	
-	for i in range(preview_tiles.size()):
-		if i < base_faces.size():
-			var face_index = (base_faces[i] + animation_face_offset) % 16  # Cycle through 16 different faces
-			var texture = tile_sprites.get_pipe_texture(face_index)
-			if texture:
-				preview_tiles[i].texture = texture
 
 func _on_theme_button_pressed(index: int):
 	# Update theme selection in GameState
@@ -268,7 +277,41 @@ func _get_theme_accent_color(theme_data: Dictionary) -> Color:
 func _on_back_button_pressed():
 	# Return to title screen
 	GameState.play_sound("click")
+	
+	# Check if theme was changed and show interstitial ad
+	if GameState.check_and_reset_theme_changed():
+		_show_theme_change_interstitial()
+		
 	get_tree().change_scene_to_file("res://TitleScreen.tscn")
+
+func _show_theme_change_interstitial():
+	# TODO: Implement actual ad display logic here
+	# This is where you would add your ad display implementation
+	print("Showing interstitial ad after theme change")
+	
+	# Check if interstitial ad is ready and show it
+	if AdMobManager.is_interstitial_ad_ready():
+		print("show interstitial ad...")
+		AdMobManager.show_interstitial()
+	else:
+		print("Interstitial ad not ready, loading and waiting...")
+		# Connect to the loaded signal to show ad when ready
+		_wait_for_interstitial_and_show()
+
+func _wait_for_interstitial_and_show():
+	# Connect to ad loaded signal
+	AdMobManager.interstitial_ad_loaded.connect(_on_interstitial_loaded, CONNECT_ONE_SHOT)
+	AdMobManager.interstitial_ad_failed_to_load.connect(_on_interstitial_failed, CONNECT_ONE_SHOT)
+	
+	# Load the ad
+	AdMobManager.load_interstitial()
+
+func _on_interstitial_loaded():
+	print("Interstitial ad loaded, showing now...")
+	AdMobManager.show_interstitial()
+
+func _on_interstitial_failed(error):
+	print("Failed to load interstitial ad for theme change: ", error)
 
 func _connect_theme_signals():
 	# Connect to theme change signal

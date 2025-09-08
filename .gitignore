@@ -4,6 +4,9 @@
 
 /addons/admob/
 
+# AdMob configuration (contains sensitive ad IDs)
+admob_config.json
+
 # Original HTML5 implementation
 linkage/
 

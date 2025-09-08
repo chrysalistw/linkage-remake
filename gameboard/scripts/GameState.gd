@@ -63,6 +63,7 @@ var removing_sprite: String = "green_fade"
 # Theme environment management - now uses ThemeManager
 var available_themes: Array[Dictionary] = []
 var selected_theme_index: int = 0  # Default to Green Default
+var theme_changed_in_session: bool = false  # Track if theme was changed in current session
 
 signal theme_changed(theme_data: Dictionary)
 
@@ -162,8 +163,8 @@ func use_coins_for_reward():
 		print("Not enough coins for reward")
 		return false
 	
-	# Consume 10 coins
-	coins -= 10
+	# Note: Coin deduction moved to GameBoard.apply_tile_replacement_reward()
+	# This ensures coins are only deducted when shuffle actually happens
 	
 	# Trigger tile replacement
 	await get_tree().process_frame
@@ -191,8 +192,15 @@ func get_selected_background_color() -> Color:
 
 func set_selected_theme(index: int):
 	if index >= 0 and index < available_themes.size():
+		# Check if theme actually changed
+		var old_theme_index = selected_theme_index
 		selected_theme_index = index
 		var theme_data = available_themes[index]
+		
+		# Mark theme as changed if it's different from previous
+		if old_theme_index != index:
+			theme_changed_in_session = true
+		
 		# Save the theme preference immediately
 		save_game_data()
 		emit_signal("theme_changed", theme_data)
@@ -211,6 +219,11 @@ func get_theme_name(index: int) -> String:
 
 func get_theme_count() -> int:
 	return available_themes.size()
+
+func check_and_reset_theme_changed() -> bool:
+	var was_changed = theme_changed_in_session
+	theme_changed_in_session = false
+	return was_changed
 
 # Save/Load system
 func save_game_data():

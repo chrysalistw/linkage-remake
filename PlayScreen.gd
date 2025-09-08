@@ -228,8 +228,7 @@ func _on_reward_confirm_pressed():
 	# Close dialog and proceed with reward ad
 	reward_confirm_dialog.hide()
 	
-	# Deduct 10 coins for the reward
-	GameState.coins -= 10
+	# Note: Coin deduction moved to where shuffle is actually executed (GameBoard.apply_tile_replacement_reward)
 	
 	# Check if rewarded ad is available
 	if AdMobManager.is_rewarded_ad_ready():

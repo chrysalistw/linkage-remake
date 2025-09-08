@@ -12,6 +12,8 @@ func _ready():
 	_connect_theme_signals()
 	
 	AdMobManager.load_banner()
+	AdMobManager.load_rewarded()
+	AdMobManager.load_interstitial()
 
 
 func _on_start_button_pressed():

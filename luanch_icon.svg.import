@@ -2,16 +2,16 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://dluhnta31leok"
-path="res://.godot/imported/apple2.png-4ea367e4523a4cf25d87e240870a5892.ctex"
+uid="uid://dhk4n00jvqhhx"
+path="res://.godot/imported/luanch_icon.svg-1294a821972838c921fbc113b5458a97.ctex"
 metadata={
 "vram_texture": false
 }
 
 [deps]
 
-source_file="res://apple2.png"
-dest_files=["res://.godot/imported/apple2.png-4ea367e4523a4cf25d87e240870a5892.ctex"]
+source_file="res://luanch_icon.svg"
+dest_files=["res://.godot/imported/luanch_icon.svg-1294a821972838c921fbc113b5458a97.ctex"]
 
 [params]
 
@@ -32,3 +32,6 @@ process/hdr_as_srgb=false
 process/hdr_clamp_exposure=false
 process/size_limit=0
 detect_3d/compress_to=1
+svg/scale=1.0
+editor/scale_with_editor_scale=false
+editor/convert_colors_with_editor_theme=false

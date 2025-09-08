@@ -13,8 +13,9 @@ config_version=5
 config/name="Linkage Remake"
 run/main_scene="res://TitleScreen.tscn"
 config/features=PackedStringArray("4.4", "Mobile")
-boot_splash/image="uid://dluhnta31leok"
-config/icon="res://icon.svg"
+boot_splash/fullsize=false
+boot_splash/image="uid://c18gpjrd4wbjf"
+config/icon="uid://dhk4n00jvqhhx"
 
 [autoload]
 
