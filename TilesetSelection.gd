@@ -32,7 +32,7 @@ func _ready():
 
 func setup_theme_buttons():
 	# Get theme buttons and connect signals
-	for i in range(6):  # 6 total slots (3 active + 3 future)
+	for i in range(GameState.get_theme_count()):  # Dynamic based on available themes
 		var button_name = "TilesetButton" + str(i)
 		var button = grid_container.get_node(button_name)
 		if button:
@@ -64,21 +64,19 @@ func setup_theme_buttons():
 			button.move_child(frame, 0)  # Move frame to first child (behind content)
 			selection_frames.append(frame)
 			
-			if i < GameState.get_theme_count():
-				# Active theme
-				button.pressed.connect(_on_theme_button_pressed.bind(i))
-				# Remove theme name text - keep button empty for visual preview focus
-				button.text = ""
-			else:
-				# Future slot - keep disabled
-				button.text = "Coming Soon"
-				button.disabled = true
+			# Active theme - connect button
+			button.pressed.connect(_on_theme_button_pressed.bind(i))
+			# Remove theme name text - keep button empty for visual preview focus
+			button.text = ""
 	
 	# Apply initial selection frame after all buttons are set up
 	update_selection_frame()
 
 func apply_theme_to_button(button: Button, theme_index: int, theme_data: Dictionary):
 	"""Apply the theme's visual styling to its button"""
+	
+	# Ensure button text is empty for visual preview focus
+	button.text = ""
 	
 	# Load the theme resource if available
 	if theme_data.has("theme_path"):
@@ -138,7 +136,7 @@ func apply_theme_to_button(button: Button, theme_index: int, theme_data: Diction
 
 func setup_previews():
 	# Setup preview textures and background colors for available themes
-	for i in range(3):  # Only for active themes
+	for i in range(GameState.get_theme_count()):
 		if i >= theme_buttons.size():
 			continue
 			

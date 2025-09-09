@@ -1,0 +1,9 @@
+{
+  "name": "default yellow",
+  "title_path": "res://themes/default_yellow/logo.png",
+  "tileset_path": "res://themes/default_yellow/default_yellow_tile_anim.tres",
+  "bg_pattern_path": "res://themes/default_yellow/bg_pattern.png",
+  "theme_path": "res://themes/default_yellow/default_yellow.tres",
+  "background_color": "#fff5c8",
+  "preview_face": 0
+}

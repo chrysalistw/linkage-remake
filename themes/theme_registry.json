@@ -1,6 +1,9 @@
 {
   "themes": [
 	"themes/default_green/theme_config.json",
-	"themes/default_red/theme_config.json"
+	"themes/default_red/theme_config.json",
+	"themes/default_yellow/theme_config.json",
+	"themes/default_blue/theme_config.json",
+	"themes/default_grayscale/theme_config.json",
   ]
 }

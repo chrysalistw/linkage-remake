@@ -1,0 +1,9 @@
+{
+  "name": "default grayscale",
+  "title_path": "res://themes/default_grayscale/logo.png",
+  "tileset_path": "res://themes/default_grayscale/default_grayscale_tile_anim.tres",
+  "bg_pattern_path": "res://themes/default_grayscale/bg_pattern.png",
+  "theme_path": "res://themes/default_grayscale/default_grayscale.tres",
+  "background_color": "#f3f5ea",
+  "preview_face": 0
+}
