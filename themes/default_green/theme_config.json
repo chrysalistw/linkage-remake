@@ -1,5 +1,5 @@
 {
-  "name": "Default Green",
+  "name": "default green",
   "title_path": "res://themes/default_green/logo.png",
   "tileset_path": "res://themes/default_green/default_green_tile_anim.tres",
   "bg_pattern_path": "res://themes/default_green/bg_pattern.png",

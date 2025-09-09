@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://qa5ggdki5k84" path="res://gameboard/resources/UnifiedTileSprites.gd" id="1_unified_sprites"]
 [ext_resource type="Texture2D" path="res://themes/default_red/tileset_anim.png" id="2_tileset_texture"]
 
+
 [resource]
 script = ExtResource("1_unified_sprites")
 sprite_texture = ExtResource("2_tileset_texture")

@@ -1,7 +1,8 @@
-[gd_resource type="Resource" script_class="UnifiedTileSprites" load_steps=3 format=3 uid="uid://m235a55j88p6"]
+[gd_resource type="Resource" script_class="UnifiedTileSprites" load_steps=3 format=3]
 
 [ext_resource type="Script" uid="uid://qa5ggdki5k84" path="res://gameboard/resources/UnifiedTileSprites.gd" id="1_unified_sprites"]
-[ext_resource type="Texture2D" uid="uid://q5pwk7fo5r7w" path="res://themes/default_green/tileset_anim.png" id="2_tileset_texture"]
+[ext_resource type="Texture2D" uid="uid://bahmy70t07dl3" path="res://themes/_default_red/tileset_anim.png" id="2_tileset_texture"]
+
 
 [resource]
 script = ExtResource("1_unified_sprites")
