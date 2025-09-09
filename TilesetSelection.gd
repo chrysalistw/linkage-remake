@@ -32,45 +32,104 @@ func _ready():
 
 func setup_theme_buttons():
 	# Get theme buttons and connect signals
-	for i in range(GameState.get_theme_count()):  # Dynamic based on available themes
+	# Handle both active themes and "Coming Soon" buttons
+	var total_buttons = 6  # Fixed number of buttons in scene
+	var theme_count = GameState.get_theme_count()
+	
+	print("TilesetSelection: Total buttons in scene: ", total_buttons)
+	print("TilesetSelection: Available themes: ", theme_count)
+	
+	for i in range(total_buttons):
 		var button_name = "TilesetButton" + str(i)
 		var button = grid_container.get_node(button_name)
 		if button:
 			theme_buttons.append(button)
 			
-			# Create selection frame for each button
-			var frame = Panel.new()
-			frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
-			frame.visible = false  # Initially hidden
-			frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
-			frame.position = Vector2(0, 0)  # Same position as button
-			frame.size = button.size  # Same size as button
-			
-			# Create frame style
-			var frame_style = StyleBoxFlat.new()
-			frame_style.bg_color = Color.TRANSPARENT  # No background fill
-			frame_style.corner_radius_top_left = 12
-			frame_style.corner_radius_top_right = 12
-			frame_style.corner_radius_bottom_left = 12
-			frame_style.corner_radius_bottom_right = 12
-			frame_style.border_width_left = 4
-			frame_style.border_width_top = 4
-			frame_style.border_width_right = 4
-			frame_style.border_width_bottom = 4
-			frame_style.border_color = Color.WHITE  # Default frame color
-			frame.add_theme_stylebox_override("panel", frame_style)
-			
-			button.add_child(frame)
-			button.move_child(frame, 0)  # Move frame to first child (behind content)
-			selection_frames.append(frame)
-			
-			# Active theme - connect button
-			button.pressed.connect(_on_theme_button_pressed.bind(i))
-			# Remove theme name text - keep button empty for visual preview focus
-			button.text = ""
+			# Check if this is an active theme button or "Coming Soon" button
+			if i < theme_count:
+				print("TilesetSelection: Setting up active theme button ", i)
+				# Active theme button - enable it and connect signal
+				button.disabled = false
+				setup_active_theme_button(button, i)
+			else:
+				print("TilesetSelection: Setting up Coming Soon button ", i)
+				# "Coming Soon" button - ensure it stays disabled
+				setup_coming_soon_button(button)
 	
 	# Apply initial selection frame after all buttons are set up
 	update_selection_frame()
+
+func setup_active_theme_button(button: Button, theme_index: int):
+	"""Setup an active theme button with selection frame and click handler"""
+	print("TilesetSelection: setup_active_theme_button called for index ", theme_index)
+	
+	# Create selection frame for active theme buttons
+	var frame = Panel.new()
+	frame.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	frame.visible = false  # Initially hidden
+	frame.set_anchors_and_offsets_preset(Control.PRESET_FULL_RECT)
+	frame.position = Vector2(0, 0)  # Same position as button
+	frame.size = button.size  # Same size as button
+	
+	# Create frame style
+	var frame_style = StyleBoxFlat.new()
+	frame_style.bg_color = Color.TRANSPARENT  # No background fill
+	frame_style.corner_radius_top_left = 12
+	frame_style.corner_radius_top_right = 12
+	frame_style.corner_radius_bottom_left = 12
+	frame_style.corner_radius_bottom_right = 12
+	frame_style.border_width_left = 4
+	frame_style.border_width_top = 4
+	frame_style.border_width_right = 4
+	frame_style.border_width_bottom = 4
+	frame_style.border_color = Color.WHITE  # Default frame color
+	frame.add_theme_stylebox_override("panel", frame_style)
+	
+	button.add_child(frame)
+	button.move_child(frame, 0)  # Move frame to first child (behind content)
+	selection_frames.append(frame)
+	
+	# Active theme - connect button
+	print("TilesetSelection: Connecting pressed signal for button ", theme_index)
+	button.pressed.connect(_on_theme_button_pressed.bind(theme_index))
+	# Remove theme name text - keep button empty for visual preview focus
+	button.text = ""
+	print("TilesetSelection: Active theme button ", theme_index, " setup complete")
+
+func setup_coming_soon_button(button: Button):
+	"""Setup the Coming Soon button with disabled styling"""
+	# Add empty frame slot for consistency with other buttons
+	selection_frames.append(null)
+	
+	# Set Coming Soon text and disable the button
+	button.text = "Coming\nSoon"
+	button.disabled = true
+	
+	# Create Coming Soon styling
+	var coming_soon_style = StyleBoxFlat.new()
+	coming_soon_style.bg_color = Color(0.6, 0.6, 0.6, 0.8)  # Gray background
+	coming_soon_style.corner_radius_top_left = 12
+	coming_soon_style.corner_radius_top_right = 12
+	coming_soon_style.corner_radius_bottom_left = 12
+	coming_soon_style.corner_radius_bottom_right = 12
+	coming_soon_style.border_width_left = 2
+	coming_soon_style.border_width_top = 2
+	coming_soon_style.border_width_right = 2
+	coming_soon_style.border_width_bottom = 2
+	coming_soon_style.border_color = Color(0.4, 0.4, 0.4, 1.0)  # Darker gray border
+	
+	# Apply Coming Soon style to all button states
+	button.add_theme_stylebox_override("normal", coming_soon_style)
+	button.add_theme_stylebox_override("hover", coming_soon_style)
+	button.add_theme_stylebox_override("pressed", coming_soon_style)
+	button.add_theme_stylebox_override("disabled", coming_soon_style)
+	button.add_theme_stylebox_override("focus", coming_soon_style)
+	
+	# Set text color to white for better visibility
+	button.add_theme_color_override("font_color", Color.WHITE)
+	button.add_theme_color_override("font_color_hover", Color.WHITE)
+	button.add_theme_color_override("font_color_pressed", Color.WHITE)
+	button.add_theme_color_override("font_color_disabled", Color(0.8, 0.8, 0.8, 1.0))
 
 func apply_theme_to_button(button: Button, theme_index: int, theme_data: Dictionary):
 	"""Apply the theme's visual styling to its button"""
@@ -135,29 +194,29 @@ func apply_theme_to_button(button: Button, theme_index: int, theme_data: Diction
 	button.add_theme_stylebox_override("focus", hover_style)  # Use hover style for focus
 
 func setup_previews():
-	# Setup preview textures and background colors for available themes
+	# Setup preview textures and background colors for available themes only
+	# Skip the "Coming Soon" button (last button)
 	for i in range(GameState.get_theme_count()):
 		if i >= theme_buttons.size():
 			continue
 			
 		var button = theme_buttons[i]
-		if i < GameState.get_theme_count():
-			var theme_data = GameState.available_themes[i]
-			print("TilesetSelection: Loading theme ", i, ": ", theme_data.get("name", "Unknown"))
-			print("TilesetSelection: Tileset path: ", theme_data.get("tileset_path", "Missing"))
-			
-			# Apply the theme's styling to the button itself
-			apply_theme_to_button(button, i, theme_data)
-			
-			# Create simple tile preview using theme config specification
-			create_simple_tile_preview(button, i, theme_data)
-			
-			# Setup background color preview (if there's a ColorRect for it)
-			var bg_preview_name = "BackgroundPreview" + str(i)
-			var bg_preview = button.get_node_or_null(bg_preview_name) as ColorRect
-			if bg_preview:
-				background_previews.append(bg_preview)
-				bg_preview.color = theme_data["background_color"]
+		var theme_data = GameState.available_themes[i]
+		print("TilesetSelection: Loading theme ", i, ": ", theme_data.get("name", "Unknown"))
+		print("TilesetSelection: Tileset path: ", theme_data.get("tileset_path", "Missing"))
+		
+		# Apply the theme's styling to the button itself
+		apply_theme_to_button(button, i, theme_data)
+		
+		# Create simple tile preview using theme config specification
+		create_simple_tile_preview(button, i, theme_data)
+		
+		# Setup background color preview (if there's a ColorRect for it)
+		var bg_preview_name = "BackgroundPreview" + str(i)
+		var bg_preview = button.get_node_or_null(bg_preview_name) as ColorRect
+		if bg_preview:
+			background_previews.append(bg_preview)
+			bg_preview.color = theme_data["background_color"]
 
 func create_simple_tile_preview(button: Button, theme_index: int, theme_data: Dictionary):
 	"""Create a single tile preview using the preview_face specification from theme config"""
@@ -208,8 +267,13 @@ func create_simple_tile_preview(button: Button, theme_index: int, theme_data: Di
 
 
 func _on_theme_button_pressed(index: int):
+	print("TilesetSelection: Theme button ", index, " pressed")
+	print("TilesetSelection: Available themes count: ", GameState.get_theme_count())
+	print("TilesetSelection: Current selected theme: ", GameState.selected_theme_index)
+	
 	# Update theme selection in GameState
 	GameState.set_selected_theme(index)
+	print("TilesetSelection: Set theme to index ", index, " - ", GameState.get_theme_name(index))
 	
 	# Update visual feedback
 	update_selection_frame()
@@ -346,9 +410,9 @@ func _apply_theme(theme_data: Dictionary):
 			title_panel.theme = theme_resource
 
 func setup_hover_effects():
-	"""Add hover effects to theme buttons for better interactivity"""
-	for i in range(theme_buttons.size()):
-		if i < GameState.get_theme_count():
+	"""Add hover effects to active theme buttons only"""
+	for i in range(GameState.get_theme_count()):
+		if i < theme_buttons.size():
 			var button = theme_buttons[i]
 			button.mouse_entered.connect(_on_theme_button_hover_enter.bind(i))
 			button.mouse_exited.connect(_on_theme_button_hover_exit.bind(i))
@@ -373,31 +437,64 @@ func _optimize_for_mobile():
 	"""Optimize layout and sizing for mobile devices"""
 	var viewport_size = get_viewport().get_visible_rect().size
 	
-	# Adjust grid layout for smaller screens
-	if viewport_size.x < 800:  # Mobile portrait
-		grid_container.columns = 2
-		# Reduce button size for smaller screens
-		for button in theme_buttons:
-			button.custom_minimum_size = Vector2(160, 200)
-		
-		# Reduce spacing
-		grid_container.add_theme_constant_override("h_separation", 25)
-		grid_container.add_theme_constant_override("v_separation", 25)
-	elif viewport_size.x < 1200:  # Mobile landscape / tablet
-		grid_container.columns = 3
-		# Slightly smaller buttons
-		for button in theme_buttons:
-			button.custom_minimum_size = Vector2(180, 220)
-		
-		# Standard spacing
-		grid_container.add_theme_constant_override("h_separation", 35)
-		grid_container.add_theme_constant_override("v_separation", 35)
-	else:  # Desktop
-		grid_container.columns = 3
-		# Full-size buttons as defined in scene
-		for button in theme_buttons:
-			button.custom_minimum_size = Vector2(200, 240)
-		
-		# Larger spacing for desktop
-		grid_container.add_theme_constant_override("h_separation", 40)
-		grid_container.add_theme_constant_override("v_separation", 40)
+	# Calculate available width (matching title panel width)
+	# Title panel uses VBoxContainer width minus margins (60px on each side)
+	var available_width = viewport_size.x - 120  # Total margin is 120px (60px * 2)
+	
+	# Always use 2 columns for better fit with title panel width
+	grid_container.columns = 2
+	
+	# Calculate button width to fill available space
+	var spacing = 40  # Horizontal separation between buttons
+	var button_width = (available_width - spacing) / 2  # Divide by 2 columns, subtract spacing
+	var button_height = 200  # Reduced height for better proportions
+	
+	# Ensure minimum and maximum button width
+	button_width = max(180, min(button_width, 300))  # Min 180px, max 300px width
+	
+	print("TilesetSelection: Viewport width: ", viewport_size.x)
+	print("TilesetSelection: Available width: ", available_width)
+	print("TilesetSelection: Button size: ", button_width, " x ", button_height)
+	
+	# Apply calculated button size
+	for button in theme_buttons:
+		button.custom_minimum_size = Vector2(button_width, button_height)
+	
+	# Set consistent spacing
+	grid_container.add_theme_constant_override("h_separation", spacing)
+	grid_container.add_theme_constant_override("v_separation", 30)
+	
+	# Adjust back button position to avoid ad overlap
+	_adjust_back_button_position(viewport_size)
+
+func _adjust_back_button_position(viewport_size: Vector2):
+	"""Adjust back button position to avoid ad overlap"""
+	
+	# Get the button container and bottom spacer
+	var button_container = $VBoxContainer/ButtonContainer
+	var bottom_spacer = $VBoxContainer/BottomSpacer
+	
+	if not button_container or not bottom_spacer:
+		return
+	
+	# Calculate safe area height to avoid ad overlap
+	# Assume banner ad height is around 50-100px
+	var estimated_ad_height = 80
+	var safe_bottom_margin = estimated_ad_height + 30  # Extra 30px buffer
+	
+	# Adjust spacing based on screen size and orientation
+	if viewport_size.y < 800:  # Small screen
+		safe_bottom_margin += 20
+	elif viewport_size.y < 1200:  # Medium screen  
+		safe_bottom_margin += 10
+	
+	print("TilesetSelection: Setting bottom spacer to ", safe_bottom_margin, "px to avoid ad overlap")
+	
+	# Adjust the bottom spacer to push back button higher
+	bottom_spacer.custom_minimum_size = Vector2(0, safe_bottom_margin)
+	
+	# Also add some top spacing to the button container for balance
+	var vbox = $VBoxContainer
+	if vbox:
+		# Add extra spacing before the button container
+		vbox.add_theme_constant_override("separation", 25)

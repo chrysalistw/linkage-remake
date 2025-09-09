@@ -191,19 +191,29 @@ func get_selected_background_color() -> Color:
 	return bg_color
 
 func set_selected_theme(index: int):
+	print("GameState: set_selected_theme called with index: ", index)
+	print("GameState: Available themes: ", available_themes.size())
+	
 	if index >= 0 and index < available_themes.size():
 		# Check if theme actually changed
 		var old_theme_index = selected_theme_index
 		selected_theme_index = index
 		var theme_data = available_themes[index]
 		
+		print("GameState: Theme changed from ", old_theme_index, " to ", index)
+		print("GameState: Applied theme: ", theme_data.get("name", "Unknown"))
+		print("GameState: Theme data: ", theme_data)
+		
 		# Mark theme as changed if it's different from previous
 		if old_theme_index != index:
 			theme_changed_in_session = true
+			print("GameState: Theme marked as changed in session")
 		
 		# Save the theme preference immediately
 		save_game_data()
 		emit_signal("theme_changed", theme_data)
+	else:
+		print("GameState: Invalid theme index: ", index, " (available: 0-", available_themes.size()-1, ")")
 
 func _apply_loaded_theme():
 	# Apply the loaded theme on startup

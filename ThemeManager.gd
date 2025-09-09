@@ -27,14 +27,20 @@ func load_themes():
 	themes.clear()
 	
 	for config_file in registry.themes:
+		print("ThemeManager: Loading theme config: ", config_file)
 		var theme_config = load_theme_config(config_file)
 		if theme_config:
+			print("ThemeManager: Successfully loaded theme: ", theme_config.get("name", "Unknown"))
 			themes.append(theme_config)
+		else:
+			print("ThemeManager: Failed to load theme config: ", config_file)
 
 func load_theme_config(config_path: String) -> Dictionary:
-	var file = FileAccess.open("res://" + config_path, FileAccess.READ)
+	var full_path = "res://" + config_path
+	print("ThemeManager: Attempting to open: ", full_path)
+	var file = FileAccess.open(full_path, FileAccess.READ)
 	if not file:
-		print("Failed to load theme config: ", config_path)
+		print("ThemeManager: Failed to load theme config: ", full_path)
 		return {}
 	
 	var json_string = file.get_as_text()
